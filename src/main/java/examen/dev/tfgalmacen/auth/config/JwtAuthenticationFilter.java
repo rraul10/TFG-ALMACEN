@@ -37,14 +37,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        jwt = authHeader.substring(7); // quitar "Bearer "
-        userEmail = jwtService.extractUsername(jwt);
+        jwt = authHeader.substring(7);
+        userEmail = jwtService.extractUserName(jwt);
 
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = (UserDetails) userRepository.findByCorreo(userEmail)
                     .orElse(null);
 
-            if (userDetails != null && jwtService.isTokenValid(jwt, (examen.dev.User) userDetails)) {
+            if (userDetails != null && jwtService.isTokenValid(jwt, (UserDetails) userDetails)) {
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(
                                 userDetails,

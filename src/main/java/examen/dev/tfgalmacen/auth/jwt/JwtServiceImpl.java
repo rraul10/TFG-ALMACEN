@@ -1,6 +1,9 @@
 package examen.dev.tfgalmacen.auth.jwt;
 
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,8 +13,8 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
-import static org.springframework.security.config.Elements.JWT;
 
 @Service
 @Slf4j
@@ -26,7 +29,6 @@ public class JwtServiceImpl implements JwtService {
     public String extractUserName(String token) {
         log.info("Extrayendo username del token" + token);
         return extractClaim(token, DecodedJWT::getSubject);
-
     }
 
     @Override
