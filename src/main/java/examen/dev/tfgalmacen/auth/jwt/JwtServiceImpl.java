@@ -40,7 +40,7 @@ public class JwtServiceImpl implements JwtService {
     @Override
     public boolean isTokenValid(String token, UserDetails userDetails) {
         Date expirationDate = extractExpiration(token);
-        return expirationDate.before(new Date());
+        return expirationDate.after(new Date());
     }
 
     private Date extractExpiration(String token) {
