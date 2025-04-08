@@ -17,14 +17,14 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
-    @Email(regexp =".*@.*\\..*", message ="Nombre debe ser valido")
     @NotBlank(message = "El nombre no puede estar vacío")
     private String nombre;
 
-    @Column(nullable = false)
-    @NotBlank(message = "El correo no puede estar vacía")
+    @Column(nullable = false, unique = true)
+    @Email(regexp =".*@.*\\..*", message ="Correo debe ser válido")
+    @NotBlank(message = "El correo no puede estar vacío")
     private String correo;
+
 
     @Column(nullable = false)
     @NotBlank(message = "La contraseña no puede estar vacía")
