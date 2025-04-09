@@ -1,7 +1,7 @@
 package examen.dev.tfgalmacen.auth.config;
 
 import examen.dev.tfgalmacen.auth.jwt.JwtService;
-import examen.dev.tfgalmacen.users.models.repository.UserRepository;
+import examen.dev.tfgalmacen.auth.users.repository.AuthUserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,7 +21,7 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
-    private final UserRepository userRepository;
+    private final AuthUserRepository userRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
