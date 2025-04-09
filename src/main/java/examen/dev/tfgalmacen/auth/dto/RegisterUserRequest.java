@@ -1,6 +1,6 @@
 package examen.dev.tfgalmacen.auth.dto;
 
-import examen.dev.tfgalmacen.users.models.Role;
+import examen.dev.tfgalmacen.users.UserRole;
 import lombok.Data;
 
 @Data
@@ -8,5 +8,5 @@ public class RegisterUserRequest {
     private String nombre;
     private String correo;
     private String password;
-    private Role role;
+    private UserRole role;
 }

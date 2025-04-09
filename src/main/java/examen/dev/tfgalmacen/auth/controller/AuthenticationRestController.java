@@ -16,12 +16,13 @@ public class AuthenticationRestController {
 
     @PostMapping("/login")
     public ResponseEntity<JwtAuthResponse> login(@RequestBody UserLoginRequest request) {
-        return ResponseEntity.ok(authService.login(request));
+        JwtAuthResponse jwtAuthResponse = authService.login(request);
+        return ResponseEntity.ok(jwtAuthResponse);
     }
 
     @PostMapping("/register")
     public ResponseEntity<JwtAuthResponse> register(@RequestBody RegisterUserRequest request) {
-        return ResponseEntity.ok(authService.register(request));
+        JwtAuthResponse jwtAuthResponse = authService.register(request);
+        return ResponseEntity.ok(jwtAuthResponse);
     }
 }
-
