@@ -4,9 +4,9 @@ import examen.dev.tfgalmacen.auth.dto.JwtAuthResponse;
 import examen.dev.tfgalmacen.auth.dto.RegisterUserRequest;
 import examen.dev.tfgalmacen.auth.dto.UserLoginRequest;
 import examen.dev.tfgalmacen.auth.jwt.JwtService;
-import examen.dev.tfgalmacen.users.models.Role;
+import examen.dev.tfgalmacen.auth.users.repository.AuthUserRepository;
+import examen.dev.tfgalmacen.users.UserRole;
 import examen.dev.tfgalmacen.users.models.User;
-import examen.dev.tfgalmacen.users.models.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,12 +15,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
-    private final UserRepository userRepository;
+    private final AuthUserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
@@ -30,11 +31,11 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public JwtAuthResponse register(RegisterUserRequest request) {
-        User user = new User();
+        examen.dev.tfgalmacen.users.models.User user = new examen.dev.tfgalmacen.users.models.User();
         user.setNombre(request.getNombre());
         user.setCorreo(request.getCorreo());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole(request.getRole() != null ? request.getRole() : Role.CLIENTE);
+        user.setRoles(Collections.singleton(request.getRole() != null ? request.getRole() : UserRole.CLIENTE));
         user.setCreated(LocalDateTime.now());
         user.setUpdated(LocalDateTime.now());
         user.setDeleted(false);
