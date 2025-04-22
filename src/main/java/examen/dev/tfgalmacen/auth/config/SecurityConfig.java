@@ -21,6 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
     private final UserDetailsService userService;
     private final JwtAuthenticationFilter jwtAuthFilter;
+    private final UserRepository userRepository;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -36,15 +37,11 @@ public class SecurityConfig {
                 .build();
     }
 
-
-<<<<<<< HEAD
-=======
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> (org.springframework.security.core.userdetails.UserDetails) userRepository.findByCorreo(username)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
     }
->>>>>>> feature/Productos
 
     @Bean
     public PasswordEncoder passwordEncoder() {
