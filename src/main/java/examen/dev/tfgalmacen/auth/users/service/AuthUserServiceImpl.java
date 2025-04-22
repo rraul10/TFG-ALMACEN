@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 
 
 
-@Service("userDetailsService")
+@Service
 @Slf4j
 public class AuthUserServiceImpl implements AuthUserService {
 
