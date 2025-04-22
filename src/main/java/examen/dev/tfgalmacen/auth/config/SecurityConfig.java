@@ -1,5 +1,6 @@
 package examen.dev.tfgalmacen.auth.config;
 
+import examen.dev.tfgalmacen.users.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,7 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private final UserDetailsService userService;
+    private final UserDetailsService userDetailsService;
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final UserRepository userRepository;
 
@@ -30,6 +31,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/api/productos", "/api/productos/**").permitAll()
+                        .requestMatchers("/api/usuarios/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers("/api/cliente/**").hasAuthority("ROLE_CLIENTE")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -54,3 +57,4 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 }
+
