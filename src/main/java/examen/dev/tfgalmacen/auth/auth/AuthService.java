@@ -1,6 +1,7 @@
 package examen.dev.tfgalmacen.auth.auth;
 
 
+import examen.dev.tfgalmacen.auth.dto.JwtAuthResponse;
 import examen.dev.tfgalmacen.auth.dto.RegisterUserRequest;
 import examen.dev.tfgalmacen.auth.dto.UserLoginRequest;
 
