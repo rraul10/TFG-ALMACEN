@@ -2,13 +2,15 @@
 INSERT INTO users (id, nombre, correo, password, created, updated, is_deleted)
 VALUES
     (1, 'Admin', 'admin@example.com', '$2a$12$ldx5F5SM6dVh0q/OjIzTJeFKoW4Jsu6c3r.AM9uDJWkZtlmolEXyW', NOW(), NOW(), false),
-    (2, 'Raul Fernandez', 'rauldelgado@example.com', '$2a$12$PFvGQIyLW.a2lKL2q8BLvOT1TAO6uGmYwRPxWaRVhIvFRT9ZOzF6W', NOW(), NOW(), false);
+    (2, 'Raul Fernandez', 'rauldelgado@example.com', '$2a$12$PFvGQIyLW.a2lKL2q8BLvOT1TAO6uGmYwRPxWaRVhIvFRT9ZOzF6W', NOW(), NOW(), false),
+(3, 'Trabajador', 'trabajador@example.com', '$2a$12$QL0fNGpCY2MW.clEOTa7se9.Iu4anG0tVC8FwHZ3sHdnA3p41AczS', NOW(), NOW(), false);
 
 -- Insertar roles
 INSERT INTO user_roles (user_id, roles)
 VALUES
     (1, 'ADMIN'),
-    (2, 'CLIENTE');
+    (2, 'CLIENTE'),
+    (3, 'TRABAJADOR');
 
 
 INSERT INTO productos (nombre, tipo, imagen, descripcion, precio, stock, created, updated, is_deleted)

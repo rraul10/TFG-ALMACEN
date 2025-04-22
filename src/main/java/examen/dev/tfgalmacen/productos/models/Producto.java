@@ -26,11 +26,14 @@ public class Producto {
 
     private LocalDateTime created = LocalDateTime.now();
     private LocalDateTime updated = LocalDateTime.now();
-    private boolean isDeleted = false;
+
+    @Column(name = "is_deleted", nullable = false)
+    private boolean deleted = false;
 
     @PreUpdate
     public void preUpdate() {
         updated = LocalDateTime.now();
     }
+
 }
 
