@@ -28,6 +28,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/api/productos", "/api/productos/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -36,6 +37,14 @@ public class SecurityConfig {
     }
 
 
+<<<<<<< HEAD
+=======
+    @Bean
+    public UserDetailsService userDetailsService() {
+        return username -> (org.springframework.security.core.userdetails.UserDetails) userRepository.findByCorreo(username)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+    }
+>>>>>>> feature/Productos
 
     @Bean
     public PasswordEncoder passwordEncoder() {
