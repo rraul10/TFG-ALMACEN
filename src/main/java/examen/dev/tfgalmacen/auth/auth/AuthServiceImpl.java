@@ -27,8 +27,6 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
 
 
-
-
     @Override
     public JwtAuthResponse register(RegisterUserRequest request) {
         examen.dev.tfgalmacen.users.models.User user = new examen.dev.tfgalmacen.users.models.User();
