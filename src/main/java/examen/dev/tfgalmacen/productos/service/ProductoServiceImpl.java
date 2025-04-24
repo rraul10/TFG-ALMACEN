@@ -42,7 +42,7 @@ public class ProductoServiceImpl implements ProductoService {
         Producto producto = productoMapper.toEntity(request);
         productoRepository.save(producto);
 
-        if (producto.getStock() == 0) {
+        if (producto.getStock() == 10) {
             emailService.notificarStockAgotado(producto);
         }
 
@@ -58,7 +58,7 @@ public class ProductoServiceImpl implements ProductoService {
         productoMapper.updateProductoFromRequest(producto, request);
         productoRepository.save(producto);
 
-        if (producto.getStock() == 0) {
+        if (producto.getStock() == 10) {
             emailService.notificarStockAgotado(producto);
         }
 

@@ -2,6 +2,7 @@ package examen.dev.tfgalmacen.productos.models;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Where;
 
 import java.time.LocalDateTime;
 
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Where(clause = "is_deleted = false")
 public class Producto {
 
     @Id

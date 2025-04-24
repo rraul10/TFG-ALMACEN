@@ -3,6 +3,7 @@ package examen.dev.tfgalmacen.auth.auth;
 import examen.dev.tfgalmacen.auth.dto.JwtAuthResponse;
 import examen.dev.tfgalmacen.auth.dto.RegisterUserRequest;
 import examen.dev.tfgalmacen.auth.dto.UserLoginRequest;
+import examen.dev.tfgalmacen.auth.exceptions.UserNotFound;
 import examen.dev.tfgalmacen.auth.jwt.JwtService;
 import examen.dev.tfgalmacen.auth.users.repository.AuthUserRepository;
 import examen.dev.tfgalmacen.users.UserRole;
@@ -51,7 +52,7 @@ public class AuthServiceImpl implements AuthService {
         );
 
         User user = userRepository.findByCorreo(request.getCorreo())
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> new UserNotFound("Usuario no encontrado"));
 
         String token = jwtService.generateToken((UserDetails) user);
         return new JwtAuthResponse(token);
