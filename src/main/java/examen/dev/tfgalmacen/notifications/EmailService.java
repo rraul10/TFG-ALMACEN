@@ -16,7 +16,7 @@ public class EmailService {
         SimpleMailMessage mensaje = new SimpleMailMessage();
         mensaje.setTo("raulfernandez6106@gmail.com");
         mensaje.setSubject("Stock agotado: " + producto.getNombre());
-        mensaje.setText("El producto \"" + producto.getNombre() + "\" se ha quedado sin stock.");
+        mensaje.setText("El producto \"" + producto.getNombre() + "\" se esta quedando sin stock.");
 
         mailSender.send(mensaje);
     }
