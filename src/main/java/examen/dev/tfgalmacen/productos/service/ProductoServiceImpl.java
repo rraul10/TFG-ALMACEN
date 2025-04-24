@@ -42,7 +42,7 @@ public class ProductoServiceImpl implements ProductoService {
         Producto producto = productoMapper.toEntity(request);
         productoRepository.save(producto);
 
-        if (producto.getStock() == 0) {
+        if (producto.getStock() == 10) {
             emailService.notificarStockAgotado(producto);
         }
 
@@ -58,20 +58,22 @@ public class ProductoServiceImpl implements ProductoService {
         productoMapper.updateProductoFromRequest(producto, request);
         productoRepository.save(producto);
 
-        if (producto.getStock() == 0) {
+        if (producto.getStock() == 10) {
             emailService.notificarStockAgotado(producto);
         }
 
         return productoMapper.toDto(producto);
     }
 
-
     @Override
     public void delete(Long id) {
         Producto producto = productoRepository.findById(id)
                 .orElseThrow(() -> new ProductoNotFoundException("Producto no encontrado"));
+
         producto.setDeleted(true);
+
         productoRepository.save(producto);
     }
+
 }
 
