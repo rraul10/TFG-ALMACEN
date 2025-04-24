@@ -15,8 +15,8 @@ VALUES
 
 INSERT INTO productos (nombre, tipo, imagen, descripcion, precio, stock, created, updated, is_deleted)
 VALUES
-    ('Camiseta Algodón', 'Ropa', 'camiseta.jpg', 'Camiseta de algodón 100% orgánico', 14.99, 7, NOW(), NOW(), false),
-    ('Zapatillas Running', 'Calzado', 'zapatillas.jpg', 'Zapatillas ligeras para correr largas distancias', 59.99, 2, NOW(), NOW(), false),
+    ('Camiseta Algodón', 'Ropa', 'camiseta.jpg', 'Camiseta de algodón 100% orgánico', 14.99, 17, NOW(), NOW(), false),
+    ('Zapatillas Running', 'Calzado', 'zapatillas.jpg', 'Zapatillas ligeras para correr largas distancias', 59.99, 23, NOW(), NOW(), false),
     ('Mochila Urbana', 'Accesorios', 'mochila.jpg', 'Mochila con múltiples compartimentos, ideal para ciudad', 39.90, 20, NOW(), NOW(), false),
     ('Pantalones Vaqueros', 'Ropa', 'vaqueros.jpg', 'Vaqueros slim fit azul oscuro', 45.00, 40, NOW(), NOW(), false),
     ('Reloj Digital', 'Tecnología', 'reloj.jpg', 'Reloj resistente al agua con cronómetro y alarma', 25.50, 15, NOW(), NOW(), false),
