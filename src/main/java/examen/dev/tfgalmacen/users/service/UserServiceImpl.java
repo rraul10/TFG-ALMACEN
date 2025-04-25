@@ -1,6 +1,7 @@
 package examen.dev.tfgalmacen.users.service;
 
 
+import examen.dev.tfgalmacen.auth.exceptions.UserNotFound;
 import examen.dev.tfgalmacen.users.dto.UserRequest;
 import examen.dev.tfgalmacen.users.dto.UserResponse;
 import examen.dev.tfgalmacen.users.mapper.UserMapper;
@@ -36,7 +37,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse getUserById(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> new UserNotFound("Usuario no encontrado"));
         return userMapper.toDto(user);
     }
 
@@ -50,7 +51,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse updateUser(Long id, UserRequest userRequest) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> new UserNotFound("Usuario no encontrado"));
 
         userMapper.updateUserFromRequest(user, userRequest);
         user = userRepository.save(user);
@@ -60,7 +61,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> new UserNotFound("Usuario no encontrado"));
 
         user.setDeleted(true);
         userRepository.save(user);
