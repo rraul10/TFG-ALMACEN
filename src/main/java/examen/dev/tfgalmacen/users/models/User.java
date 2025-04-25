@@ -50,7 +50,9 @@ public class User implements UserDetails {
 
     private LocalDateTime created;
     private LocalDateTime updated;
-    private boolean isDeleted;
+
+    @Column(name = "is_deleted")
+    private boolean deleted;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
