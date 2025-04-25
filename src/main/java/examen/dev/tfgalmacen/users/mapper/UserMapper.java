@@ -18,7 +18,7 @@ public class UserMapper {
                 .roles(userRequest.getRoles())
                 .created(LocalDateTime.now())
                 .updated(LocalDateTime.now())
-                .isDeleted(false)
+                .deleted(false)
                 .build();
     }
 
@@ -27,9 +27,7 @@ public class UserMapper {
                 user.getId(),
                 user.getNombre(),
                 user.getCorreo(),
-                user.getRoles(),
-                user.getCreated(),
-                user.getUpdated()
+                user.getRoles()
         );
     }
 
