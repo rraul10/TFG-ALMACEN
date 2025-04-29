@@ -3,6 +3,7 @@ package examen.dev.tfgalmacen.clientes.models;
 import examen.dev.tfgalmacen.users.models.User;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Where;
 
 import java.time.LocalDateTime;
 
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Where(clause = "deleted = false")
 public class Cliente {
 
     @Id
@@ -31,7 +33,8 @@ public class Cliente {
     // @OneToMany(mappedBy = "cliente")
     // private List<Pedido> pedidos;
 
-    private boolean isDeleted;
+    @Column(name = "deleted", nullable = false)
+    private boolean deleted = false;
 
     private LocalDateTime created;
     private LocalDateTime updated;

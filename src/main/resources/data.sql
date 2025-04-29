@@ -1,5 +1,5 @@
 -- Insertar usuarios
-INSERT INTO users (id, nombre, correo, password, created, updated, is_deleted)
+INSERT INTO users (id, nombre, correo, password, created, updated, deleted)
 VALUES
     (1, 'Admin', 'admin@example.com', '$2a$12$ldx5F5SM6dVh0q/OjIzTJeFKoW4Jsu6c3r.AM9uDJWkZtlmolEXyW', NOW(), NOW(), false),
     (2, 'Raul Fernandez', 'rauldelgado@example.com', '$2a$12$PFvGQIyLW.a2lKL2q8BLvOT1TAO6uGmYwRPxWaRVhIvFRT9ZOzF6W', NOW(), NOW(), false),
