@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Where;
 import org.springframework.data.annotation.Id;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "users")
+@Where(clause = "deleted = false")
 public class User implements UserDetails {
     @jakarta.persistence.Id
     @Id
@@ -51,8 +53,8 @@ public class User implements UserDetails {
     private LocalDateTime created;
     private LocalDateTime updated;
 
-    @Column(name = "is_deleted")
-    private boolean deleted;
+    @Column(name = "deleted", nullable = false)
+    private boolean deleted = false;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
