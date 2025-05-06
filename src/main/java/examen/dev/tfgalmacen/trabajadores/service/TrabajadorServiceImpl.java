@@ -25,13 +25,18 @@ public class TrabajadorServiceImpl implements TrabajadorService {
 
     @Override
     public List<TrabajadorResponse> getAll() {
-        return trabajadorRepository.findAll().stream()
+        List<Trabajador> trabajadores = trabajadorRepository.findAll();
+        if (trabajadores.isEmpty()) {
+            throw new TrabajadorNotFoundException("No se encontraron trabajadores");
+        }
+        return trabajadores.stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
+
     @Override
-    public TrabajadorResponse getTrabajador(Long id) {
+    public TrabajadorResponse getTrabajadorById(Long id) {
         Trabajador trabajador = trabajadorRepository.findById(id)
                 .orElseThrow(() -> new TrabajadorNotFoundException("Trabajador no encontrado"));
         return mapToResponse(trabajador);

@@ -54,6 +54,7 @@ public class User implements UserDetails {
     private LocalDateTime updated;
 
     @Column(name = "deleted", nullable = false)
+    @Builder.Default
     private boolean deleted = false;
 
     @Override
