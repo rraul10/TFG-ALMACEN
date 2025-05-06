@@ -8,7 +8,7 @@ import java.util.List;
 public interface TrabajadorService {
     List<TrabajadorResponse> getAll();
 
-    TrabajadorResponse getTrabajador(Long id);
+    TrabajadorResponse getTrabajadorById(Long id);
 
     TrabajadorResponse crearTrabajador(TrabajadorRequest request);
 
