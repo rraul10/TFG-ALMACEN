@@ -34,6 +34,7 @@ public class Cliente {
     // private List<Pedido> pedidos;
 
     @Column(name = "deleted", nullable = false)
+    @Builder.Default
     private boolean deleted = false;
 
     private LocalDateTime created;
