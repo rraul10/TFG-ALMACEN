@@ -29,6 +29,7 @@ public class Trabajador {
     private String numeroSeguridadSocial;
 
     @Column(name = "deleted", nullable = false)
+    @Builder.Default
     private boolean deleted = false;
 
     private LocalDateTime created;

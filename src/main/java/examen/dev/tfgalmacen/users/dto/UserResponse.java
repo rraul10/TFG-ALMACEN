@@ -2,10 +2,12 @@ package examen.dev.tfgalmacen.users.dto;
 
 import examen.dev.tfgalmacen.users.UserRole;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 
 import java.util.Set;
 
+@Builder
 @Data
 @AllArgsConstructor
 public class UserResponse {
