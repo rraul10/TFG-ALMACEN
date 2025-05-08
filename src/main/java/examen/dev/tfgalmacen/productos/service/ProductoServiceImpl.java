@@ -1,6 +1,6 @@
 package examen.dev.tfgalmacen.productos.service;
 
-import examen.dev.tfgalmacen.notifications.EmailService;
+import examen.dev.tfgalmacen.websockets.notifications.EmailService;
 import examen.dev.tfgalmacen.productos.dto.ProductoRequest;
 import examen.dev.tfgalmacen.productos.dto.ProductoResponse;
 import examen.dev.tfgalmacen.productos.exceptions.ProductoNotFoundException;
@@ -39,6 +39,10 @@ public class ProductoServiceImpl implements ProductoService {
 
     @Override
     public ProductoResponse create(ProductoRequest request) {
+        if (request.getNombre() == null || request.getNombre().isBlank()) {
+            throw new IllegalArgumentException("El nombre del producto no puede ser nulo o vacío");
+        }
+
         Producto producto = productoMapper.toEntity(request);
         productoRepository.save(producto);
 

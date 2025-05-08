@@ -1,4 +1,4 @@
-package examen.dev.tfgalmacen.notifications;
+package examen.dev.tfgalmacen.websockets.notifications;
 
 import examen.dev.tfgalmacen.productos.models.Producto;
 import lombok.RequiredArgsConstructor;
