@@ -4,6 +4,7 @@ import examen.dev.tfgalmacen.productos.dto.ProductoRequest;
 import examen.dev.tfgalmacen.productos.dto.ProductoResponse;
 import examen.dev.tfgalmacen.productos.service.ProductoService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -30,8 +31,10 @@ public class ProductoController {
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'TRABAJADOR')")
     public ResponseEntity<ProductoResponse> create(@RequestBody ProductoRequest request) {
-        return ResponseEntity.ok(productoService.create(request));
+        ProductoResponse response = productoService.create(request);
+        return ResponseEntity.ok(response);
     }
+
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'TRABAJADOR')")
@@ -45,5 +48,6 @@ public class ProductoController {
         productoService.delete(id);
         return ResponseEntity.noContent().build();
     }
+
 }
 
