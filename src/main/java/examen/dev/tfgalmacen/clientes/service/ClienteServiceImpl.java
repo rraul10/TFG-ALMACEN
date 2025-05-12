@@ -69,5 +69,11 @@ public class ClienteServiceImpl implements ClienteService {
         cliente.setDeleted(true);
         clienteRepository.save(cliente);
     }
+
+    public Cliente getClienteEntityById(Long id) {
+        return clienteRepository.findById(id)
+                .orElseThrow(() -> new ClienteNotFound("Cliente no encontrado"));
+    }
+
 }
 
