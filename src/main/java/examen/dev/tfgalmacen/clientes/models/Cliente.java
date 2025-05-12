@@ -1,11 +1,14 @@
 package examen.dev.tfgalmacen.clientes.models;
 
+import examen.dev.tfgalmacen.pedido.models.Pedido;
 import examen.dev.tfgalmacen.users.models.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Where;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
