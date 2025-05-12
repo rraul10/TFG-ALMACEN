@@ -6,6 +6,7 @@ import examen.dev.tfgalmacen.pedido.dto.PedidoRequest;
 import examen.dev.tfgalmacen.pedido.dto.PedidoResponse;
 import examen.dev.tfgalmacen.pedido.exceptions.PedidoNotFoundException;
 import examen.dev.tfgalmacen.pedido.mapper.PedidoMapper;
+import examen.dev.tfgalmacen.pedido.models.EstadoPedido;
 import examen.dev.tfgalmacen.pedido.models.Pedido;
 import examen.dev.tfgalmacen.pedido.repository.PedidoRepository;
 import lombok.RequiredArgsConstructor;
@@ -46,13 +47,19 @@ public class PedidoServiceImpl implements PedidoService {
         Cliente cliente = clienteService.getClienteEntityById(request.getClienteId());
 
         Pedido pedido = PedidoMapper.toEntity(request, cliente);
-        pedido.setCreated(LocalDateTime.now());
-        pedido.setUpdated(LocalDateTime.now());
+
+        LocalDateTime now = LocalDateTime.now();
+        pedido.setFecha(now);
+        pedido.setCreated(now);
+        pedido.setUpdated(now);
+
+        pedido.setEstado(EstadoPedido.PENDIENTE);
 
         pedidoRepository.save(pedido);
 
         return PedidoMapper.toDto(pedido);
     }
+
 
     @Override
     public PedidoResponse update(Long id, PedidoRequest request) {
