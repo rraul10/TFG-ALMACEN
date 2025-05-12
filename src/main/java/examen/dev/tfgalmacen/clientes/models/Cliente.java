@@ -30,8 +30,9 @@ public class Cliente {
 
     private String direccionEnvio;
 
-    // @OneToMany(mappedBy = "cliente")
-    // private List<Pedido> pedidos;
+    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Pedido> pedidos = new ArrayList<>();
+
 
     @Column(name = "deleted", nullable = false)
     @Builder.Default
