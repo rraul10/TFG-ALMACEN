@@ -1,9 +1,10 @@
 package examen.dev.tfgalmacen.trabajadores.controller;
 
-import examen.dev.tfgalmacen.trabajadores.dto.TrabajadorRequest;
-import examen.dev.tfgalmacen.trabajadores.dto.TrabajadorResponse;
-import examen.dev.tfgalmacen.trabajadores.exceptions.TrabajadorNotFoundException;
-import examen.dev.tfgalmacen.trabajadores.service.TrabajadorService;
+import examen.dev.tfgalmacen.rest.trabajadores.controller.TrabajadorController;
+import examen.dev.tfgalmacen.rest.trabajadores.dto.TrabajadorRequest;
+import examen.dev.tfgalmacen.rest.trabajadores.dto.TrabajadorResponse;
+import examen.dev.tfgalmacen.rest.trabajadores.exceptions.TrabajadorNotFoundException;
+import examen.dev.tfgalmacen.rest.trabajadores.service.TrabajadorService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

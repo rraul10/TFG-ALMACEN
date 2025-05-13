@@ -1,8 +1,9 @@
 package examen.dev.tfgalmacen.clientes.repository;
 
-import examen.dev.tfgalmacen.clientes.models.Cliente;
-import examen.dev.tfgalmacen.users.UserRole;
-import examen.dev.tfgalmacen.users.models.User;
+import examen.dev.tfgalmacen.rest.clientes.models.Cliente;
+import examen.dev.tfgalmacen.rest.clientes.repository.ClienteRepository;
+import examen.dev.tfgalmacen.rest.users.UserRole;
+import examen.dev.tfgalmacen.rest.users.models.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

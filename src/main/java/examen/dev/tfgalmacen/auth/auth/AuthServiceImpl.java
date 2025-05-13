@@ -6,8 +6,8 @@ import examen.dev.tfgalmacen.auth.dto.UserLoginRequest;
 import examen.dev.tfgalmacen.auth.exceptions.UserNotFound;
 import examen.dev.tfgalmacen.auth.jwt.JwtService;
 import examen.dev.tfgalmacen.auth.users.repository.AuthUserRepository;
-import examen.dev.tfgalmacen.users.UserRole;
-import examen.dev.tfgalmacen.users.models.User;
+import examen.dev.tfgalmacen.rest.users.UserRole;
+import examen.dev.tfgalmacen.rest.users.models.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -30,7 +30,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public JwtAuthResponse register(RegisterUserRequest request) {
-        examen.dev.tfgalmacen.users.models.User user = new examen.dev.tfgalmacen.users.models.User();
+        User user = new User();
         user.setNombre(request.getNombre());
         user.setCorreo(request.getCorreo());
         user.setPassword(passwordEncoder.encode(request.getPassword()));

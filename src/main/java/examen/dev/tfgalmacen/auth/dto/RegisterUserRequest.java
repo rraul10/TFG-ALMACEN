@@ -1,6 +1,6 @@
 package examen.dev.tfgalmacen.auth.dto;
 
-import examen.dev.tfgalmacen.users.UserRole;
+import examen.dev.tfgalmacen.rest.users.UserRole;
 import lombok.Data;
 
 @Data
