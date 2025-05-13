@@ -1,12 +1,13 @@
 package examen.dev.tfgalmacen.productos.service;
 
+import examen.dev.tfgalmacen.rest.productos.service.ProductoServiceImpl;
 import examen.dev.tfgalmacen.websockets.notifications.EmailService;
-import examen.dev.tfgalmacen.productos.dto.ProductoRequest;
-import examen.dev.tfgalmacen.productos.dto.ProductoResponse;
-import examen.dev.tfgalmacen.productos.exceptions.ProductoNotFoundException;
-import examen.dev.tfgalmacen.productos.mapper.ProductoMapper;
-import examen.dev.tfgalmacen.productos.models.Producto;
-import examen.dev.tfgalmacen.productos.repository.ProductoRepository;
+import examen.dev.tfgalmacen.rest.productos.dto.ProductoRequest;
+import examen.dev.tfgalmacen.rest.productos.dto.ProductoResponse;
+import examen.dev.tfgalmacen.rest.productos.exceptions.ProductoNotFoundException;
+import examen.dev.tfgalmacen.rest.productos.mapper.ProductoMapper;
+import examen.dev.tfgalmacen.rest.productos.models.Producto;
+import examen.dev.tfgalmacen.rest.productos.repository.ProductoRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

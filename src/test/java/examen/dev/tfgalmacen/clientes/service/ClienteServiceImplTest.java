@@ -1,14 +1,15 @@
 package examen.dev.tfgalmacen.clientes.service;
 
-import examen.dev.tfgalmacen.clientes.dto.ClienteRequest;
-import examen.dev.tfgalmacen.clientes.dto.ClienteResponse;
-import examen.dev.tfgalmacen.clientes.exceptions.ClienteNotFound;
-import examen.dev.tfgalmacen.clientes.mapper.ClienteMapper;
-import examen.dev.tfgalmacen.clientes.models.Cliente;
-import examen.dev.tfgalmacen.clientes.repository.ClienteRepository;
-import examen.dev.tfgalmacen.users.UserRole;
-import examen.dev.tfgalmacen.users.models.User;
-import examen.dev.tfgalmacen.users.repository.UserRepository;
+import examen.dev.tfgalmacen.rest.clientes.dto.ClienteRequest;
+import examen.dev.tfgalmacen.rest.clientes.dto.ClienteResponse;
+import examen.dev.tfgalmacen.rest.clientes.exceptions.ClienteNotFound;
+import examen.dev.tfgalmacen.rest.clientes.mapper.ClienteMapper;
+import examen.dev.tfgalmacen.rest.clientes.models.Cliente;
+import examen.dev.tfgalmacen.rest.clientes.repository.ClienteRepository;
+import examen.dev.tfgalmacen.rest.clientes.service.ClienteServiceImpl;
+import examen.dev.tfgalmacen.rest.users.UserRole;
+import examen.dev.tfgalmacen.rest.users.models.User;
+import examen.dev.tfgalmacen.rest.users.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
