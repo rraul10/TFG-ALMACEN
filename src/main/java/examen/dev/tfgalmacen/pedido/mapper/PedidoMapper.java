@@ -25,7 +25,6 @@ public class PedidoMapper {
         return pedido;
     }
 
-    // Método para convertir Pedido (entidad) a PedidoResponse (DTO)
     public static PedidoResponse toDto(Pedido pedido) {
         PedidoResponse response = new PedidoResponse();
         response.setId(pedido.getId());
