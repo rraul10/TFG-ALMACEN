@@ -25,3 +25,11 @@ VALUES
     ('Chaqueta Impermeable', 'Ropa', 'chaqueta.jpg', 'Chaqueta ligera, ideal para lluvia y viento', 69.90, 18, NOW(), NOW(), false),
     ('Bolsa de Deporte', 'Accesorios', 'bolsa.jpg', 'Bolsa espaciosa para gimnasio o viajes cortos', 29.99, 35, NOW(), NOW(), false),
     ('Cargador Inalámbrico', 'Tecnología', 'cargador.jpg', 'Cargador rápido compatible con la mayoría de smartphones', 19.99, 45, NOW(), NOW(), false);
+
+
+INSERT INTO cliente (id, user_id, direccion_envio, dni, foto_dni, created, updated, deleted)
+VALUES (1, 1, 'Calle Falsa 123', '12345678A', 'foto_dni_url', NOW(), NOW(), FALSE);
+
+
+INSERT INTO pedido (id, cliente_id, estado, fecha, created, updated, deleted)
+VALUES (1, 1, 'PENDIENTE', NOW(), NOW(), NOW(), FALSE);

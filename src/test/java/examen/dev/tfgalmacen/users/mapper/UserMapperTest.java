@@ -1,9 +1,10 @@
 package examen.dev.tfgalmacen.users.mapper;
 
-import examen.dev.tfgalmacen.users.UserRole;
-import examen.dev.tfgalmacen.users.dto.UserRequest;
-import examen.dev.tfgalmacen.users.dto.UserResponse;
-import examen.dev.tfgalmacen.users.models.User;
+import examen.dev.tfgalmacen.rest.users.UserRole;
+import examen.dev.tfgalmacen.rest.users.dto.UserRequest;
+import examen.dev.tfgalmacen.rest.users.dto.UserResponse;
+import examen.dev.tfgalmacen.rest.users.mapper.UserMapper;
+import examen.dev.tfgalmacen.rest.users.models.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

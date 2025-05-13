@@ -1,9 +1,10 @@
 package examen.dev.tfgalmacen.users.repository;
 
 
-import examen.dev.tfgalmacen.users.UserRole;
-import examen.dev.tfgalmacen.users.models.User;
+import examen.dev.tfgalmacen.rest.users.UserRole;
+import examen.dev.tfgalmacen.rest.users.models.User;
 
+import examen.dev.tfgalmacen.rest.users.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,6 +1,6 @@
 package examen.dev.tfgalmacen.auth.users.repository;
 
-import examen.dev.tfgalmacen.users.models.User;
+import examen.dev.tfgalmacen.rest.users.models.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
