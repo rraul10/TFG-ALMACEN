@@ -1,8 +1,9 @@
 package examen.dev.tfgalmacen.productos.controller;
 
-import examen.dev.tfgalmacen.productos.dto.ProductoRequest;
-import examen.dev.tfgalmacen.productos.dto.ProductoResponse;
-import examen.dev.tfgalmacen.productos.service.ProductoService;
+import examen.dev.tfgalmacen.rest.productos.controller.ProductoController;
+import examen.dev.tfgalmacen.rest.productos.dto.ProductoRequest;
+import examen.dev.tfgalmacen.rest.productos.dto.ProductoResponse;
+import examen.dev.tfgalmacen.rest.productos.service.ProductoService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

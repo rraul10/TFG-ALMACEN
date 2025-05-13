@@ -1,13 +1,14 @@
 package examen.dev.tfgalmacen.trabajadores.service;
 
 import examen.dev.tfgalmacen.auth.exceptions.UserNotFound;
-import examen.dev.tfgalmacen.trabajadores.dto.TrabajadorRequest;
-import examen.dev.tfgalmacen.trabajadores.dto.TrabajadorResponse;
-import examen.dev.tfgalmacen.trabajadores.exceptions.TrabajadorNotFoundException;
-import examen.dev.tfgalmacen.trabajadores.models.Trabajador;
-import examen.dev.tfgalmacen.trabajadores.repository.TrabajadorRepository;
-import examen.dev.tfgalmacen.users.models.User;
-import examen.dev.tfgalmacen.users.repository.UserRepository;
+import examen.dev.tfgalmacen.rest.trabajadores.dto.TrabajadorRequest;
+import examen.dev.tfgalmacen.rest.trabajadores.dto.TrabajadorResponse;
+import examen.dev.tfgalmacen.rest.trabajadores.exceptions.TrabajadorNotFoundException;
+import examen.dev.tfgalmacen.rest.trabajadores.models.Trabajador;
+import examen.dev.tfgalmacen.rest.trabajadores.repository.TrabajadorRepository;
+import examen.dev.tfgalmacen.rest.trabajadores.service.TrabajadorServiceImpl;
+import examen.dev.tfgalmacen.rest.users.models.User;
+import examen.dev.tfgalmacen.rest.users.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

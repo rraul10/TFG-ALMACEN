@@ -1,9 +1,9 @@
 package examen.dev.tfgalmacen.clientes.controller;
 
-import examen.dev.tfgalmacen.clientes.dto.ClienteRequest;
-import examen.dev.tfgalmacen.clientes.dto.ClienteResponse;
-import examen.dev.tfgalmacen.clientes.exceptions.ClienteNotFound;
-import examen.dev.tfgalmacen.clientes.service.ClienteService;
+import examen.dev.tfgalmacen.rest.clientes.controller.ClienteController;
+import examen.dev.tfgalmacen.rest.clientes.dto.ClienteRequest;
+import examen.dev.tfgalmacen.rest.clientes.dto.ClienteResponse;
+import examen.dev.tfgalmacen.rest.clientes.service.ClienteService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

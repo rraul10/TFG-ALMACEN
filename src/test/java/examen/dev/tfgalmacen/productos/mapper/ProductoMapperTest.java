@@ -1,12 +1,13 @@
 package examen.dev.tfgalmacen.productos.mapper;
 
+import examen.dev.tfgalmacen.rest.productos.mapper.ProductoMapper;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import examen.dev.tfgalmacen.productos.dto.ProductoRequest;
-import examen.dev.tfgalmacen.productos.dto.ProductoResponse;
-import examen.dev.tfgalmacen.productos.models.Producto;
+import examen.dev.tfgalmacen.rest.productos.dto.ProductoRequest;
+import examen.dev.tfgalmacen.rest.productos.dto.ProductoResponse;
+import examen.dev.tfgalmacen.rest.productos.models.Producto;
 import org.junit.jupiter.api.BeforeEach;
 
 class ProductoMapperTest {

@@ -1,6 +1,6 @@
 package examen.dev.tfgalmacen.websockets.notifications;
 
-import examen.dev.tfgalmacen.productos.models.Producto;
+import examen.dev.tfgalmacen.rest.productos.models.Producto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
