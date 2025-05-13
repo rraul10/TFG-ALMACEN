@@ -41,7 +41,7 @@ public class PedidoServiceImpl implements PedidoService {
     @Override
     public PedidoResponse create(PedidoRequest request) {
         if (request.getLineasVenta() == null || request.getLineasVenta().isEmpty()) {
-            throw new IllegalArgumentException("El pedido debe contener al menos una línea de venta.");
+            throw new PedidoNotFoundException("El pedido debe contener al menos una línea de venta.");
         }
 
         Cliente cliente = clienteService.getClienteEntityById(request.getClienteId());
@@ -52,7 +52,7 @@ public class PedidoServiceImpl implements PedidoService {
         pedido.setFecha(now);
         pedido.setCreated(now);
         pedido.setUpdated(now);
-
+        pedido.setDeleted(false);
         pedido.setEstado(EstadoPedido.PENDIENTE);
 
         pedidoRepository.save(pedido);
