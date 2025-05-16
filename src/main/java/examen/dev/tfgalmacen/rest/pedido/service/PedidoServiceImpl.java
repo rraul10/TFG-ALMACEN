@@ -7,6 +7,7 @@ import examen.dev.tfgalmacen.rest.pedido.dto.PedidoResponse;
 import examen.dev.tfgalmacen.rest.pedido.exceptions.PedidoNotFoundException;
 import examen.dev.tfgalmacen.rest.pedido.mapper.PedidoMapper;
 import examen.dev.tfgalmacen.rest.pedido.models.EstadoPedido;
+import examen.dev.tfgalmacen.rest.pedido.models.LineaVenta;
 import examen.dev.tfgalmacen.rest.pedido.models.Pedido;
 import examen.dev.tfgalmacen.rest.pedido.repository.PedidoRepository;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +39,6 @@ public class PedidoServiceImpl implements PedidoService {
     }
 
 
-    @Override
     public PedidoResponse create(PedidoRequest request) {
         if (request.getLineasVenta() == null || request.getLineasVenta().isEmpty()) {
             throw new PedidoNotFoundException("El pedido debe contener al menos una línea de venta.");
@@ -46,21 +46,22 @@ public class PedidoServiceImpl implements PedidoService {
 
         Cliente cliente = clienteService.getClienteEntityById(request.getClienteId());
 
-        Pedido pedido = PedidoMapper.toEntity(request, cliente);
+        List<LineaVenta> lineasVenta = request.getLineasVenta().stream()
+                .map(PedidoMapper::toEntity)
+                .collect(Collectors.toList());
 
-        LocalDateTime now = LocalDateTime.now();
-        pedido.setFecha(now);
-        pedido.setCreated(now);
-        pedido.setUpdated(now);
-        pedido.setDeleted(false);
+        Pedido pedido = new Pedido();
+        pedido.setCliente(cliente);
         pedido.setEstado(EstadoPedido.PENDIENTE);
+        pedido.setFecha(LocalDateTime.now());
+        pedido.setLineasVenta(lineasVenta);
 
         Pedido saved = pedidoRepository.save(pedido);
-        System.out.println("Pedido creado con ID: " + saved.getId());
 
-        return PedidoMapper.toDto(pedido);
+        PedidoResponse response = PedidoMapper.toDto(saved);
+
+        return response;
     }
-
 
     @Override
     public PedidoResponse update(Long id, PedidoRequest request) {

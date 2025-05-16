@@ -40,5 +40,7 @@ public class Pedido {
 
     private LocalDateTime created;
     private LocalDateTime updated;
+
+
 }
 

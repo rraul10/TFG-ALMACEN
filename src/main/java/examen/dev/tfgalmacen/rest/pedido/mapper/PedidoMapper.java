@@ -9,6 +9,7 @@ import examen.dev.tfgalmacen.rest.pedido.models.LineaVenta;
 import examen.dev.tfgalmacen.rest.pedido.models.Pedido;
 import examen.dev.tfgalmacen.rest.productos.models.Producto;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,6 +37,9 @@ public class PedidoMapper {
     }
 
     private static List<LineaVenta> toLineaVentaEntities(List<LineaVentaDTO> lineasVentaDTO) {
+        if (lineasVentaDTO == null || lineasVentaDTO.isEmpty()) {
+            return new ArrayList<>();
+        }
         return lineasVentaDTO.stream().map(dto -> {
             LineaVenta lineaVenta = new LineaVenta();
             Producto producto = new Producto();
@@ -47,6 +51,9 @@ public class PedidoMapper {
     }
 
     private static List<LineaVentaDTO> toLineaVentaDTOs(List<LineaVenta> lineasVenta) {
+        if (lineasVenta == null || lineasVenta.isEmpty()) {
+            return new ArrayList<>();
+        }
         return lineasVenta.stream().map(linea -> {
             LineaVentaDTO dto = new LineaVentaDTO();
             dto.setProductoId(linea.getProducto().getId());
@@ -56,9 +63,27 @@ public class PedidoMapper {
     }
 
     public static void updatePedidoFromRequest(Pedido pedido, PedidoRequest request) {
-        List<LineaVenta> lineasVenta = toLineaVentaEntities(request.getLineasVenta());
-        pedido.setLineasVenta(lineasVenta);
-
+        if (request.getLineasVenta() != null) {
+            List<LineaVenta> lineasVenta = toLineaVentaEntities(request.getLineasVenta());
+            pedido.setLineasVenta(lineasVenta);
+        }
         pedido.setUpdated(java.time.LocalDateTime.now());
     }
+
+    public static LineaVentaDTO toDto(LineaVenta lineaVenta) {
+        LineaVentaDTO dto = new LineaVentaDTO();
+        dto.setProductoId(lineaVenta.getProducto().getId());
+        dto.setCantidad(lineaVenta.getCantidad());
+        return dto;
+    }
+
+    public static LineaVenta toEntity(LineaVentaDTO dto) {
+        LineaVenta lineaVenta = new LineaVenta();
+        Producto producto = new Producto();
+        producto.setId(dto.getProductoId());
+        lineaVenta.setProducto(producto);
+        lineaVenta.setCantidad(dto.getCantidad());
+        return lineaVenta;
+    }
+
 }
