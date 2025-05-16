@@ -40,13 +40,11 @@ class TrabajadorServiceImplTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        // Crear un usuario para la prueba
         user = new User();
         user.setId(1L);
         user.setNombre("Juan Pérez");
         user.setCorreo("juan@example.com");
 
-        // Crear un trabajador asociado al usuario
         trabajador = Trabajador.builder()
                 .id(1L)
                 .user(user)
