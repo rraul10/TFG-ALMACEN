@@ -1,4 +1,4 @@
-package examen.dev.tfgalmacen.users.repository;
+package examen.dev.tfgalmacen.rest.users.repository;
 
 
 import examen.dev.tfgalmacen.rest.users.UserRole;

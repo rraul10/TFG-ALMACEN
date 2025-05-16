@@ -1,4 +1,4 @@
-package examen.dev.tfgalmacen.trabajadores.service;
+package examen.dev.tfgalmacen.rest.trabajadores.service;
 
 import examen.dev.tfgalmacen.auth.exceptions.UserNotFound;
 import examen.dev.tfgalmacen.rest.trabajadores.dto.TrabajadorRequest;
