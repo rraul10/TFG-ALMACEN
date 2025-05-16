@@ -1,4 +1,4 @@
-package examen.dev.tfgalmacen.productos.controller;
+package examen.dev.tfgalmacen.rest.productos.controller;
 
 import examen.dev.tfgalmacen.rest.productos.controller.ProductoController;
 import examen.dev.tfgalmacen.rest.productos.dto.ProductoRequest;

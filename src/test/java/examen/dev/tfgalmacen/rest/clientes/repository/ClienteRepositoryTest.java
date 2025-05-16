@@ -1,4 +1,4 @@
-package examen.dev.tfgalmacen.clientes.repository;
+package examen.dev.tfgalmacen.rest.clientes.repository;
 
 import examen.dev.tfgalmacen.rest.clientes.models.Cliente;
 import examen.dev.tfgalmacen.rest.clientes.repository.ClienteRepository;

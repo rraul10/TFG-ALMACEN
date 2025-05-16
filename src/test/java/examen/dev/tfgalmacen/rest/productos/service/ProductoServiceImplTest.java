@@ -1,4 +1,4 @@
-package examen.dev.tfgalmacen.productos.service;
+package examen.dev.tfgalmacen.rest.productos.service;
 
 import examen.dev.tfgalmacen.rest.productos.service.ProductoServiceImpl;
 import examen.dev.tfgalmacen.websockets.notifications.EmailService;

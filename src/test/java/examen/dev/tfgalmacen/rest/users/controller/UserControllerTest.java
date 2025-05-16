@@ -1,4 +1,4 @@
-package examen.dev.tfgalmacen.users.controller;
+package examen.dev.tfgalmacen.rest.users.controller;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;

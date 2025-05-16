@@ -1,4 +1,4 @@
-package examen.dev.tfgalmacen.clientes.service;
+package examen.dev.tfgalmacen.rest.clientes.service;
 
 import examen.dev.tfgalmacen.rest.clientes.dto.ClienteRequest;
 import examen.dev.tfgalmacen.rest.clientes.dto.ClienteResponse;

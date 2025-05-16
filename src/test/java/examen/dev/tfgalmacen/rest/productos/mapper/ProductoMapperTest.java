@@ -1,4 +1,4 @@
-package examen.dev.tfgalmacen.productos.mapper;
+package examen.dev.tfgalmacen.rest.productos.mapper;
 
 import examen.dev.tfgalmacen.rest.productos.mapper.ProductoMapper;
 import org.junit.jupiter.api.Test;

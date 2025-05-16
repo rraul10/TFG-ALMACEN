@@ -1,4 +1,4 @@
-package examen.dev.tfgalmacen.users.mapper;
+package examen.dev.tfgalmacen.rest.users.mapper;
 
 import examen.dev.tfgalmacen.rest.users.UserRole;
 import examen.dev.tfgalmacen.rest.users.dto.UserRequest;
