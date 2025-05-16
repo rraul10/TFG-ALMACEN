@@ -1,84 +1,121 @@
 package examen.dev.tfgalmacen.rest.users.controller;
 
-import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import examen.dev.tfgalmacen.auth.exceptions.UserNotFound;
+import examen.dev.tfgalmacen.rest.users.dto.UserRequest;
+import examen.dev.tfgalmacen.rest.users.dto.UserResponse;
+import examen.dev.tfgalmacen.rest.users.service.UserService;
+import examen.dev.tfgalmacen.rest.users.UserRole;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.*;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-/**
- *
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
-@ExtendWith(MockitoExtension.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK) // Carga el contexto completo
-class UserControllerTest {
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-    @Autowired
-    private MockMvc mockMvc;  // Inyección de MockMvc
+public class UserControllerTest {
 
-    @MockBean  // Usamos MockBean para mockear el servicio en el contexto completo
+    private MockMvc mockMvc;
+
+    @Mock
     private UserService userService;
 
-    private UserRequest userRequest;
-    private UserResponse userResponse;
-
-    private ObjectMapper objectMapper = new ObjectMapper();
+    @InjectMocks
+    private UserController userController;
 
     @BeforeEach
-    void setUp() {
-        // Inicializar los objetos necesarios para las pruebas
-        userRequest = new UserRequest("Raul", "raul@example.com", "password123", Set.of(UserRole.CLIENTE));
-        userResponse = new UserResponse(1L, "Raul", "raul@example.com", Set.of(UserRole.CLIENTE));
+    public void setUp() {
+        MockitoAnnotations.openMocks(this);
+        mockMvc = MockMvcBuilders.standaloneSetup(userController).build();
     }
 
     @Test
-    void getAllUsers() throws Exception {
-        // Mockear el comportamiento del servicio
-        Mockito.when(userService.getAllUsers()).thenReturn(List.of(userResponse));
+    public void testGetAllUsers() throws Exception {
+        Set<UserRole> roles = new HashSet<>(Arrays.asList(UserRole.ADMIN, UserRole.CLIENTE));
+        UserResponse userResponse1 = new UserResponse(1L, "Juan Pérez", "juan.perez@example.com", roles);
+        UserResponse userResponse2 = new UserResponse(2L, "Ana Gómez", "ana.gomez@example.com", roles);
 
-        // Ejecutar la petición y verificar el resultado
+        when(userService.getAllUsers()).thenReturn(Arrays.asList(userResponse1, userResponse2));
+
         mockMvc.perform(get("/api/users"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)))  // Verificar que hay 1 usuario
-                .andExpect(jsonPath("$[0].nombre").value("Raul"));
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0].id").value(1L))
+                .andExpect(jsonPath("$[0].nombre").value("Juan Pérez"))
+                .andExpect(jsonPath("$[1].id").value(2L))
+                .andExpect(jsonPath("$[1].nombre").value("Ana Gómez"));
+
+        verify(userService, times(1)).getAllUsers();
     }
 
     @Test
-    void getUserById() throws Exception {
-        Mockito.when(userService.getUserById(1L)).thenReturn(userResponse);
+    public void testGetUserById() throws Exception {
+        Set<UserRole> roles = new HashSet<>(Arrays.asList(UserRole.ADMIN, UserRole.CLIENTE));
+        UserResponse userResponse = new UserResponse(1L, "Juan Pérez", "juan.perez@example.com", roles);
+
+        when(userService.getUserById(1L)).thenReturn(userResponse);
 
         mockMvc.perform(get("/api/users/1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.correo").value("raul@example.com"));
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.nombre").value("Juan Pérez"));
+
+        verify(userService, times(1)).getUserById(1L);
     }
 
     @Test
-    void createUser() throws Exception {
-        Mockito.when(userService.createUser(any(UserRequest.class))).thenReturn(userResponse);
+    public void testCreateUser() throws Exception {
+        Set<UserRole> roles = new HashSet<>(Arrays.asList(UserRole.ADMIN, UserRole.CLIENTE));
+        UserRequest userRequest = new UserRequest("Juan Pérez", "juan.perez@example.com", "password123", roles);
+        UserResponse userResponse = new UserResponse(1L, "Juan Pérez", "juan.perez@example.com", roles);
+
+        when(userService.createUser(any(UserRequest.class))).thenReturn(userResponse);
 
         mockMvc.perform(post("/api/users")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userRequest)))
+                        .content("{\"nombre\":\"Juan Pérez\", \"correo\":\"juan.perez@example.com\", \"password\":\"password123\", \"roles\":[\"ADMIN\",\"CLIENTE\"]}"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.nombre").value("Raul"));
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.nombre").value("Juan Pérez"));
+
+        verify(userService, times(1)).createUser(any(UserRequest.class));
     }
 
     @Test
-    void updateUser() throws Exception {
-        Mockito.when(userService.updateUser(eq(1L), any(UserRequest.class))).thenReturn(userResponse);
+    public void testUpdateUser() throws Exception {
+        Set<UserRole> roles = new HashSet<>(Arrays.asList(UserRole.ADMIN, UserRole.CLIENTE));
+        UserRequest userRequest = new UserRequest("Juan Pérez Actualizado", "juan.perez.updated@example.com", "newpassword123", roles);
+        UserResponse userResponse = new UserResponse(1L, "Juan Pérez Actualizado", "juan.perez.updated@example.com", roles);
+
+        when(userService.updateUser(eq(1L), any(UserRequest.class))).thenReturn(userResponse);
 
         mockMvc.perform(put("/api/users/1")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userRequest)))
+                        .content("{\"nombre\":\"Juan Pérez Actualizado\", \"correo\":\"juan.perez.updated@example.com\", \"password\":\"newpassword123\", \"roles\":[\"ADMIN\",\"CLIENTE\"]}"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.correo").value("raul@example.com"));
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.nombre").value("Juan Pérez Actualizado"));
+
+        verify(userService, times(1)).updateUser(eq(1L), any(UserRequest.class));
     }
 
     @Test
-    void deleteUser() throws Exception {
+    public void testDeleteUser() throws Exception {
+        doNothing().when(userService).deleteUser(1L);
+
         mockMvc.perform(delete("/api/users/1"))
                 .andExpect(status().isNoContent());
+
+        verify(userService, times(1)).deleteUser(1L);
     }
 }
- */
-
-
-
