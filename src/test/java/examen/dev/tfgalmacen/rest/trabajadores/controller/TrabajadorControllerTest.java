@@ -1,4 +1,4 @@
-package examen.dev.tfgalmacen.trabajadores.controller;
+package examen.dev.tfgalmacen.rest.trabajadores.controller;
 
 import examen.dev.tfgalmacen.rest.trabajadores.controller.TrabajadorController;
 import examen.dev.tfgalmacen.rest.trabajadores.dto.TrabajadorRequest;
