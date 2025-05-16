@@ -1,5 +1,6 @@
 package examen.dev.tfgalmacen.rest.pedido.repository;
 
+import examen.dev.tfgalmacen.TfgAlmacenApplication;
 import examen.dev.tfgalmacen.rest.clientes.models.Cliente;
 import examen.dev.tfgalmacen.rest.pedido.models.Pedido;
 import examen.dev.tfgalmacen.rest.pedido.models.EstadoPedido;
@@ -15,7 +16,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
+@SpringBootTest(classes = TfgAlmacenApplication.class, properties = "spring.profiles.active=test")
 @Transactional
 public class PedidoRepositoryTest {
 
