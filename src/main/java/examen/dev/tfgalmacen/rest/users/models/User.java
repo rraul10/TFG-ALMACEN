@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 @Table(name = "users")
 @Where(clause = "deleted = false")
 public class User implements UserDetails {
+
     @jakarta.persistence.Id
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

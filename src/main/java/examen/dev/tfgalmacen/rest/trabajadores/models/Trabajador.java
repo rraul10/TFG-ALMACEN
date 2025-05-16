@@ -35,5 +35,8 @@ public class Trabajador {
 
     private LocalDateTime created;
     private LocalDateTime updated;
+
+    @Version
+    private Long version;
 }
 
