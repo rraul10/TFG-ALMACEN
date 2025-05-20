@@ -1,5 +1,6 @@
 package examen.dev.tfgalmacen.rest.pedido.service;
 
+import examen.dev.tfgalmacen.rest.pedido.dto.CompraRequest;
 import examen.dev.tfgalmacen.rest.pedido.dto.PedidoRequest;
 import examen.dev.tfgalmacen.rest.pedido.dto.PedidoResponse;
 
@@ -16,4 +17,7 @@ public interface PedidoService {
     PedidoResponse update(Long id, PedidoRequest request);
 
     void delete(Long id);
+
+    PedidoResponse crearCompraDesdeNombreProducto(CompraRequest request);
+
 }

@@ -2,6 +2,7 @@ package examen.dev.tfgalmacen.rest.pedido.service;
 
 import examen.dev.tfgalmacen.rest.clientes.models.Cliente;
 import examen.dev.tfgalmacen.rest.clientes.service.ClienteService;
+import examen.dev.tfgalmacen.rest.pedido.dto.CompraRequest;
 import examen.dev.tfgalmacen.rest.pedido.dto.PedidoRequest;
 import examen.dev.tfgalmacen.rest.pedido.dto.PedidoResponse;
 import examen.dev.tfgalmacen.rest.pedido.exceptions.PedidoNotFoundException;
@@ -10,6 +11,9 @@ import examen.dev.tfgalmacen.rest.pedido.models.EstadoPedido;
 import examen.dev.tfgalmacen.rest.pedido.models.LineaVenta;
 import examen.dev.tfgalmacen.rest.pedido.models.Pedido;
 import examen.dev.tfgalmacen.rest.pedido.repository.PedidoRepository;
+import examen.dev.tfgalmacen.rest.productos.exceptions.ProductoNotFoundException;
+import examen.dev.tfgalmacen.rest.productos.models.Producto;
+import examen.dev.tfgalmacen.rest.productos.repository.ProductoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +27,7 @@ public class PedidoServiceImpl implements PedidoService {
 
     private final PedidoRepository pedidoRepository;
     private final ClienteService clienteService;
+    private final ProductoRepository productoRepository;
 
     @Override
     public List<PedidoResponse> getAll() {
@@ -83,5 +88,36 @@ public class PedidoServiceImpl implements PedidoService {
 
         pedido.setDeleted(true);
         pedidoRepository.save(pedido);
+    }
+
+    @Override
+    public PedidoResponse crearCompraDesdeNombreProducto(CompraRequest request) {
+        Producto producto = productoRepository.findByNombreIgnoreCase(request.getProductoNombre())
+                .orElseThrow(() -> new ProductoNotFoundException("Producto no encontrado"));
+
+        if (producto.getStock() < request.getCantidad()) {
+            throw new ProductoNotFoundException("Stock insuficiente");
+        }
+
+        producto.setStock(producto.getStock() - request.getCantidad());
+
+        LineaVenta linea = LineaVenta.builder()
+                .producto(producto)
+                .cantidad(request.getCantidad())
+                .precioUnitario(producto.getPrecio())
+                .build();
+
+        Pedido pedido = Pedido.builder()
+                .cliente(clienteService.getClienteEntityById(request.getClienteId()))
+                .estado(EstadoPedido.PENDIENTE)
+                .fecha(LocalDateTime.now())
+                .lineasVenta(List.of(linea))
+                .build();
+
+        linea.setPedido(pedido);
+
+        pedidoRepository.save(pedido);
+
+        return PedidoMapper.toDto(pedido);
     }
 }
