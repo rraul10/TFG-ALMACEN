@@ -28,7 +28,7 @@ VALUES
 
 
 INSERT INTO cliente (id, user_id, direccion_envio, dni, foto_dni, created, updated, deleted)
-VALUES (1, 1, 'Calle Falsa 123', '12345678A', 'foto_dni_url', NOW(), NOW(), FALSE);
+VALUES (1, 1, 'Calle Callao 123', '12345678A', 'foto_dni_url', NOW(), NOW(), FALSE);
 
 
 INSERT INTO pedido (id, cliente_id, estado, fecha, created, updated, deleted)

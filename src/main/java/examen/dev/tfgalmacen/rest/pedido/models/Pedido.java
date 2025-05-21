@@ -32,8 +32,10 @@ public class Pedido {
     @JoinColumn(name = "cliente_id")
     private Cliente cliente;
 
+    @Builder.Default
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<LineaVenta> lineasVenta = new ArrayList<>();
+
 
     @Builder.Default
     private boolean deleted = false;

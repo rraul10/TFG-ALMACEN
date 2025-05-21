@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -100,6 +101,7 @@ public class PedidoServiceImpl implements PedidoService {
         }
 
         producto.setStock(producto.getStock() - request.getCantidad());
+        productoRepository.save(producto);
 
         LineaVenta linea = LineaVenta.builder()
                 .producto(producto)
@@ -107,17 +109,25 @@ public class PedidoServiceImpl implements PedidoService {
                 .precioUnitario(producto.getPrecio())
                 .build();
 
-        Pedido pedido = Pedido.builder()
-                .cliente(clienteService.getClienteEntityById(request.getClienteId()))
-                .estado(EstadoPedido.PENDIENTE)
-                .fecha(LocalDateTime.now())
-                .lineasVenta(List.of(linea))
-                .build();
+        Pedido pedido = new Pedido();
+        pedido.setCliente(clienteService.getClienteEntityById(request.getClienteId()));
+        pedido.setEstado(EstadoPedido.PENDIENTE);
+        pedido.setFecha(LocalDateTime.now());
+        pedido.setLineasVenta(new ArrayList<>());
+
+
+        if (pedido.getLineasVenta() == null) {
+            pedido.setLineasVenta(new ArrayList<>());
+        }
+        pedido.getLineasVenta().add(linea);
+
 
         linea.setPedido(pedido);
+        pedido.getLineasVenta().add(linea);
 
         pedidoRepository.save(pedido);
 
         return PedidoMapper.toDto(pedido);
     }
+
 }

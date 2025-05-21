@@ -62,7 +62,7 @@ public class ClienteController {
     }
 
     @PostMapping("/{id}/comprar")
-    @PreAuthorize("hasAuthority('CLIENTE')")
+    @PreAuthorize("hasRole('CLIENTE')")
     public ResponseEntity<PedidoResponse> comprarProducto(@PathVariable("id") Long id, @RequestBody CompraRequest request) {
         request.setClienteId(id);
         PedidoResponse response = pedidoService.crearCompraDesdeNombreProducto(request);
