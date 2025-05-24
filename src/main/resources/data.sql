@@ -1,17 +1,61 @@
--- Insertar usuarios
-INSERT INTO users (id, nombre, correo, password, created, updated, deleted)
-VALUES
-    (1, 'Admin', 'admin@example.com', '$2a$12$ldx5F5SM6dVh0q/OjIzTJeFKoW4Jsu6c3r.AM9uDJWkZtlmolEXyW', NOW(), NOW(), false),
-    (2, 'Raul Fernandez', 'rauldelgado@example.com', '$2a$12$PFvGQIyLW.a2lKL2q8BLvOT1TAO6uGmYwRPxWaRVhIvFRT9ZOzF6W', NOW(), NOW(), false),
-(3, 'Trabajador', 'trabajador@example.com', '$2a$12$QL0fNGpCY2MW.clEOTa7se9.Iu4anG0tVC8FwHZ3sHdnA3p41AczS', NOW(), NOW(), false);
+-- USERS
+INSERT INTO users (id, nombre, correo, password, created, updated, deleted) VALUES
+    (1, 'Admin Principal', 'admin@example.com', '$2a$12$UFlfPUUOd3hVjJYrJLvPYekmFtsZbuTzh2q0yhmYSDbaNoTCOf/TS', NOW(), NOW(), false),
+    (2, 'Trabajador Uno', 'trabajador1@example.com', '$2a$12$QL0fNGpCY2MW.clEOTa7se9.Iu4anG0tVC8FwHZ3sHdnA3p41AczS', NOW(), NOW(), false),
+    (3, 'Trabajador Dos', 'trabajador2@example.com', '$2a$12$QL0fNGpCY2MW.clEOTa7se9.Iu4anG0tVC8FwHZ3sHdnA3p41AczS', NOW(), NOW(), false),
+    (4, 'Trabajador Tres', 'trabajador3@example.com', '$2a$12$QL0fNGpCY2MW.clEOTa7se9.Iu4anG0tVC8FwHZ3sHdnA3p41AczS', NOW(), NOW(), false),
+    (5, 'Raúl Fernández', 'raul@example.com', '$2a$12$PFvGQIyLW.a2lKL2q8BLvOT1TAO6uGmYwRPxWaRVhIvFRT9ZOzF6W', NOW(), NOW(), false),
+    (6, 'Yahya El Hadri', 'yahya@example.com', '$2a$12$PFvGQIyLW.a2lKL2q8BLvOT1TAO6uGmYwRPxWaRVhIvFRT9ZOzF6W', NOW(), NOW(), false),
+    (7, 'Samuel Cortes', 'samu@example.com', '$2a$12$PFvGQIyLW.a2lKL2q8BLvOT1TAO6uGmYwRPxWaRVhIvFRT9ZOzF6W', NOW(), NOW(), false),
+    (8, 'Javier Hernandez', 'javi@example.com', '$2a$12$PFvGQIyLW.a2lKL2q8BLvOT1TAO6uGmYwRPxWaRVhIvFRT9ZOzF6W', NOW(), NOW(), false),
+    (9, 'Javier Ruiz', 'javierruiz@example.com', '$2a$12$PFvGQIyLW.a2lKL2q8BLvOT1TAO6uGmYwRPxWaRVhIvFRT9ZOzF6W', NOW(), NOW(), false),
+    (10, 'Pedro PicaPiedra', 'pedro@example.com', '$2a$12$PFvGQIyLW.a2lKL2q8BLvOT1TAO6uGmYwRPxWaRVhIvFRT9ZOzF6W', NOW(), NOW(), false),
+    (11, 'Ruben Gomez', 'ruben@example.com', '$2a$12$PFvGQIyLW.a2lKL2q8BLvOT1TAO6uGmYwRPxWaRVhIvFRT9ZOzF6W', NOW(), NOW(), false),
+    (12, 'Sergio Peña', 'sergio@example.com', '$2a$12$PFvGQIyLW.a2lKL2q8BLvOT1TAO6uGmYwRPxWaRVhIvFRT9ZOzF6W', NOW(), NOW(), false),
+    (13, 'Victor Conde', 'victor@example.com', '$2a$12$PFvGQIyLW.a2lKL2q8BLvOT1TAO6uGmYwRPxWaRVhIvFRT9ZOzF6W', NOW(), NOW(), false),
+    (14, 'Javier Garzas', 'javiergarzas@example.com', '$2a$12$PFvGQIyLW.a2lKL2q8BLvOT1TAO6uGmYwRPxWaRVhIvFRT9ZOzF6W', NOW(), NOW(), false);
 
--- Insertar roles
-INSERT INTO user_roles (user_id, roles)
-VALUES
+-- ROLES
+INSERT INTO user_roles (user_id, roles) VALUES
     (1, 'ADMIN'),
-    (2, 'CLIENTE'),
-    (3, 'TRABAJADOR');
+    (2, 'TRABAJADOR'),
+    (3, 'TRABAJADOR'),
+    (4, 'TRABAJADOR'),
+    (5, 'CLIENTE'),
+    (6, 'CLIENTE'),
+    (7, 'CLIENTE'),
+    (8, 'CLIENTE'),
+    (9, 'CLIENTE'),
+    (10, 'CLIENTE'),
+    (11, 'CLIENTE'),
+    (12, 'CLIENTE'),
+    (13, 'CLIENTE'),
+    (14, 'CLIENTE');
 
+-- CLIENTES (1–10)
+INSERT INTO cliente (id, user_id, direccion_envio, dni, foto_dni, created, updated, deleted) VALUES
+    (1, 5, 'Calle Falsa 123', '11111111A', 'foto1.jpg', NOW(), NOW(), false),
+    (2, 6, 'Calle Falsa 124', '22222222B', 'foto2.jpg', NOW(), NOW(), false),
+    (3, 7, 'Calle Falsa 125', '33333333C', 'foto3.jpg', NOW(), NOW(), false),
+    (4, 8, 'Calle Falsa 126', '44444444D', 'foto4.jpg', NOW(), NOW(), false),
+    (5, 9, 'Calle Falsa 127', '55555555E', 'foto5.jpg', NOW(), NOW(), false),
+    (6, 10, 'Calle Falsa 128', '66666666F', 'foto6.jpg', NOW(), NOW(), false),
+    (7, 11, 'Calle Falsa 129', '77777777G', 'foto7.jpg', NOW(), NOW(), false),
+    (8, 12, 'Calle Falsa 130', '88888888H', 'foto8.jpg', NOW(), NOW(), false),
+    (9, 13, 'Calle Falsa 131', '99999999I', 'foto9.jpg', NOW(), NOW(), false),
+    (10, 14, 'Calle Falsa 132', '00000000J', 'foto10.jpg', NOW(), NOW(), false);
+
+-- TRABAJADORES
+INSERT INTO trabajador (id, idusuario, numero_seguridad_social, created, updated, isdeleted) VALUES
+    (1, 2, 'SS001', NOW(), NOW(), false),
+    (2, 3, 'SS002', NOW(), NOW(), false),
+    (3, 4, 'SS003', NOW(), NOW(), false);
+
+-- PEDIDOS (cliente_id = 1)
+INSERT INTO pedido (id, cliente_id, estado, fecha, created, updated, deleted) VALUES
+    (1, 1, 'PENDIENTE', NOW(), NOW(), NOW(), false),
+    (2, 1, 'PREPARACION', NOW(), NOW(), NOW(), false),
+    (3, 1, 'ENVIADO', NOW(), NOW(), NOW(), false);
 
 INSERT INTO productos (nombre, tipo, imagen, descripcion, precio, stock, created, updated, is_deleted)
 VALUES
@@ -27,9 +71,3 @@ VALUES
     ('Cargador Inalámbrico', 'Tecnología', 'cargador.jpg', 'Cargador rápido compatible con la mayoría de smartphones', 19.99, 45, NOW(), NOW(), false);
 
 
-INSERT INTO cliente (id, user_id, direccion_envio, dni, foto_dni, created, updated, deleted)
-VALUES (1, 1, 'Calle Callao 123', '12345678A', 'foto_dni_url', NOW(), NOW(), FALSE);
-
-
-INSERT INTO pedido (id, cliente_id, estado, fecha, created, updated, deleted)
-VALUES (1, 1, 'PENDIENTE', NOW(), NOW(), NOW(), FALSE);
