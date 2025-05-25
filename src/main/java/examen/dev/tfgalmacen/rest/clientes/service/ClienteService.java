@@ -18,7 +18,6 @@ public interface ClienteService {
     void deleteCliente(Long id);
 
     Cliente getClienteEntityById(Long id);
-
 }
 
 

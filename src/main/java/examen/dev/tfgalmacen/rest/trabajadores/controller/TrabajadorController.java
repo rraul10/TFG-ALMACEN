@@ -1,5 +1,9 @@
 package examen.dev.tfgalmacen.rest.trabajadores.controller;
 
+import examen.dev.tfgalmacen.rest.pedido.dto.PedidoResponse;
+import examen.dev.tfgalmacen.rest.pedido.exceptions.PedidoNotFoundException;
+import examen.dev.tfgalmacen.rest.pedido.models.EstadoPedido;
+import examen.dev.tfgalmacen.rest.pedido.service.PedidoService;
 import examen.dev.tfgalmacen.rest.trabajadores.dto.TrabajadorRequest;
 import examen.dev.tfgalmacen.rest.trabajadores.dto.TrabajadorResponse;
 import examen.dev.tfgalmacen.rest.trabajadores.exceptions.TrabajadorNotFoundException;
@@ -16,6 +20,8 @@ import java.util.List;
 @RequestMapping("/api/trabajadores")
 @RequiredArgsConstructor
 public class TrabajadorController {
+
+    private final PedidoService pedidoService;
 
     private final TrabajadorService trabajadorService;
 
@@ -53,6 +59,22 @@ public class TrabajadorController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         trabajadorService.deleteTrabajador(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("hasRole('ADMIN') or hasRole('TRABAJADOR')")
+    @PutMapping("/pedidos/{id}/estado")
+    public ResponseEntity<PedidoResponse> actualizarEstadoPedido(
+            @PathVariable Long id,
+            @RequestParam EstadoPedido nuevoEstado) {
+
+        try {
+            PedidoResponse updatedPedido = pedidoService.actualizarEstadoPedido(id, nuevoEstado);
+            return ResponseEntity.ok(updatedPedido);
+        } catch (PedidoNotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
     }
 }
 

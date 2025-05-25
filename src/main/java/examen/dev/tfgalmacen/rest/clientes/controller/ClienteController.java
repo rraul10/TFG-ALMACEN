@@ -68,4 +68,12 @@ public class ClienteController {
         PedidoResponse response = pedidoService.crearCompraDesdeNombreProducto(request);
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/{id}/mispedidos")
+    @PreAuthorize("hasRole('CLIENTE') or hasAnyRole('ADMIN', 'TRABAJADOR')")
+    public ResponseEntity<List<PedidoResponse>> getPedidosByCliente(@PathVariable Long id) {
+        List<PedidoResponse> pedidos = pedidoService.getPedidosByClienteId(id);
+        return ResponseEntity.ok(pedidos);
+    }
+
 }

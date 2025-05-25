@@ -40,7 +40,7 @@ public class ProductoServiceImpl implements ProductoService {
     @Override
     public ProductoResponse create(ProductoRequest request) {
         if (request.getNombre() == null || request.getNombre().isBlank()) {
-            throw new IllegalArgumentException("El nombre del producto no puede ser nulo o vacío");
+            throw new ProductoNotFoundException("El nombre del producto no puede ser nulo o vacío");
         }
 
         Producto producto = productoMapper.toEntity(request);
