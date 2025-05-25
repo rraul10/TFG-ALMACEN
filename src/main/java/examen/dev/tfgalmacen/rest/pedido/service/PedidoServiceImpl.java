@@ -14,6 +14,7 @@ import examen.dev.tfgalmacen.rest.pedido.repository.PedidoRepository;
 import examen.dev.tfgalmacen.rest.productos.exceptions.ProductoNotFoundException;
 import examen.dev.tfgalmacen.rest.productos.models.Producto;
 import examen.dev.tfgalmacen.rest.productos.repository.ProductoRepository;
+import examen.dev.tfgalmacen.websockets.notifications.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +30,7 @@ public class PedidoServiceImpl implements PedidoService {
     private final PedidoRepository pedidoRepository;
     private final ClienteService clienteService;
     private final ProductoRepository productoRepository;
+    private final EmailService emailService;
 
     @Override
     public List<PedidoResponse> getAll() {
@@ -43,7 +45,6 @@ public class PedidoServiceImpl implements PedidoService {
                 .orElseThrow(() -> new PedidoNotFoundException("Pedido no encontrado con id: " + id));
         return PedidoMapper.toDto(pedido);
     }
-
 
     public PedidoResponse create(PedidoRequest request) {
         if (request.getLineasVenta() == null || request.getLineasVenta().isEmpty()) {
@@ -129,5 +130,36 @@ public class PedidoServiceImpl implements PedidoService {
 
         return PedidoMapper.toDto(pedido);
     }
+
+    @Override
+    public List<PedidoResponse> getPedidosByClienteId(Long clienteId) {
+        List<Pedido> pedidos = pedidoRepository.findByClienteIdAndDeletedFalse(clienteId);
+        return pedidos.stream()
+                .map(PedidoMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public PedidoResponse actualizarEstadoPedido(Long id, EstadoPedido nuevoEstado) {
+        Pedido pedido = pedidoRepository.findById(id)
+                .orElseThrow(() -> new PedidoNotFoundException("Pedido no encontrado con id: " + id));
+
+        if (pedido.getEstado() == EstadoPedido.ENTREGADO) {
+            throw new PedidoNotFoundException("No se puede cambiar el estado de un pedido entregado.");
+        }
+
+        EstadoPedido estadoAnterior = pedido.getEstado();
+
+        pedido.setEstado(nuevoEstado);
+        Pedido savedPedido = pedidoRepository.save(pedido);
+
+        if (!estadoAnterior.equals(nuevoEstado)) {
+            String mensaje = "El estado de su pedido ha cambiado a: " + nuevoEstado;
+            emailService.notificarCambioEstadoPedido(pedido, mensaje);
+        }
+
+        return PedidoMapper.toDto(savedPedido);
+    }
+
 
 }

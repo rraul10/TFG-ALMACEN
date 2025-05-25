@@ -1,5 +1,6 @@
 package examen.dev.tfgalmacen.websockets.notifications;
 
+import examen.dev.tfgalmacen.rest.pedido.models.Pedido;
 import examen.dev.tfgalmacen.rest.productos.models.Producto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
@@ -20,5 +21,18 @@ public class EmailService {
 
         mailSender.send(mensaje);
     }
+
+    public void notificarCambioEstadoPedido(Pedido pedido, String mensaje) {
+        SimpleMailMessage mensajeCorreo = new SimpleMailMessage();
+
+        String destinatario = pedido.getCliente().getUser().getCorreo();
+
+        mensajeCorreo.setTo(destinatario);
+        mensajeCorreo.setSubject("Cambio de Estado de Pedido: " + pedido.getId());
+        mensajeCorreo.setText(mensaje);
+
+        mailSender.send(mensajeCorreo);
+    }
+
 
 }

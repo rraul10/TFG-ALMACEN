@@ -1,10 +1,10 @@
 -- USERS
 INSERT INTO users (id, nombre, correo, password, created, updated, deleted) VALUES
     (1, 'Admin Principal', 'admin@example.com', '$2a$12$UFlfPUUOd3hVjJYrJLvPYekmFtsZbuTzh2q0yhmYSDbaNoTCOf/TS', NOW(), NOW(), false),
-    (2, 'Trabajador Uno', 'trabajador1@example.com', '$2a$12$VrZdPm/YQhqdTsbWFFN.f.DfJgBtS6EsKVUJRn0Yy/T3mT3eenXT', NOW(), NOW(), false),
+    (2, 'Trabajador Uno', 'trabajador1@example.com', '$2a$12$/d1KeggIn8zzJlkxSiievuWZtxTnPRsx9KhV/34F3ceV1SwZO.WeG', NOW(), NOW(), false),
     (3, 'Trabajador Dos', 'trabajador2@example.com', '$2a$12$0lcB19.P54vSZ.GeZR/Y6Ob/DH3YAk2eRvyhMxt0hi4UVMUA348BK', NOW(), NOW(), false),
     (4, 'Trabajador Tres', 'trabajador3@example.com', '$2a$12$r6M0D9rxAx..zSsvHJ9d1OFXDNfy0/VeeQIeGhi1OJT.4/dRkXCr6', NOW(), NOW(), false),
-    (5, 'Raúl Fernández', 'raul@example.com', '$2a$12$PFvGQIyLW.a2lKL2q8BLvOT1TAO6uGmYwRPxWaRVhIvFRT9ZOzF6W', NOW(), NOW(), false),
+    (5, 'Raúl Fernández', 'raulfernandez6106@gmail.com', '$2a$12$PFvGQIyLW.a2lKL2q8BLvOT1TAO6uGmYwRPxWaRVhIvFRT9ZOzF6W', NOW(), NOW(), false),
     (6, 'Yahya El Hadri', 'yahya@example.com', '$2a$12$PFvGQIyLW.a2lKL2q8BLvOT1TAO6uGmYwRPxWaRVhIvFRT9ZOzF6W', NOW(), NOW(), false),
     (7, 'Samuel Cortes', 'samu@example.com', '$2a$12$PFvGQIyLW.a2lKL2q8BLvOT1TAO6uGmYwRPxWaRVhIvFRT9ZOzF6W', NOW(), NOW(), false),
     (8, 'Javier Hernandez', 'javi@example.com', '$2a$12$PFvGQIyLW.a2lKL2q8BLvOT1TAO6uGmYwRPxWaRVhIvFRT9ZOzF6W', NOW(), NOW(), false),
@@ -66,7 +66,7 @@ VALUES
     ('Reloj Digital', 'Tecnología', 'reloj.jpg', 'Reloj resistente al agua con cronómetro y alarma', 25.50, 15, NOW(), NOW(), false),
     ('Auriculares Bluetooth', 'Tecnología', 'auriculares.jpg', 'Auriculares inalámbricos con cancelación de ruido', 79.95, 25, NOW(), NOW(), false),
     ('Gafas de Sol', 'Accesorios', 'gafas.jpg', 'Gafas con protección UV400 y estilo moderno', 22.99, 60, NOW(), NOW(), false),
-    ('Chaqueta Impermeable', 'Ropa', 'chaqueta.jpg', 'Chaqueta ligera, ideal para lluvia y viento', 69.90, 18, NOW(), NOW(), false),
+    ('Chaqueta Impermeable', 'Ropa', 'chaqueta.jpg', 'Chaqueta ligera, ideal para lluvia y viento', 69.90, 8, NOW(), NOW(), false),
     ('Bolsa de Deporte', 'Accesorios', 'bolsa.jpg', 'Bolsa espaciosa para gimnasio o viajes cortos', 29.99, 35, NOW(), NOW(), false),
     ('Cargador Inalámbrico', 'Tecnología', 'cargador.jpg', 'Cargador rápido compatible con la mayoría de smartphones', 19.99, 45, NOW(), NOW(), false);
 
