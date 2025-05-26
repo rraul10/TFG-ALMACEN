@@ -7,6 +7,7 @@ import examen.dev.tfgalmacen.rest.users.dto.UserResponse;
 import examen.dev.tfgalmacen.rest.users.mapper.UserMapper;
 import examen.dev.tfgalmacen.rest.users.models.User;
 import examen.dev.tfgalmacen.rest.users.repository.UserRepository;
+import examen.dev.tfgalmacen.websockets.notifications.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,11 +19,14 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final EmailService emailService;
+
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, UserMapper userMapper) {
+    public UserServiceImpl(UserRepository userRepository, UserMapper userMapper, EmailService emailService) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
+        this.emailService = emailService;
     }
 
     @Override
@@ -44,8 +48,12 @@ public class UserServiceImpl implements UserService {
     public UserResponse createUser(UserRequest userRequest) {
         User user = userMapper.toEntity(userRequest);
         user = userRepository.save(user);
+
+        emailService.notificarRegistroExitoso(user.getCorreo(), user.getNombre());
+
         return userMapper.toDto(user);
     }
+
 
     @Override
     public UserResponse updateUser(Long id, UserRequest userRequest) {

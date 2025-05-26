@@ -34,5 +34,12 @@ public class EmailService {
         mailSender.send(mensajeCorreo);
     }
 
+    public void notificarRegistroExitoso(String destinatario, String nombre) {
+        SimpleMailMessage mensaje = new SimpleMailMessage();
+        mensaje.setTo(destinatario);
+        mensaje.setSubject("¡Bienvenido al sistema del almacén!");
+        mensaje.setText("Hola " + nombre + ",\n\nTu cuenta ha sido creada correctamente.\n\n¡Gracias por registrarte!");
 
+        mailSender.send(mensaje);
+    }
 }
