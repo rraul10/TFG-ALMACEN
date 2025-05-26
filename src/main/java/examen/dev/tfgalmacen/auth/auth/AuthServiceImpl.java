@@ -8,6 +8,7 @@ import examen.dev.tfgalmacen.auth.jwt.JwtService;
 import examen.dev.tfgalmacen.auth.users.repository.AuthUserRepository;
 import examen.dev.tfgalmacen.rest.users.UserRole;
 import examen.dev.tfgalmacen.rest.users.models.User;
+import examen.dev.tfgalmacen.websockets.notifications.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -26,6 +27,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final EmailService emailService;
 
 
     @Override
@@ -40,6 +42,7 @@ public class AuthServiceImpl implements AuthService {
         user.setDeleted(false);
 
         userRepository.save(user);
+        emailService.notificarRegistroExitoso(user.getCorreo(), user.getNombre());
 
         String token = jwtService.generateToken((UserDetails) user);
         return new JwtAuthResponse(token);
