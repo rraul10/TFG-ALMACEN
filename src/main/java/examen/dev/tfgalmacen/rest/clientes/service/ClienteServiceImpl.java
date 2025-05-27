@@ -8,6 +8,7 @@ import examen.dev.tfgalmacen.rest.clientes.models.Cliente;
 import examen.dev.tfgalmacen.rest.clientes.repository.ClienteRepository;
 import examen.dev.tfgalmacen.rest.users.models.User;
 import examen.dev.tfgalmacen.rest.users.repository.UserRepository;
+import examen.dev.tfgalmacen.storage.service.StorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -20,6 +21,7 @@ public class ClienteServiceImpl implements ClienteService {
     private final ClienteRepository clienteRepository;
     private final UserRepository userRepository;
     private final ClienteMapper clienteMapper;
+    private final StorageService storageService;
 
 
     @Override
@@ -42,11 +44,17 @@ public class ClienteServiceImpl implements ClienteService {
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new ClienteNotFound("Usuario no encontrado"));
 
+        String fotoDni = request.getFotoDni();
+
         Cliente cliente = clienteMapper.toEntity(request, user);
+        cliente.setFotoDni(fotoDni);
+
         Cliente savedCliente = clienteRepository.save(cliente);
 
         return clienteMapper.toResponse(savedCliente);
     }
+
+
 
     @Override
     public ClienteResponse updateCliente(Long id, ClienteRequest request) {
