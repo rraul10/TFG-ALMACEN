@@ -69,61 +69,65 @@ class ProductoControllerTest {
 
     @Test
     void createOk() throws Exception {
-        // Preparar el objeto de solicitud
         ProductoRequest request = new ProductoRequest("Test", 5);
-        ProductoResponse response = new ProductoResponse(1L, "Test", "Tipo Test", "Descripción Test", 50.0, 5, "imagenTest.png");
+        request.setImagen("default.jpg");
 
-        // Simular la respuesta del servicio
-        when(productoService.create(request)).thenReturn(response);
+        ProductoResponse response = new ProductoResponse(1L, "Test", "Tipo Test", "Descripción Test", 50.0, 5, "default.jpg");
 
-        // Preparar el archivo multipart con el JSON
-        MockMultipartFile productoFile = new MockMultipartFile(
-                "producto", // Nombre de la parte
-                "producto", // Nombre del archivo
-                "application/json", // Tipo de contenido
-                "{\"nombre\":\"Test\",\"stock\":5}".getBytes() // JSON del producto
+        when(productoService.create(eq(request))).thenReturn(response);
+
+        String productoJson = "{\"nombre\":\"Test\",\"stock\":5}";
+
+        MockMultipartFile productoPart = new MockMultipartFile(
+                "producto",
+                "",
+                "application/json",
+                productoJson.getBytes()
         );
 
-        // Realizar la solicitud y obtener la respuesta
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.multipart("/api/productos/create")
-                        .file(productoFile)) // Archivo multipart con el JSON
-                .andExpect(status().isCreated()) // Esperamos un 201 Created
-                .andReturn();
-
-        // Obtener y mostrar el contenido de la respuesta
-        String responseContent = result.getResponse().getContentAsString();
-        System.out.println("Response content: " + responseContent); // Imprime el cuerpo de la respuesta
-
-        // Verificar los valores esperados en el JSON de la respuesta
         mockMvc.perform(MockMvcRequestBuilders.multipart("/api/productos/create")
-                        .file(productoFile))
+                        .file(productoPart)
+                        .with(req -> {
+                            req.setMethod("POST");
+                            return req;
+                        }))
                 .andExpect(status().isCreated())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.nombre").value("Test")) // Verifica el nombre
-                .andExpect(MockMvcResultMatchers.jsonPath("$.stock").value(5)); // Verifica el stock
+                .andExpect(MockMvcResultMatchers.jsonPath("$.nombre").value("Test"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.stock").value(5));
 
-        // Verificar que el servicio fue llamado correctamente
         verify(productoService).create(eq(request));
     }
-
-
 
     @Test
     void updateOk() throws Exception {
         ProductoRequest request = new ProductoRequest("Producto Actualizado", 5);
-        ProductoResponse response = new ProductoResponse(1L, "Producto Actualizado", "Tipo Actualizado", "Descripción Actualizada", 60.0, 5, "imagenActualizada.png");
+        request.setImagen("default.jpg");
 
-        when(productoService.update(1L, request)).thenReturn(response);
+        ProductoResponse response = new ProductoResponse(1L, "Producto Actualizado", "Tipo Actualizado", "Descripción Actualizada", 60.0, 5, "default.jpg");
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/api/productos/{id}", 1L)
-                        .contentType("application/json")
-                        .content("{\"nombre\":\"Producto Actualizado\",\"stock\":5}"))
+        when(productoService.update(eq(1L), eq(request))).thenReturn(response);
+
+        String productoJson = "{\"nombre\":\"Producto Actualizado\",\"stock\":5}";
+
+        MockMultipartFile productoPart = new MockMultipartFile(
+                "producto",
+                "",
+                "application/json",
+                productoJson.getBytes()
+        );
+
+        mockMvc.perform(MockMvcRequestBuilders.multipart("/api/productos/1")
+                        .file(productoPart)
+                        .with(req -> {
+                            req.setMethod("PUT");
+                            return req;
+                        }))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.nombre").value("Producto Actualizado"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.stock").value(5));
 
         verify(productoService).update(eq(1L), eq(request));
     }
-
 
     @Test
     void deleteOk() throws Exception {

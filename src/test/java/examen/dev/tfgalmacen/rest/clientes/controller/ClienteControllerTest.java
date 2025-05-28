@@ -12,6 +12,8 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.List;
@@ -147,41 +149,34 @@ class ClienteControllerTest {
 
 
     @Test
-    void testUpdateCliente() throws Exception {
-        // Datos del cliente y respuesta esperada
-        ClienteRequest request = new ClienteRequest(null, "87654321B", "foto2.jpg", "Calle B");
+    void testUpdateClienteOk() throws Exception {
+        ClienteRequest request = new ClienteRequest(4L, "87654321B", "foto2.jpg", "Calle B");
         ClienteResponse responseMock = new ClienteResponse(1L, 4L, "87654321B", "foto2.jpg", "Calle B");
 
-        // Crear la parte de cliente como archivo JSON
         MockMultipartFile clienteFile = new MockMultipartFile(
-                "cliente", // Nombre de la parte
-                "cliente.json", // Nombre del archivo
-                "application/json", // Tipo de contenido
-                new ObjectMapper().writeValueAsBytes(request) // Convertir objeto a JSON
+                "cliente", "cliente.json", "application/json",
+                new ObjectMapper().writeValueAsBytes(request)
         );
 
-        // Crear archivo vacío para fotoDni
         MockMultipartFile fotoDniFile = new MockMultipartFile(
-                "fotoDni", // Nombre de la parte
-                "foto2Dni.jpg", // Nombre del archivo
-                "image/jpeg", // Tipo de contenido
-                new byte[0] // Datos del archivo
+                "fotoDni", "foto2Dni.jpg", "image/jpeg", new byte[0]
         );
 
-        // Configurar el mock para que el servicio devuelva la respuesta esperada
         when(clienteService.updateCliente(eq(1L), any(ClienteRequest.class))).thenReturn(responseMock);
 
-        // Ejecutar el test
-        mockMvc.perform(multipart("/api/clientes/{id}", 1L) // Llamada PUT
-                        .file(clienteFile) // Archivo del cliente
-                        .file(fotoDniFile) // Archivo de fotoDni
-                        .header("Content-Type", "multipart/form-data")) // Asegurar tipo de contenido
-                .andExpect(status().isOk()) // Comprobamos que el estado sea 200 OK
-                .andExpect(jsonPath("$.dni").value("87654321B")) // Comprobamos los datos del cliente
-                .andExpect(jsonPath("$.direccion").value("Calle B")); // Comprobamos la dirección
+        mockMvc.perform(multipart("/api/clientes/{id}", 1L)
+                        .file(clienteFile)
+                        .file(fotoDniFile)
+                        .with(req -> {
+                            req.setMethod("PUT");
+                            return req;
+                        })
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.dni").value("87654321B"))
+                .andExpect(jsonPath("$.direccionEnvio").value("Calle B"));
 
-        // Verificar que el servicio fue llamado
-        verify(clienteService).updateCliente(eq(1L), any(ClienteRequest.class));
+        verify(clienteService, times(1)).updateCliente(eq(1L), any(ClienteRequest.class));
     }
 
 
