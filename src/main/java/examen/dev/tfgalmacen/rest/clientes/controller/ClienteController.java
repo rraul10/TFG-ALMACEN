@@ -1,5 +1,7 @@
 package examen.dev.tfgalmacen.rest.clientes.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import examen.dev.tfgalmacen.rest.clientes.dto.ClienteRequest;
 import examen.dev.tfgalmacen.rest.clientes.dto.ClienteResponse;
 import examen.dev.tfgalmacen.rest.clientes.service.ClienteService;
@@ -49,46 +51,22 @@ public class ClienteController {
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAnyRole('ADMIN', 'TRABAJADOR')")
     public ResponseEntity<ClienteResponse> createCliente(
-            @RequestPart("cliente") ClienteRequest request,
+            @RequestPart("cliente") String clienteJson,
             @RequestPart(value = "fotoDni", required = false) MultipartFile fotoDni
-    ) {
-        var auth = SecurityContextHolder.getContext().getAuthentication();
-        System.out.println("===> Autenticación encontrada en SecurityContext:");
-        System.out.println("    Principal: " + auth.getPrincipal());
-        System.out.println("    Authorities: " + auth.getAuthorities());
-        System.out.println("    Authenticated: " + auth.isAuthenticated());
+    ) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        ClienteRequest request = mapper.readValue(clienteJson, ClienteRequest.class);
 
-        // LOG DE REQUEST
-        System.out.println("===> Datos recibidos en 'cliente':");
-        System.out.println("    userId: " + request.getUserId());
-        System.out.println("    dni: " + request.getDni());
-        System.out.println("    direccionEnvio: " + request.getDireccionEnvio());
-
-        // LOG DE ARCHIVO
-        if (fotoDni != null && !fotoDni.isEmpty()) {
-            System.out.println("===> FotoDni recibida:");
-            System.out.println("    Nombre original: " + fotoDni.getOriginalFilename());
-            System.out.println("    Tipo: " + fotoDni.getContentType());
-        } else {
-            System.out.println("===> No se recibió fotoDni. Se usará default.jpg");
-        }
-
-        String nombreArchivo;
-
-        if (fotoDni != null && !fotoDni.isEmpty()) {
-            nombreArchivo = storageService.store(fotoDni);
-        } else {
-            nombreArchivo = "default.jpg";
-        }
+        String nombreArchivo = (fotoDni != null && !fotoDni.isEmpty())
+                ? storageService.store(fotoDni)
+                : "default.jpg";
 
         request.setFotoDni(nombreArchivo);
-
         ClienteResponse response = clienteService.createCliente(request);
-
-        System.out.println("===> Cliente creado correctamente con ID de usuario: " + request.getUserId());
 
         return ResponseEntity.status(201).body(response);
     }
+
 
 
 
