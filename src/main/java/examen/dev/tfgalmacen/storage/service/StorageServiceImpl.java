@@ -36,10 +36,17 @@ public class StorageServiceImpl implements StorageService {
         }
 
         try {
-            String extension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."));
+            String originalFilename = file.getOriginalFilename();
+            String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+
+            if (!extension.matches("(?i).*(jpg|jpeg|png|gif|bmp|webp)$")) {
+                throw new RuntimeException("El archivo debe ser una imagen válida.");
+            }
+
             String filename = UUID.randomUUID() + extension;
             Path filePath = rootLocation.resolve(filename);
             Files.copy(file.getInputStream(), filePath);
+
             System.out.println("Archivo guardado en: " + filePath.toString());
             return filename;
         } catch (IOException e) {
@@ -47,10 +54,10 @@ public class StorageServiceImpl implements StorageService {
         }
     }
 
-
     @Override
     public Resource loadAsResource(String filename) {
         Path file = rootLocation.resolve(filename);
         return new FileSystemResource(file.toFile());
     }
 }
+
