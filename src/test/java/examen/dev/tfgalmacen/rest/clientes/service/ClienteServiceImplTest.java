@@ -22,8 +22,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class ClienteServiceImplTest {
 
@@ -221,5 +220,31 @@ class ClienteServiceImplTest {
 
         assertThrows(ClienteNotFound.class, () -> clienteService.deleteCliente(1L));
         verify(clienteRepository).findById(1L);
+    }
+
+    @Test
+    void testGetClienteEntityById_Existente() {
+        Cliente cliente = new Cliente();
+        cliente.setId(1L);
+        when(clienteRepository.findById(1L)).thenReturn(Optional.of(cliente));
+
+        Cliente result = clienteService.getClienteEntityById(1L);
+
+        assertNotNull(result);
+        assertEquals(1L, result.getId());
+        verify(clienteRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    void testGetClienteEntityById_NoExistente() {
+        when(clienteRepository.findById(2L)).thenReturn(Optional.empty());
+
+        ClienteNotFound ex = assertThrows(
+                ClienteNotFound.class,
+                () -> clienteService.getClienteEntityById(2L)
+        );
+
+        assertEquals("Cliente no encontrado", ex.getMessage());
+        verify(clienteRepository, times(1)).findById(2L);
     }
 }
