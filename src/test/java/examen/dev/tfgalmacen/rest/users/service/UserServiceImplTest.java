@@ -7,6 +7,7 @@ import examen.dev.tfgalmacen.rest.users.mapper.UserMapper;
 import examen.dev.tfgalmacen.rest.users.models.User;
 import examen.dev.tfgalmacen.rest.users.repository.UserRepository;
 import examen.dev.tfgalmacen.rest.users.UserRole;
+import examen.dev.tfgalmacen.websockets.notifications.EmailService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
@@ -26,10 +27,14 @@ public class UserServiceImplTest {
 
     private UserServiceImpl userService;
 
+    @Mock
+    private EmailService emailService;
+
+
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        userService = new UserServiceImpl(userRepository, userMapper);
+        userService = new UserServiceImpl(userRepository, userMapper, emailService);
     }
 
     @Test

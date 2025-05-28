@@ -55,12 +55,27 @@ public class ProductoController {
     }
 
 
-
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'TRABAJADOR')")
-    public ResponseEntity<ProductoResponse> update(@PathVariable Long id, @RequestBody ProductoRequest request) {
-        return ResponseEntity.ok(productoService.update(id, request));
+    public ResponseEntity<ProductoResponse> update(
+            @PathVariable Long id,
+            @RequestPart("producto") String productoJson,
+            @RequestPart(value = "imagen", required = false) MultipartFile imagen) throws JsonProcessingException {
+
+        ObjectMapper mapper = new ObjectMapper();
+        ProductoRequest productoRequest = mapper.readValue(productoJson, ProductoRequest.class);
+
+        String nombreImagen = (imagen != null && !imagen.isEmpty())
+                ? storageService.store(imagen)
+                : "default.jpg";
+
+        productoRequest.setImagen(nombreImagen);
+
+        ProductoResponse productoActualizado = productoService.update(id, productoRequest);
+
+        return ResponseEntity.ok(productoActualizado);
     }
+
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'TRABAJADOR')")

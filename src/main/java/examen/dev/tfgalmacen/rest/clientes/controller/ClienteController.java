@@ -10,6 +10,7 @@ import examen.dev.tfgalmacen.rest.pedido.dto.PedidoResponse;
 import examen.dev.tfgalmacen.rest.pedido.service.PedidoService;
 import examen.dev.tfgalmacen.storage.service.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -54,28 +55,44 @@ public class ClienteController {
             @RequestPart("cliente") String clienteJson,
             @RequestPart(value = "fotoDni", required = false) MultipartFile fotoDni
     ) throws JsonProcessingException {
+
         ObjectMapper mapper = new ObjectMapper();
         ClienteRequest request = mapper.readValue(clienteJson, ClienteRequest.class);
 
-        String nombreArchivo = (fotoDni != null && !fotoDni.isEmpty())
-                ? storageService.store(fotoDni)
-                : "default.jpg";
+        if (fotoDni != null && !fotoDni.isEmpty()) {
+            String nombreArchivo = storageService.store(fotoDni);
+            request.setFotoDni(nombreArchivo);
+        } else {
+            request.setFotoDni("default.jpg");
+        }
 
-        request.setFotoDni(nombreArchivo);
         ClienteResponse response = clienteService.createCliente(request);
 
-        return ResponseEntity.status(201).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
-
-
-
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'TRABAJADOR')")
-    public ResponseEntity<ClienteResponse> updateCliente(@PathVariable Long id, @RequestBody ClienteRequest clienteRequest) {
+    public ResponseEntity<ClienteResponse> updateCliente(
+            @PathVariable Long id,
+            @RequestPart("cliente") String clienteJson,
+            @RequestPart(value = "fotoDni", required = false) MultipartFile fotoDni) throws JsonProcessingException {
+
+        ObjectMapper mapper = new ObjectMapper();
+        ClienteRequest clienteRequest = mapper.readValue(clienteJson, ClienteRequest.class);
+
+        if (fotoDni != null && !fotoDni.isEmpty()) {
+            String nombreArchivo = storageService.store(fotoDni);
+            clienteRequest.setFotoDni(nombreArchivo);
+        } else {
+            clienteRequest.setFotoDni("default.jpg");
+        }
+
         ClienteResponse clienteActualizado = clienteService.updateCliente(id, clienteRequest);
+
         return ResponseEntity.ok(clienteActualizado);
     }
+
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'TRABAJADOR')")
