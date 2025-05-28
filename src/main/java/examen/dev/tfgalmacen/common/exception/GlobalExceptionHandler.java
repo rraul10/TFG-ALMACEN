@@ -10,9 +10,10 @@ import org.springframework.web.bind.annotation.*;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Void> handleIllegalArgument(IllegalArgumentException ex) {
-        return ResponseEntity.badRequest().build();
+    public ResponseEntity<String> handleIllegalArgument(IllegalArgumentException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
     }
+
 
     @ExceptionHandler(PedidoNotFoundException.class)
     public ResponseEntity<String> handlePedidoNotFound(PedidoNotFoundException ex) {
