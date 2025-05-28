@@ -110,7 +110,7 @@ class ProductoServiceImplTest {
                 .stock(20)
                 .build();
 
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(ProductoNotFoundException.class, () -> {
             productoService.create(request);
         });
 
@@ -145,7 +145,7 @@ class ProductoServiceImplTest {
                 .stock(20)
                 .build();
 
-        assertThrows(IllegalArgumentException.class, () -> productoService.create(request));
+        assertThrows(ProductoNotFoundException.class, () -> productoService.create(request));
 
         verifyNoInteractions(productoRepository);
         verifyNoInteractions(emailService);

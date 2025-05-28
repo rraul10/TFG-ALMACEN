@@ -9,11 +9,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.List;
@@ -21,6 +21,7 @@ import java.util.NoSuchElementException;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -201,5 +202,23 @@ class ClienteControllerTest {
 
         assertEquals("Cliente no encontrado", exception.getMessage());
         verify(clienteService).deleteCliente(100L);
+    }
+
+    @Test
+    @WithMockUser(username = "cliente", roles = {"CLIENTE"})
+    void testGetPedidosByClienteId_Autorizado() throws Exception {
+        Long clienteId = 1L;
+
+        mockMvc.perform(get("/api/clientes/" + clienteId + "/mispedidos")  // Aquí está la ruta corregida
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
+    }
+
+    @Test
+    @WithMockUser(username = "otro", roles = {"OTRO"})
+    void testGetPedidosByClienteId_NoAutorizado() throws Exception {
+        mockMvc.perform(get("/1/mispedidos"))
+                .andExpect(status().isForbidden());
     }
 }
