@@ -2,6 +2,7 @@ package examen.dev.tfgalmacen.rest.pedido.service;
 
 import examen.dev.tfgalmacen.rest.clientes.models.Cliente;
 import examen.dev.tfgalmacen.rest.clientes.service.ClienteService;
+import examen.dev.tfgalmacen.rest.pedido.dto.CompraRequest;
 import examen.dev.tfgalmacen.rest.pedido.dto.LineaVentaDTO;
 import examen.dev.tfgalmacen.rest.pedido.dto.PedidoRequest;
 import examen.dev.tfgalmacen.rest.pedido.dto.PedidoResponse;
@@ -11,7 +12,10 @@ import examen.dev.tfgalmacen.rest.pedido.models.EstadoPedido;
 import examen.dev.tfgalmacen.rest.pedido.models.LineaVenta;
 import examen.dev.tfgalmacen.rest.pedido.models.Pedido;
 import examen.dev.tfgalmacen.rest.pedido.repository.PedidoRepository;
+import examen.dev.tfgalmacen.rest.productos.exceptions.ProductoNotFoundException;
 import examen.dev.tfgalmacen.rest.productos.models.Producto;
+import examen.dev.tfgalmacen.rest.productos.repository.ProductoRepository;
+import examen.dev.tfgalmacen.websockets.notifications.EmailService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
@@ -32,7 +36,13 @@ class PedidoServiceImplTest {
     private PedidoRepository pedidoRepository;
 
     @Mock
+    private ProductoRepository productoRepository;
+
+    @Mock
     private ClienteService clienteService;
+
+    @Mock
+    private EmailService emailService;
 
     @InjectMocks
     private PedidoServiceImpl pedidoService;
@@ -126,7 +136,6 @@ class PedidoServiceImplTest {
         assertEquals("El pedido debe contener al menos una línea de venta.", exception.getMessage());
     }
 
-
     @Test
     void update() {
         when(pedidoRepository.findById(1L)).thenReturn(Optional.of(pedido));
@@ -154,7 +163,6 @@ class PedidoServiceImplTest {
         assertEquals("Pedido no encontrado con id: 1", exception.getMessage());
     }
 
-
     @Test
     void delete() {
         when(pedidoRepository.findById(1L)).thenReturn(Optional.of(pedido));
@@ -176,4 +184,103 @@ class PedidoServiceImplTest {
         assertEquals("Pedido no encontrado con id: 1", exception.getMessage());
     }
 
+    @Test
+    void testCrearCompraDesdeNombreProducto_Success() {
+        Long clienteId = 1L;
+        String productoNombre = "Producto de prueba";
+        int cantidad = 2;
+        Producto productoMock = new Producto();
+        productoMock.setStock(10);
+        productoMock.setPrecio(50.0);
+        productoMock.setNombre(productoNombre);
+
+        Cliente clienteMock = new Cliente();
+        clienteMock.setId(clienteId);
+
+        CompraRequest request = new CompraRequest(productoNombre, cantidad, clienteId);
+
+        when(productoRepository.findByNombreIgnoreCase(productoNombre))
+                .thenReturn(Optional.of(productoMock));
+
+        when(clienteService.getClienteEntityById(clienteId)).thenReturn(clienteMock);
+        when(pedidoRepository.save(any(Pedido.class))).thenReturn(new Pedido());
+
+        PedidoResponse response = pedidoService.crearCompraDesdeNombreProducto(request);
+
+        assertNotNull(response);
+        assertEquals(clienteId, response.getClienteId());
+        verify(pedidoRepository, times(1)).save(any(Pedido.class));
+    }
+
+    @Test
+    void testCrearCompraDesdeNombreProducto_ProductoNoEncontrado() {
+        Long clienteId = 1L;
+        String productoNombre = "Producto de prueba";
+        int cantidad = 2;
+
+        CompraRequest request = new CompraRequest(productoNombre, cantidad, clienteId);
+
+        when(productoRepository.findByNombreIgnoreCase(productoNombre))
+                .thenReturn(Optional.empty());
+
+        assertThrows(ProductoNotFoundException.class, () -> {
+            pedidoService.crearCompraDesdeNombreProducto(request);
+        });
+    }
+
+    @Test
+    void testGetPedidosByClienteId() {
+        Long clienteId = 1L;
+        Pedido pedidoMock = new Pedido();
+        pedidoMock.setId(1L);
+        pedidoMock.setCliente(cliente);
+
+        when(pedidoRepository.findByClienteIdAndDeletedFalse(clienteId)).thenReturn(List.of(pedidoMock));
+
+        List<PedidoResponse> response = pedidoService.getPedidosByClienteId(clienteId);
+
+        assertNotNull(response);
+        assertEquals(1, response.size());
+        assertEquals(clienteId, response.get(0).getClienteId());
+    }
+
+    @Test
+    void testActualizarEstadoPedido_Success() {
+        Long pedidoId = 1L;
+        EstadoPedido nuevoEstado = EstadoPedido.ENTREGADO;
+
+        Pedido pedidoMock = new Pedido();
+        pedidoMock.setId(pedidoId);
+        pedidoMock.setEstado(EstadoPedido.PENDIENTE);
+
+        Cliente clienteMock = new Cliente();
+        clienteMock.setId(1L);
+        pedidoMock.setCliente(clienteMock);
+
+        when(pedidoRepository.findById(pedidoId)).thenReturn(Optional.of(pedidoMock));
+        when(pedidoRepository.save(any(Pedido.class))).thenReturn(pedidoMock);
+
+        doNothing().when(emailService).notificarCambioEstadoPedido(any(Pedido.class), any(String.class));
+
+        PedidoResponse response = pedidoService.actualizarEstadoPedido(pedidoId, nuevoEstado);
+
+        assertNotNull(response);
+        assertEquals(nuevoEstado, response.getEstado());
+
+        verify(pedidoRepository, times(1)).save(any(Pedido.class));
+
+        verify(emailService, times(1)).notificarCambioEstadoPedido(any(Pedido.class), any(String.class));
+    }
+
+    @Test
+    void testActualizarEstadoPedido_PedidoNoEncontrado() {
+        Long pedidoId = 1L;
+        EstadoPedido nuevoEstado = EstadoPedido.ENTREGADO;
+
+        when(pedidoRepository.findById(pedidoId)).thenReturn(Optional.empty());
+
+        assertThrows(PedidoNotFoundException.class, () -> {
+            pedidoService.actualizarEstadoPedido(pedidoId, nuevoEstado);
+        });
+    }
 }

@@ -1,5 +1,9 @@
 package examen.dev.tfgalmacen.rest.trabajadores.controller;
 
+import examen.dev.tfgalmacen.rest.pedido.dto.PedidoResponse;
+import examen.dev.tfgalmacen.rest.pedido.exceptions.PedidoNotFoundException;
+import examen.dev.tfgalmacen.rest.pedido.models.EstadoPedido;
+import examen.dev.tfgalmacen.rest.pedido.service.PedidoServiceImpl;
 import examen.dev.tfgalmacen.rest.trabajadores.controller.TrabajadorController;
 import examen.dev.tfgalmacen.rest.trabajadores.dto.TrabajadorRequest;
 import examen.dev.tfgalmacen.rest.trabajadores.dto.TrabajadorResponse;
@@ -12,7 +16,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.List;
@@ -32,6 +38,9 @@ public class TrabajadorControllerTest {
 
     @Mock
     private TrabajadorService trabajadorService;
+
+    @Mock
+    private PedidoServiceImpl pedidoService;
 
     @InjectMocks
     private TrabajadorController trabajadorController;
@@ -163,6 +172,82 @@ public class TrabajadorControllerTest {
 
         mockMvc.perform(delete("/api/trabajadores/{id}", 99L))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN") // Simulamos un usuario con el rol ADMIN
+    void testActualizarEstadoPedidoSuccess() throws Exception {
+        Long pedidoId = 1L;
+        EstadoPedido nuevoEstado = EstadoPedido.ENTREGADO;
+
+        // Simulamos la respuesta esperada
+        PedidoResponse pedidoResponse = new PedidoResponse();
+        pedidoResponse.setId(pedidoId);
+        pedidoResponse.setEstado(nuevoEstado);
+
+        // Mockeamos el servicio para que devuelva la respuesta simulada
+        when(pedidoService.actualizarEstadoPedido(pedidoId, nuevoEstado)).thenReturn(pedidoResponse);
+
+        // Ejecutamos la petición PUT
+        mockMvc.perform(MockMvcRequestBuilders.put("/api/pedidos/{id}/estado", pedidoId)  // Asegúrate de usar la URL completa
+                        .param("nuevoEstado", nuevoEstado.toString())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk()) // 200 OK
+                .andExpect(jsonPath("$.estado").value(nuevoEstado.toString()));  // Verificamos que el estado sea correcto
+
+    }
+
+    @Test
+    @WithMockUser(roles = "TRABAJADOR")  // Simulamos un usuario con el rol TRABAJADOR
+    void testActualizarEstadoPedidoAsTrabajador() throws Exception {
+        Long pedidoId = 1L;
+        EstadoPedido nuevoEstado = EstadoPedido.PENDIENTE;
+
+        // Simulamos el servicio
+        PedidoResponse pedidoResponse = new PedidoResponse();
+        pedidoResponse.setId(pedidoId);
+        pedidoResponse.setEstado(nuevoEstado);
+
+        when(pedidoService.actualizarEstadoPedido(pedidoId, nuevoEstado)).thenReturn(pedidoResponse);
+
+        // Ejecutamos la petición PUT
+        mockMvc.perform(MockMvcRequestBuilders.put("/pedidos/{id}/estado", pedidoId)
+                        .param("nuevoEstado", nuevoEstado.toString())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())  // Comprobamos que el código de estado es 200 OK
+                .andExpect(jsonPath("$.estado").value(nuevoEstado.toString()));  // Verificamos que el estado sea correcto
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void testActualizarEstadoPedidoNotFound() throws Exception {
+        Long pedidoId = 999L;  // Id que no existe
+
+        // Simulamos que el servicio lanza una excepción de "Pedido no encontrado"
+        when(pedidoService.actualizarEstadoPedido(pedidoId, EstadoPedido.ENTREGADO))
+                .thenThrow(new PedidoNotFoundException("Pedido no encontrado"));
+
+        // Ejecutamos la petición PUT
+        mockMvc.perform(MockMvcRequestBuilders.put("/pedidos/{id}/estado", pedidoId)
+                        .param("nuevoEstado", EstadoPedido.ENTREGADO.toString())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());  // Esperamos un 404
+    }
+
+    @Test
+    @WithMockUser(roles = "TRABAJADOR")
+    void testActualizarEstadoPedidoBadRequest() throws Exception {
+        Long pedidoId = 1L;
+
+        // Simulamos que el servicio lanza una excepción de "IllegalArgumentException"
+        when(pedidoService.actualizarEstadoPedido(pedidoId, null))
+                .thenThrow(new IllegalArgumentException("Estado no válido"));
+
+        // Ejecutamos la petición PUT
+        mockMvc.perform(MockMvcRequestBuilders.put("/pedidos/{id}/estado", pedidoId)
+                        .param("nuevoEstado", "")  // Enviamos un estado no válido
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());  // Esperamos un 400
     }
 
 
