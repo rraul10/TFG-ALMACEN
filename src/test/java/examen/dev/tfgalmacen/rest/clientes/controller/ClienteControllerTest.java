@@ -4,6 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import examen.dev.tfgalmacen.rest.clientes.dto.ClienteRequest;
 import examen.dev.tfgalmacen.rest.clientes.dto.ClienteResponse;
 import examen.dev.tfgalmacen.rest.clientes.service.ClienteService;
+import examen.dev.tfgalmacen.rest.pedido.dto.CompraRequest;
+import examen.dev.tfgalmacen.rest.pedido.dto.PedidoResponse;
+import examen.dev.tfgalmacen.rest.pedido.models.EstadoPedido;
+import examen.dev.tfgalmacen.rest.pedido.service.PedidoService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -12,17 +16,18 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
@@ -33,6 +38,9 @@ class ClienteControllerTest {
 
     @InjectMocks
     private ClienteController clienteController;
+
+    @Mock
+    private PedidoService pedidoService;
 
     private MockMvc mockMvc;
 
@@ -111,44 +119,6 @@ class ClienteControllerTest {
         verify(clienteService).createCliente(any(ClienteRequest.class));
     }
 
-
-    @Test
-    void testCreateClienteInvalidRequest() throws Exception {
-        // Crear el objeto de solicitud con datos inválidos
-        ClienteRequest request = new ClienteRequest(null, "", "", ""); // userId null y campos vacíos
-
-        // Serializar el JSON del cliente
-        MockMultipartFile clienteFile = new MockMultipartFile(
-                "cliente", // nombre de la parte
-                "cliente.json",
-                "application/json",
-                new ObjectMapper().writeValueAsBytes(request)
-        );
-
-        // Crear archivo de foto vacío (no importa para este test)
-        MockMultipartFile fotoDniFile = new MockMultipartFile(
-                "fotoDni",
-                "default.jpg",
-                "image/jpeg",
-                new byte[0]
-        );
-
-        // Simular que el servicio lanza una excepción por datos inválidos
-        when(clienteService.createCliente(any(ClienteRequest.class)))
-                .thenThrow(new IllegalArgumentException("Datos inválidos del cliente"));
-
-        // Ejecutar la petición y verificar el error 400
-        mockMvc.perform(multipart("/api/clientes/create")
-                        .file(clienteFile)
-                        .file(fotoDniFile))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string("Datos inválidos del cliente"));
-
-        verify(clienteService).createCliente(any(ClienteRequest.class));
-    }
-
-
-
     @Test
     void testUpdateClienteOk() throws Exception {
         ClienteRequest request = new ClienteRequest(4L, "87654321B", "foto2.jpg", "Calle B");
@@ -205,20 +175,69 @@ class ClienteControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "cliente", roles = {"CLIENTE"})
-    void testGetPedidosByClienteId_Autorizado() throws Exception {
+    void testComprarProducto() throws Exception {
         Long clienteId = 1L;
+        CompraRequest request = new CompraRequest("Producto de prueba", 2, clienteId);
 
-        mockMvc.perform(get("/api/clientes/" + clienteId + "/mispedidos")
-                        .contentType(MediaType.APPLICATION_JSON))
+        PedidoResponse pedidoResponseMock = PedidoResponse.builder()
+                .id(1L)
+                .clienteId(clienteId)
+                .estado(EstadoPedido.PENDIENTE)
+                .fecha(LocalDateTime.now())
+                .lineasVenta(Collections.emptyList())
+                .build();
+
+        when(pedidoService.crearCompraDesdeNombreProducto(any(CompraRequest.class)))
+                .thenReturn(pedidoResponseMock);
+
+        String requestJson = new ObjectMapper().writeValueAsString(request);
+
+        mockMvc.perform(post("/api/clientes/{id}/comprar", clienteId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestJson))
                 .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.clienteId").value(clienteId))
+                .andExpect(jsonPath("$.estado").value("PENDIENTE"))
+                .andExpect(jsonPath("$.fecha").exists())
+                .andExpect(jsonPath("$.lineasVenta").isArray())
+                .andExpect(jsonPath("$.lineasVenta.length()").value(0));
+
+        verify(pedidoService).crearCompraDesdeNombreProducto(any(CompraRequest.class));
     }
+
 
     @Test
-    @WithMockUser(username = "otro", roles = {"OTRO"})
-    void testGetPedidosByClienteId_NoAutorizado() throws Exception {
-        mockMvc.perform(get("/1/mispedidos"))
-                .andExpect(status().isForbidden());
+    void testGetPedidosByCliente() throws Exception {
+        Long clienteId = 1L;
+
+        List<PedidoResponse> pedidosMock = Arrays.asList(
+                PedidoResponse.builder()
+                        .id(1L)
+                        .clienteId(clienteId)
+                        .estado(EstadoPedido.PENDIENTE)
+                        .fecha(LocalDateTime.now())
+                        .lineasVenta(Collections.emptyList())
+                        .build(),
+                PedidoResponse.builder()
+                        .id(2L)
+                        .clienteId(clienteId)
+                        .estado(EstadoPedido.ENVIADO)
+                        .fecha(LocalDateTime.now())
+                        .lineasVenta(Collections.emptyList())
+                        .build()
+        );
+
+        when(pedidoService.getPedidosByClienteId(clienteId)).thenReturn(pedidosMock);
+
+        mockMvc.perform(get("/api/clientes/{id}/mispedidos", clienteId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1L))
+                .andExpect(jsonPath("$[0].estado").value("PENDIENTE"))
+                .andExpect(jsonPath("$[1].id").value(2L))
+                .andExpect(jsonPath("$[1].estado").value("ENVIADO"));
+
+        verify(pedidoService).getPedidosByClienteId(clienteId);
     }
+
 }

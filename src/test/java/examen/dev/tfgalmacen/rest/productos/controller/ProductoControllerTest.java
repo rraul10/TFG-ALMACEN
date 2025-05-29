@@ -1,6 +1,5 @@
 package examen.dev.tfgalmacen.rest.productos.controller;
 
-import examen.dev.tfgalmacen.rest.productos.controller.ProductoController;
 import examen.dev.tfgalmacen.rest.productos.dto.ProductoRequest;
 import examen.dev.tfgalmacen.rest.productos.dto.ProductoResponse;
 import examen.dev.tfgalmacen.rest.productos.service.ProductoService;
@@ -13,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;

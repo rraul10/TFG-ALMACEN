@@ -67,14 +67,10 @@ public class TrabajadorController {
             @PathVariable Long id,
             @RequestParam EstadoPedido nuevoEstado) {
 
-        try {
-            PedidoResponse updatedPedido = pedidoService.actualizarEstadoPedido(id, nuevoEstado);
-            return ResponseEntity.ok(updatedPedido);
-        } catch (PedidoNotFoundException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
+        PedidoResponse updatedPedido = pedidoService.actualizarEstadoPedido(id, nuevoEstado);
+        return ResponseEntity.ok(updatedPedido);
     }
+
+
 }
 

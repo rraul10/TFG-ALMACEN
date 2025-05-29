@@ -76,4 +76,3 @@ public class JwtServiceImpl implements JwtService {
         return Base64.getEncoder().encode(jwtSigInKey.getBytes());
     }
 }
-
