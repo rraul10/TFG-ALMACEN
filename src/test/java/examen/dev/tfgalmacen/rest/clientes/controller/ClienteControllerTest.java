@@ -209,7 +209,7 @@ class ClienteControllerTest {
     void testGetPedidosByClienteId_Autorizado() throws Exception {
         Long clienteId = 1L;
 
-        mockMvc.perform(get("/api/clientes/" + clienteId + "/mispedidos")  // Aquí está la ruta corregida
+        mockMvc.perform(get("/api/clientes/" + clienteId + "/mispedidos")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
