@@ -116,17 +116,11 @@ public class PedidoServiceImpl implements PedidoService {
         pedido.setFecha(LocalDateTime.now());
         pedido.setLineasVenta(new ArrayList<>());
 
-
-        if (pedido.getLineasVenta() == null) {
-            pedido.setLineasVenta(new ArrayList<>());
-        }
-        pedido.getLineasVenta().add(linea);
-
-
         linea.setPedido(pedido);
         pedido.getLineasVenta().add(linea);
 
         pedidoRepository.save(pedido);
+
 
         return PedidoMapper.toDto(pedido);
     }

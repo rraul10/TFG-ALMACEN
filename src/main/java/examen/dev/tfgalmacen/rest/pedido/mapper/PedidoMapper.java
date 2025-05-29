@@ -19,12 +19,20 @@ public class PedidoMapper {
         Pedido pedido = new Pedido();
         pedido.setCliente(cliente);
         pedido.setEstado(EstadoPedido.PENDIENTE);
-        pedido.setLineasVenta(toLineaVentaEntities(request.getLineasVenta()));
+        pedido.setFecha(java.time.LocalDateTime.now());
         pedido.setCreated(java.time.LocalDateTime.now());
         pedido.setUpdated(java.time.LocalDateTime.now());
         pedido.setDeleted(false);
+
+        List<LineaVenta> lineas = toLineaVentaEntities(request.getLineasVenta());
+        for (LineaVenta lv : lineas) {
+            lv.setPedido(pedido);
+        }
+        pedido.setLineasVenta(lineas);
+
         return pedido;
     }
+
 
     public static PedidoResponse toDto(Pedido pedido) {
         PedidoResponse response = new PedidoResponse();
