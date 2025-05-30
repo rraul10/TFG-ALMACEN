@@ -1,6 +1,7 @@
 package examen.dev.tfgalmacen.auth.controller;
 import examen.dev.tfgalmacen.auth.auth.AuthService;
 import examen.dev.tfgalmacen.auth.dto.JwtAuthResponse;
+import examen.dev.tfgalmacen.auth.dto.RegisterClienteRequest;
 import examen.dev.tfgalmacen.auth.dto.RegisterUserRequest;
 import examen.dev.tfgalmacen.auth.dto.UserLoginRequest;
 import lombok.RequiredArgsConstructor;
@@ -25,4 +26,11 @@ public class AuthenticationRestController {
         JwtAuthResponse jwtAuthResponse = authService.register(request);
         return ResponseEntity.ok(jwtAuthResponse);
     }
+
+    @PostMapping("/register/cliente")
+    public ResponseEntity<JwtAuthResponse> registerCliente(@RequestBody RegisterClienteRequest request) {
+        JwtAuthResponse jwtAuthResponse = authService.registerCliente(request);
+        return ResponseEntity.ok(jwtAuthResponse);
+    }
 }
+
