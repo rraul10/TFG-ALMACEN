@@ -26,7 +26,7 @@ public class Cliente {
 
     @OneToOne
     @JoinColumn(name = "user_id")
-    private User user;  
+    private User user;
 
     private String dni;
 
@@ -35,13 +35,16 @@ public class Cliente {
     private String direccionEnvio;
 
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<Pedido> pedidos = new ArrayList<>();
-
 
     @Column(name = "deleted", nullable = false)
     @Builder.Default
     private boolean deleted = false;
 
-    private LocalDateTime created;
-    private LocalDateTime updated;
+    @Builder.Default
+    private LocalDateTime created = LocalDateTime.now();
+
+    @Builder.Default
+    private LocalDateTime updated = LocalDateTime.now();
 }

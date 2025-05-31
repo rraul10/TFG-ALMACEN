@@ -1,11 +1,14 @@
 package examen.dev.tfgalmacen.auth.users.service;
 
+import examen.dev.tfgalmacen.auth.jwt.JwtService;
 import examen.dev.tfgalmacen.auth.users.repository.AuthUserRepository;
 import examen.dev.tfgalmacen.auth.exceptions.UserNotFound;
 
+import examen.dev.tfgalmacen.rest.clientes.repository.ClienteRepository;
 import examen.dev.tfgalmacen.rest.users.models.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
@@ -15,12 +18,24 @@ import static org.mockito.Mockito.*;
 public class AuthUserServiceImplTest {
 
     private AuthUserRepository userRepository;
+    private PasswordEncoder passwordEncoder;
+    private ClienteRepository clienteRepository;
+    private JwtService jwtService;
     private AuthUserServiceImpl authUserService;
 
     @BeforeEach
     void setUp() {
         userRepository = mock(AuthUserRepository.class);
-        authUserService = new AuthUserServiceImpl(userRepository);
+        passwordEncoder = mock(PasswordEncoder.class);
+        clienteRepository = mock(ClienteRepository.class);
+        jwtService = mock(JwtService.class);
+
+        authUserService = new AuthUserServiceImpl(
+                userRepository,
+                passwordEncoder,
+                clienteRepository,
+                jwtService
+        );
     }
 
     @Test

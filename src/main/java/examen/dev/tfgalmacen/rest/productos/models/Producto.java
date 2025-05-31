@@ -26,10 +26,14 @@ public class Producto {
     private Double precio;
     private Integer stock;
 
+    @Builder.Default
     private LocalDateTime created = LocalDateTime.now();
+
+    @Builder.Default
     private LocalDateTime updated = LocalDateTime.now();
 
     @Column(name = "is_deleted", nullable = false)
+    @Builder.Default
     private boolean deleted = false;
 
     @PreUpdate
