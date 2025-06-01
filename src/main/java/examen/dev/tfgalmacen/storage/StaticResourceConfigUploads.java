@@ -6,7 +6,7 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-public class StaticResourceConfig implements WebMvcConfigurer {
+public class StaticResourceConfigUploads implements WebMvcConfigurer {
     @Value("${app.storage.location:uploads}")
     private String storageLocation;
 
@@ -16,4 +16,6 @@ public class StaticResourceConfig implements WebMvcConfigurer {
                 .addResourceLocations("classpath:/uploads/");
     }
 }
+
+
 
