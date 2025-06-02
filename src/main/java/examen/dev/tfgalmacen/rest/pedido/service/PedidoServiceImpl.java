@@ -15,9 +15,12 @@ import examen.dev.tfgalmacen.rest.productos.exceptions.ProductoNotFoundException
 import examen.dev.tfgalmacen.rest.productos.models.Producto;
 import examen.dev.tfgalmacen.rest.productos.repository.ProductoRepository;
 import examen.dev.tfgalmacen.websockets.notifications.EmailService;
+import examen.dev.tfgalmacen.websockets.notifications.TicketService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayOutputStream;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +34,7 @@ public class PedidoServiceImpl implements PedidoService {
     private final ClienteService clienteService;
     private final ProductoRepository productoRepository;
     private final EmailService emailService;
+    private final TicketService  ticketService;
 
     @Override
     public List<PedidoResponse> getAll() {
@@ -93,6 +97,7 @@ public class PedidoServiceImpl implements PedidoService {
     }
 
     @Override
+    @Transactional
     public PedidoResponse crearCompraDesdeNombreProducto(CompraRequest request) {
         Producto producto = productoRepository.findByNombreIgnoreCase(request.getProductoNombre())
                 .orElseThrow(() -> new ProductoNotFoundException("Producto no encontrado"));
@@ -121,9 +126,14 @@ public class PedidoServiceImpl implements PedidoService {
 
         pedidoRepository.save(pedido);
 
+        ByteArrayOutputStream pdfStream = ticketService.generarTicketPDF(pedido);
+
+        String emailCliente = pedido.getCliente().getUser().getCorreo();
+        emailService.enviarTicketPorEmail(emailCliente, pdfStream);
 
         return PedidoMapper.toDto(pedido);
     }
+
 
     @Override
     public List<PedidoResponse> getPedidosByClienteId(Long clienteId) {
