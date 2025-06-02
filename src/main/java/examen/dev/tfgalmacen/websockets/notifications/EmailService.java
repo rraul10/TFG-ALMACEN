@@ -2,10 +2,15 @@ package examen.dev.tfgalmacen.websockets.notifications;
 
 import examen.dev.tfgalmacen.rest.pedido.models.Pedido;
 import examen.dev.tfgalmacen.rest.productos.models.Producto;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.util.ByteArrayDataSource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+
+import java.io.ByteArrayOutputStream;
 
 @Service
 @RequiredArgsConstructor
@@ -41,5 +46,23 @@ public class EmailService {
         mensaje.setText("Hola " + nombre + ",\n\nTu cuenta ha sido creada correctamente.\n\n¡Gracias por registrarte!");
 
         mailSender.send(mensaje);
+    }
+
+    public void enviarTicketPorEmail(String destinatario, ByteArrayOutputStream pdfStream) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+            helper.setTo(destinatario);
+            helper.setSubject("Ticket de Compra");
+            helper.setText("Gracias por su compra. Adjuntamos el ticket en PDF.");
+
+            ByteArrayDataSource dataSource = new ByteArrayDataSource(pdfStream.toByteArray(), "application/pdf");
+            helper.addAttachment("ticket.pdf", dataSource);
+
+            mailSender.send(message);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
