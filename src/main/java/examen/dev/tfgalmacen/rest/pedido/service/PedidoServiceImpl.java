@@ -101,9 +101,6 @@ public class PedidoServiceImpl implements PedidoService {
         return PedidoMapper.toDto(saved);
     }
 
-
-
-
     @Override
     public PedidoResponse update(Long id, PedidoRequest request) {
         Pedido pedido = pedidoRepository.findById(id)

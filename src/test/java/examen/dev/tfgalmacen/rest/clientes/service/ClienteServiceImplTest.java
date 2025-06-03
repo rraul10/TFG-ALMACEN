@@ -10,6 +10,7 @@ import examen.dev.tfgalmacen.rest.clientes.service.ClienteServiceImpl;
 import examen.dev.tfgalmacen.rest.users.UserRole;
 import examen.dev.tfgalmacen.rest.users.models.User;
 import examen.dev.tfgalmacen.rest.users.repository.UserRepository;
+import examen.dev.tfgalmacen.websockets.notifications.EmailService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -34,6 +35,9 @@ class ClienteServiceImplTest {
 
     @Mock
     private ClienteMapper clienteMapper;
+
+    @Mock
+    private EmailService emailService;
 
     @InjectMocks
     private ClienteServiceImpl clienteService;
@@ -154,7 +158,6 @@ class ClienteServiceImplTest {
         assertThrows(ClienteNotFound.class, () -> clienteService.createCliente(request));
         verify(userRepository).findById(1L);
     }
-
     @Test
     void updateCliente() {
         ClienteRequest request = new ClienteRequest(1L, "87654321B", "foto2.jpg", "Calle B");
@@ -165,28 +168,35 @@ class ClienteServiceImplTest {
         clienteExistente.setFotoDni("foto1.jpg");
         clienteExistente.setDireccionEnvio("Calle A");
 
+        User user = new User();
+        user.setCorreo("usuario@example.com");
+        user.setNombre("Usuario Nombre");
+        clienteExistente.setUser(user);
+
         Cliente clienteActualizado = new Cliente();
         clienteActualizado.setId(1L);
         clienteActualizado.setDni("87654321B");
         clienteActualizado.setFotoDni("foto2.jpg");
         clienteActualizado.setDireccionEnvio("Calle B");
+        clienteActualizado.setUser(user);
 
         when(clienteRepository.findById(1L)).thenReturn(Optional.of(clienteExistente));
-
         when(clienteRepository.save(clienteExistente)).thenReturn(clienteActualizado);
-
-        when(clienteMapper.toResponse(clienteActualizado)).thenReturn(new ClienteResponse(1L, 1L, "87654321B", "foto2.jpg", "Calle B"));
+        when(clienteMapper.toResponse(clienteActualizado)).thenReturn(
+                new ClienteResponse(1L, 1L, "87654321B", "foto2.jpg", "Calle B")
+        );
 
         ClienteResponse response = clienteService.updateCliente(1L, request);
 
         assertNotNull(response);
-
         assertEquals("87654321B", response.getDni());
         assertEquals("foto2.jpg", response.getFotoDni());
         assertEquals("Calle B", response.getDireccionEnvio());
 
         verify(clienteRepository).save(clienteExistente);
+        verify(emailService).notificarActualizacionPerfil("usuario@example.com", "Usuario Nombre");
     }
+
 
     @Test
     void updateClienteNotFound() {
