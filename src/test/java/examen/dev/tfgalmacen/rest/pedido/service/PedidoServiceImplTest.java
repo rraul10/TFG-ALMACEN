@@ -27,6 +27,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.ByteArrayOutputStream;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -102,24 +103,47 @@ class PedidoServiceImplTest {
 
     @Test
     void create() {
+        Cliente cliente = new Cliente();
+        cliente.setId(1L);
         when(clienteService.getClienteEntityById(1L)).thenReturn(cliente);
-        when(pedidoRepository.save(any(Pedido.class))).thenReturn(pedido);
 
-        LineaVenta lineaVenta = new LineaVenta();
         Producto producto = new Producto();
         producto.setId(1L);
-        lineaVenta.setProducto(producto);
-        lineaVenta.setCantidad(1);
+        producto.setStock(20);
+        producto.setNombre("Producto Test");
+        BigDecimal precio = BigDecimal.valueOf(10.0);
+        producto.setPrecio(precio.doubleValue());
 
-        LineaVentaDTO lineaVentaDTO = PedidoMapper.toDto(lineaVenta);
+        when(productoRepository.findById(1L)).thenReturn(Optional.of(producto));
+        when(productoRepository.save(any(Producto.class))).thenReturn(producto);
 
+        Pedido pedido = new Pedido();
+        pedido.setId(1L);
+        pedido.setCliente(cliente);
+        pedido.setEstado(EstadoPedido.PENDIENTE);
+        pedido.setFecha(LocalDateTime.now());
+        pedido.setLineasVenta(new ArrayList<>());
+
+        when(pedidoRepository.save(any(Pedido.class))).thenReturn(pedido);
+
+        LineaVentaDTO lineaVentaDTO = new LineaVentaDTO();
+        lineaVentaDTO.setProductoId(1L);
+        lineaVentaDTO.setCantidad(1);
+
+        PedidoRequest pedidoRequest = new PedidoRequest();
+        pedidoRequest.setClienteId(1L);
         pedidoRequest.setLineasVenta(List.of(lineaVentaDTO));
 
         PedidoResponse result = pedidoService.create(pedidoRequest);
 
         assertNotNull(result);
         assertEquals(1L, result.getId());
+
+        verify(productoRepository).save(producto);
+
+        verify(emailService, never()).notificarStockAgotado(any(Producto.class));
     }
+
 
     @Test
     void createWithNoLineasVenta() {
