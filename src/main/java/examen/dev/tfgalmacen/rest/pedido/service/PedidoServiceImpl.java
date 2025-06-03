@@ -3,6 +3,7 @@ package examen.dev.tfgalmacen.rest.pedido.service;
 import examen.dev.tfgalmacen.rest.clientes.models.Cliente;
 import examen.dev.tfgalmacen.rest.clientes.service.ClienteService;
 import examen.dev.tfgalmacen.rest.pedido.dto.CompraRequest;
+import examen.dev.tfgalmacen.rest.pedido.dto.LineaVentaDTO;
 import examen.dev.tfgalmacen.rest.pedido.dto.PedidoRequest;
 import examen.dev.tfgalmacen.rest.pedido.dto.PedidoResponse;
 import examen.dev.tfgalmacen.rest.pedido.exceptions.PedidoNotFoundException;
@@ -50,6 +51,8 @@ public class PedidoServiceImpl implements PedidoService {
         return PedidoMapper.toDto(pedido);
     }
 
+    @Override
+    @Transactional
     public PedidoResponse create(PedidoRequest request) {
         if (request.getLineasVenta() == null || request.getLineasVenta().isEmpty()) {
             throw new PedidoNotFoundException("El pedido debe contener al menos una línea de venta.");
@@ -57,9 +60,33 @@ public class PedidoServiceImpl implements PedidoService {
 
         Cliente cliente = clienteService.getClienteEntityById(request.getClienteId());
 
-        List<LineaVenta> lineasVenta = request.getLineasVenta().stream()
-                .map(PedidoMapper::toEntity)
-                .collect(Collectors.toList());
+        List<LineaVenta> lineasVenta = new ArrayList<>();
+
+        for (LineaVentaDTO lineaDTO : request.getLineasVenta()) {
+            Producto producto = productoRepository.findById(lineaDTO.getProductoId())
+                    .orElseThrow(() -> new ProductoNotFoundException(
+                            "Producto no encontrado con ID: " + lineaDTO.getProductoId()));
+
+            if (producto.getStock() == null || producto.getStock() < lineaDTO.getCantidad()) {
+                throw new ProductoNotFoundException(
+                        "Stock insuficiente para el producto: " + producto.getNombre());
+            }
+
+            producto.setStock(producto.getStock() - lineaDTO.getCantidad());
+            productoRepository.save(producto);
+
+            if (producto.getStock() < 10) {
+                emailService.notificarStockAgotado(producto);
+            }
+
+            LineaVenta linea = LineaVenta.builder()
+                    .producto(producto)
+                    .cantidad(lineaDTO.getCantidad())
+                    .precioUnitario(producto.getPrecio())
+                    .build();
+
+            lineasVenta.add(linea);
+        }
 
         Pedido pedido = new Pedido();
         pedido.setCliente(cliente);
@@ -67,12 +94,15 @@ public class PedidoServiceImpl implements PedidoService {
         pedido.setFecha(LocalDateTime.now());
         pedido.setLineasVenta(lineasVenta);
 
+        lineasVenta.forEach(lv -> lv.setPedido(pedido));
+
         Pedido saved = pedidoRepository.save(pedido);
 
-        PedidoResponse response = PedidoMapper.toDto(saved);
-
-        return response;
+        return PedidoMapper.toDto(saved);
     }
+
+
+
 
     @Override
     public PedidoResponse update(Long id, PedidoRequest request) {
@@ -109,6 +139,10 @@ public class PedidoServiceImpl implements PedidoService {
         producto.setStock(producto.getStock() - request.getCantidad());
         productoRepository.save(producto);
 
+        if (producto.getStock() <= 10) {
+            emailService.notificarStockAgotado(producto);
+        }
+
         LineaVenta linea = LineaVenta.builder()
                 .producto(producto)
                 .cantidad(request.getCantidad())
@@ -133,6 +167,7 @@ public class PedidoServiceImpl implements PedidoService {
 
         return PedidoMapper.toDto(pedido);
     }
+
 
 
     @Override

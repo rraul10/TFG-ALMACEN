@@ -65,4 +65,13 @@ public class EmailService {
             e.printStackTrace();
         }
     }
+
+    public void notificarActualizacionPerfil(String destinatario, String nombre) {
+        SimpleMailMessage mensaje = new SimpleMailMessage();
+        mensaje.setTo(destinatario);
+        mensaje.setSubject("Actualización de perfil");
+        mensaje.setText("Hola " + nombre + ",\n\nTu perfil ha sido actualizado correctamente.\n\n¡Gracias por mantener tu información al día!");
+        mailSender.send(mensaje);
+    }
+
 }

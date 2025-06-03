@@ -72,7 +72,6 @@ public class ClienteController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'TRABAJADOR')")
     public ResponseEntity<ClienteResponse> updateCliente(
             @PathVariable Long id,
             @RequestPart("cliente") String clienteJson,

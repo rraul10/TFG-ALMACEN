@@ -79,5 +79,8 @@ SELECT setval('trabajador_id_seq', (SELECT MAX(id) FROM trabajador));
 -- Ajustar secuencia para evitar conflictos con IDs ya existentes en "cliente"
 SELECT setval('cliente_id_seq', (SELECT MAX(id) FROM cliente));
 
+SELECT setval('pedido_id_seq', (SELECT MAX(id) FROM pedido));
+
+
 
 
