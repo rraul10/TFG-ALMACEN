@@ -9,6 +9,7 @@ import examen.dev.tfgalmacen.rest.clientes.repository.ClienteRepository;
 import examen.dev.tfgalmacen.rest.users.models.User;
 import examen.dev.tfgalmacen.rest.users.repository.UserRepository;
 import examen.dev.tfgalmacen.storage.service.StorageService;
+import examen.dev.tfgalmacen.websockets.notifications.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -22,6 +23,7 @@ public class ClienteServiceImpl implements ClienteService {
     private final UserRepository userRepository;
     private final ClienteMapper clienteMapper;
     private final StorageService storageService;
+    private final EmailService emailService;
 
 
     @Override
@@ -54,8 +56,6 @@ public class ClienteServiceImpl implements ClienteService {
         return clienteMapper.toResponse(savedCliente);
     }
 
-
-
     @Override
     public ClienteResponse updateCliente(Long id, ClienteRequest request) {
         Cliente cliente = clienteRepository.findById(id)
@@ -66,6 +66,11 @@ public class ClienteServiceImpl implements ClienteService {
         cliente.setDireccionEnvio(request.getDireccionEnvio());
 
         Cliente updated = clienteRepository.save(cliente);
+
+        String destinatario = updated.getUser().getCorreo();
+        String nombre = updated.getUser().getNombre();
+        emailService.notificarActualizacionPerfil(destinatario, nombre);
+
         return clienteMapper.toResponse(updated);
     }
 

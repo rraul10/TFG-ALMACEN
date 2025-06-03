@@ -1,5 +1,6 @@
 package examen.dev.tfgalmacen.storage.service;
 
+import examen.dev.tfgalmacen.storage.exceptions.StorageException;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,7 +41,7 @@ public class StorageServiceImpl implements StorageService {
             String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
 
             if (!extension.matches("(?i).*(jpg|jpeg|png|gif|bmp|webp)$")) {
-                throw new RuntimeException("El archivo debe ser una imagen válida.");
+                throw new StorageException("El archivo debe ser una imagen válida.");
             }
 
             String filename = UUID.randomUUID() + extension;
@@ -50,7 +51,7 @@ public class StorageServiceImpl implements StorageService {
             System.out.println("Archivo guardado en: " + filePath.toString());
             return filename;
         } catch (IOException e) {
-            throw new RuntimeException("Error al guardar el archivo", e);
+            throw new StorageException("Error al guardar el archivo", e);
         }
     }
 
@@ -60,4 +61,5 @@ public class StorageServiceImpl implements StorageService {
         return new FileSystemResource(file.toFile());
     }
 }
+
 

@@ -24,7 +24,10 @@ public class Producto {
     private String imagen;
     private String descripcion;
     private Double precio;
-    private Integer stock;
+    @Builder.Default
+    @Column(nullable = false)
+    private Integer stock = 0;
+
 
     @Builder.Default
     private LocalDateTime created = LocalDateTime.now();

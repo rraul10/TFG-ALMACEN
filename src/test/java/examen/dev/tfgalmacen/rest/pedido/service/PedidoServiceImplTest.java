@@ -15,7 +15,9 @@ import examen.dev.tfgalmacen.rest.pedido.repository.PedidoRepository;
 import examen.dev.tfgalmacen.rest.productos.exceptions.ProductoNotFoundException;
 import examen.dev.tfgalmacen.rest.productos.models.Producto;
 import examen.dev.tfgalmacen.rest.productos.repository.ProductoRepository;
+import examen.dev.tfgalmacen.rest.users.models.User;
 import examen.dev.tfgalmacen.websockets.notifications.EmailService;
+import examen.dev.tfgalmacen.websockets.notifications.TicketService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
@@ -24,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.io.ByteArrayOutputStream;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +46,9 @@ class PedidoServiceImplTest {
 
     @Mock
     private EmailService emailService;
+
+    @Mock
+    private TicketService ticketService;
 
     @InjectMocks
     private PedidoServiceImpl pedidoService;
@@ -185,7 +191,7 @@ class PedidoServiceImplTest {
     }
 
     @Test
-    void testCrearCompraDesdeNombreProducto_Success() {
+    void testCrearCompraDesdeNombreProducto_Success() throws Exception {
         Long clienteId = 1L;
         String productoNombre = "Producto de prueba";
         int cantidad = 2;
@@ -196,6 +202,10 @@ class PedidoServiceImplTest {
 
         Cliente clienteMock = new Cliente();
         clienteMock.setId(clienteId);
+        User userMock = new User();
+        userMock.setCorreo("test@correo.com");
+        clienteMock.setUser(userMock);
+
 
         CompraRequest request = new CompraRequest(productoNombre, cantidad, clienteId);
 
@@ -203,14 +213,26 @@ class PedidoServiceImplTest {
                 .thenReturn(Optional.of(productoMock));
 
         when(clienteService.getClienteEntityById(clienteId)).thenReturn(clienteMock);
-        when(pedidoRepository.save(any(Pedido.class))).thenReturn(new Pedido());
+        when(pedidoRepository.save(any(Pedido.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        when(ticketService.generarTicketPDF(any(Pedido.class)))
+                .thenReturn(new ByteArrayOutputStream());
+
+        doNothing().when(emailService).enviarTicketPorEmail(anyString(), any(ByteArrayOutputStream.class));
 
         PedidoResponse response = pedidoService.crearCompraDesdeNombreProducto(request);
 
         assertNotNull(response);
         assertEquals(clienteId, response.getClienteId());
+
+        verify(productoRepository).findByNombreIgnoreCase(productoNombre);
+        verify(clienteService).getClienteEntityById(clienteId);
+        verify(ticketService).generarTicketPDF(any(Pedido.class));
+        verify(emailService).enviarTicketPorEmail(eq("test@correo.com"), any(ByteArrayOutputStream.class));
         verify(pedidoRepository, times(1)).save(any(Pedido.class));
     }
+
 
     @Test
     void testCrearCompraDesdeNombreProducto_ProductoNoEncontrado() {
