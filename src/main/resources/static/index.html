@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenido a TFG Almacén</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 60px auto;
+            padding: 40px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            color: #555;
+        }
+
+        .link {
+            display: inline-block;
+            text-decoration: none;
+            color: #ffffff;
+            background-color: #007bff;
+            padding: 12px 20px;
+            margin: 10px;
+            border-radius: 5px;
+            font-size: 1em;
+            transition: background-color 0.3s;
+        }
+
+        .link:hover {
+            background-color: #0056b3;
+        }
+
+        .links-section {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .link-icon {
+            margin-right: 8px;
+        }
+
+        footer {
+            margin-top: 40px;
+            font-size: 0.9em;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>TFG Almacén</h1>
+
+    <div class="links-section">
+        <a class="link" href="/swagger-ui/index.html#/" target="_blank">
+            <span class="link-icon">📚</span>Swagger API Docs
+        </a>
+        <a class="link" href="/jacoco/index.html" target="_blank">
+            <span class="link-icon">🧪</span>Jacoco Report
+        </a>
+    </div>
+
+    <footer>
+        &copy; 2025 TFG Almacén.  Raúl Fernández Delgado.
+    </footer>
+</div>
+</body>
+</html>
