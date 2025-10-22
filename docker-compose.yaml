@@ -6,7 +6,7 @@ services:
     container_name: almacenRaul
     environment:
       POSTGRES_USER: usuario
-      POSTGRES_PASSWORD: ***REMOVED***
+      POSTGRES_PASSWORD: raul123
       POSTGRES_DB: almacen_db_dev
 
     ports:
