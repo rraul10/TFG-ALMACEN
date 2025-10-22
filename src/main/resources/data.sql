@@ -4,7 +4,7 @@ INSERT INTO users (id, nombre, correo, password, created, updated, deleted) VALU
     (2, 'Trabajador Uno', 'trabajador1@example.com', '$2a$12$/d1KeggIn8zzJlkxSiievuWZtxTnPRsx9KhV/34F3ceV1SwZO.WeG', NOW(), NOW(), false),
     (3, 'Trabajador Dos', 'trabajador2@example.com', '$2a$12$0lcB19.P54vSZ.GeZR/Y6Ob/DH3YAk2eRvyhMxt0hi4UVMUA348BK', NOW(), NOW(), false),
     (4, 'Trabajador Tres', 'trabajador3@example.com', '$2a$12$r6M0D9rxAx..zSsvHJ9d1OFXDNfy0/VeeQIeGhi1OJT.4/dRkXCr6', NOW(), NOW(), false),
-    (5, 'Raúl Fernández', 'raulspotify6106@gmail.com', '$2a$12$PFvGQIyLW.a2lKL2q8BLvOT1TAO6uGmYwRPxWaRVhIvFRT9ZOzF6W', NOW(), NOW(), false),
+    (5, 'Raúl Fernández', 'raulspotify6106@gmail.com', '$2a$12$T25nQ90HvBR/3WIxPryDzeE6IX.pQiFA.wrqfCg/LLVMkFoXVLOje', NOW(), NOW(), false),
     (6, 'Yahya El Hadri', 'yahya@example.com', '$2a$12$PFvGQIyLW.a2lKL2q8BLvOT1TAO6uGmYwRPxWaRVhIvFRT9ZOzF6W', NOW(), NOW(), false),
     (7, 'Samuel Cortes', 'samu@example.com', '$2a$12$PFvGQIyLW.a2lKL2q8BLvOT1TAO6uGmYwRPxWaRVhIvFRT9ZOzF6W', NOW(), NOW(), false),
     (8, 'Javier Hernandez', 'javi@example.com', '$2a$12$PFvGQIyLW.a2lKL2q8BLvOT1TAO6uGmYwRPxWaRVhIvFRT9ZOzF6W', NOW(), NOW(), false),
