@@ -24,4 +24,6 @@ public interface PedidoService {
     List<PedidoResponse> getPedidosByClienteId(Long clienteId);
 
     PedidoResponse actualizarEstadoPedido(Long id, EstadoPedido nuevoEstado);
+
+    String createStripeCheckout(PedidoRequest pedidoRequest);
 }

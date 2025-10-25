@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Producto, ProductoService } from '@core/services/producto.service';
 import { RoleService } from '@core/services/role.service';
+import { NotificationService } from '@core/services/notification.service';
 
 @Component({
   selector: 'app-productos-list',
@@ -179,7 +180,8 @@ export class ProductosListComponent implements OnInit {
 
   constructor(
     private productoService: ProductoService,
-    private roleService: RoleService
+    private roleService: RoleService,
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit(): void {
@@ -199,33 +201,40 @@ export class ProductosListComponent implements OnInit {
   }
 
   agregarAlCarrito(producto: Producto) {
-    const cantidadDeseada = producto.cantidadSeleccionada || 1;
+  const cantidadDeseada = producto.cantidadSeleccionada || 1;
 
-    // Obtener carrito desde localStorage
-    const carrito: Producto[] = JSON.parse(localStorage.getItem('carrito') || '[]');
+  // Obtener carrito desde localStorage
+  const carrito: Producto[] = JSON.parse(localStorage.getItem('carrito') || '[]');
 
-    // Comprobar si el producto ya está en el carrito
-    const index = carrito.findIndex(p => p.id === producto.id);
+  // Comprobar si el producto ya está en el carrito
+  const index = carrito.findIndex(p => p.id === producto.id);
 
-    if (index > -1) {
-      carrito[index].cantidad = (carrito[index].cantidad || 1) + cantidadDeseada;
-    } else {
-      carrito.push({
-        id: producto.id,
-        nombre: producto.nombre,
-        tipo: producto.tipo,
-        descripcion: producto.descripcion,
-        precio: producto.precio,
-        stock: producto.stock,
-        imagen: producto.imagen,
-        cantidad: cantidadDeseada
-      });
-    }
-
-    // Guardar el carrito en localStorage
-    localStorage.setItem('carrito', JSON.stringify(carrito));
-    window.dispatchEvent(new Event('carritoActualizado'));
+  if (index > -1) {
+    carrito[index].cantidad = (carrito[index].cantidad || 1) + cantidadDeseada;
+  } else {
+    carrito.push({
+      id: producto.id,
+      nombre: producto.nombre,
+      tipo: producto.tipo,
+      descripcion: producto.descripcion,
+      precio: producto.precio,
+      stock: producto.stock,
+      imagen: producto.imagen,
+      cantidad: cantidadDeseada
+    });
   }
+
+  // Guardar carrito actualizado en localStorage
+  localStorage.setItem('carrito', JSON.stringify(carrito));
+
+  // Mostrar notificación **uniforme**
+  this.notificationService.show(`✅ ${producto.nombre} añadido al carrito`);
+
+  // Emitir evento para que Dashboard actualice el carrito
+  window.dispatchEvent(new Event('carritoActualizado'));
+}
+
+
 
   eliminarCarrito(): void {
     // Eliminar carrito de localStorage

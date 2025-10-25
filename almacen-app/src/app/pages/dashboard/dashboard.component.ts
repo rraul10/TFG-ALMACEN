@@ -3,7 +3,11 @@ import { RouterModule, Router } from '@angular/router';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { AuthService } from '@core/services/auth.service';
 import { ProductosListComponent } from '../../features/productos/productos-list.component';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient, HttpClientModule, HttpHeaders } from '@angular/common/http';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '@core/services/notification.service';
+
 
 interface PedidoRequest {
   productos: { id: number; cantidad: number }[];
@@ -17,7 +21,8 @@ interface PedidoRequest {
     CommonModule,         
     CurrencyPipe,         
     ProductosListComponent,
-    HttpClientModule
+    HttpClientModule,
+    MatSnackBarModule
   ],
   template: `
     <div class="dashboard-layout">
@@ -240,7 +245,14 @@ interface PedidoRequest {
       from { opacity: 0; transform: translateY(-5px); }
       to { opacity: 1; transform: translateY(0); }
     }
-  `]
+      .snackbar-grande {
+      font-size: 1.2rem;
+      padding: 1rem 2rem;
+      background-color: #1e293b !important;
+      color: #fff !important;
+      border-radius: 12px;
+    }
+    `]
 })
 export class DashboardComponent {
   menuOpen = false;
@@ -248,15 +260,40 @@ export class DashboardComponent {
   isLoggedIn = false;
   carrito: any[] = [];
 
-  constructor(private router: Router, private authService: AuthService, private http: HttpClient) {
-    this.isLoggedIn = !!localStorage.getItem('token');
-    this.loadCarrito();
-    window.addEventListener('carritoActualizado', () => this.loadCarrito());
-  }
+  constructor(
+  private router: Router,
+  private authService: AuthService,
+  private http: HttpClient,
+  private snackBar: MatSnackBar,
+  private notificationService: NotificationService
+) {
+  this.isLoggedIn = !!localStorage.getItem('token');
+  this.loadCarrito();
+  window.addEventListener('carritoActualizado', () => this.loadCarrito());
+
+}
+
+ngOnInit() {
+  this.notificationService.notification$.subscribe((msg: string) => {
+    this.showNotification(msg);
+  });
+}
+
+
 
   // Métodos de UI
   toggleMenu() { this.menuOpen = !this.menuOpen; }
   toggleCarrito() { this.carritoOpen = !this.carritoOpen; }
+
+    showNotification(message: string) {
+      this.snackBar.open(message, 'Cerrar', {
+        duration: 3000,
+        horizontalPosition: 'right',
+        verticalPosition: 'top',
+        panelClass: ['snackbar-grande']
+    });
+  }
+
 
   // Cargar y actualizar el carrito
   loadCarrito() {
@@ -286,28 +323,85 @@ export class DashboardComponent {
   }
 
   // Realizar compra
-  comprar() {
-    if (!this.carrito.length) {
-      return alert('El carrito está vacío');
-    }
+  loading = false;
 
-    const pedido: PedidoRequest = {
-      productos: this.carrito.map(p => ({ id: p.id, cantidad: 1 }))
-    };
+comprar() {
+  if (!this.carrito.length) {
+    this.snackBar.open('El carrito está vacío 🛒', 'Cerrar', {
+      duration: 3000,
+      horizontalPosition: 'center',
+      verticalPosition: 'top',
+      panelClass: ['snackbar-grande']
+    });
+    return;
+  }
 
-    this.http.post('http://localhost:8080/api/pedidos', pedido).subscribe({
-      next: () => {
-        alert('Pedido realizado correctamente ✅');
+  const token = localStorage.getItem('token');
+  if (!token) {
+    this.snackBar.open('Debes iniciar sesión 🔐', 'Cerrar', {
+      duration: 3000,
+      horizontalPosition: 'center',
+      verticalPosition: 'top',
+      panelClass: ['snackbar-grande']
+    });
+    return;
+  }
+
+  const clienteId = 2;
+  const pedidoBody = {
+    clienteId,
+    lineasVenta: this.carrito.map(item => ({
+      productoId: item.id,
+      cantidad: item.cantidad || 1
+    }))
+  };
+
+  const headers = new HttpHeaders({
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  });
+
+  const snackRef = this.snackBar.open('⏳ Procesando tu pedido...', undefined, {
+    horizontalPosition: 'center',
+    verticalPosition: 'top',
+    panelClass: ['snackbar-grande'],
+    duration: undefined
+  });
+
+  this.http.post<any>('http://localhost:8080/api/pedidos', pedidoBody, { headers })
+    .subscribe({
+      next: (res) => {
+        snackRef.dismiss();
+
         this.carrito = [];
         localStorage.removeItem('carrito');
         this.carritoOpen = false;
+
+        this.snackBar.open('✅ Pedido realizado correctamente', 'Cerrar', {
+          duration: 4000,
+          horizontalPosition: 'center',
+          verticalPosition: 'top',
+          panelClass: ['snackbar-grande']
+        });
+
+        this.router.navigate(['/dashboard']);
+
+        if (res.url) {
+          window.location.href = res.url;
+        }
       },
-      error: err => {
+      error: (err) => {
+        snackRef.dismiss();
         console.error('Error al realizar pedido', err);
-        alert('Hubo un error al realizar el pedido. Intenta de nuevo.');
+        this.snackBar.open('❌ Hubo un error al realizar el pedido. Intenta de nuevo.', 'Cerrar', {
+          duration: 4000,
+          horizontalPosition: 'center',
+          verticalPosition: 'top',
+          panelClass: ['snackbar-grande']
+        });
       }
     });
-  }
+}
 
   // Navegación
   goToLogin() { this.menuOpen = false; this.router.navigate(['/login']); }

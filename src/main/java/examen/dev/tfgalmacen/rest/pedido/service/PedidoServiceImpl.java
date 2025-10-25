@@ -1,5 +1,7 @@
 package examen.dev.tfgalmacen.rest.pedido.service;
 
+import com.stripe.Stripe;
+import com.stripe.param.checkout.SessionCreateParams;
 import examen.dev.tfgalmacen.rest.clientes.models.Cliente;
 import examen.dev.tfgalmacen.rest.clientes.service.ClienteService;
 import examen.dev.tfgalmacen.rest.pedido.dto.CompraRequest;
@@ -17,8 +19,11 @@ import examen.dev.tfgalmacen.rest.productos.models.Producto;
 import examen.dev.tfgalmacen.rest.productos.repository.ProductoRepository;
 import examen.dev.tfgalmacen.websockets.notifications.EmailService;
 import examen.dev.tfgalmacen.websockets.notifications.TicketService;
+import com.stripe.model.checkout.Session;
+import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -36,6 +41,61 @@ public class PedidoServiceImpl implements PedidoService {
     private final ProductoRepository productoRepository;
     private final EmailService emailService;
     private final TicketService  ticketService;
+
+    @Value("${stripe.secret.key}")
+    private String stripeApiKey;
+
+    @PostConstruct
+    public void init() {
+        Stripe.apiKey = stripeApiKey;
+    }
+
+    @Override
+    public String createStripeCheckout(PedidoRequest pedidoRequest) {
+        try {
+            List<SessionCreateParams.LineItem> lineItems = pedidoRequest.getLineasVenta().stream()
+                    .map(item -> {
+                        Producto producto = productoRepository.findById(item.getProductoId())
+                                .orElseThrow(() -> new ProductoNotFoundException(
+                                        "Producto no encontrado con ID: " + item.getProductoId()));
+
+                        long precioCents = Math.round(producto.getPrecio() * 100);
+
+                        return SessionCreateParams.LineItem.builder()
+                                .setPriceData(
+                                        SessionCreateParams.LineItem.PriceData.builder()
+                                                .setCurrency("eur")
+                                                .setUnitAmount(precioCents)
+                                                .setProductData(
+                                                        SessionCreateParams.LineItem.PriceData.ProductData.builder()
+                                                                .setName(producto.getNombre())
+                                                                .build()
+                                                )
+                                                .build()
+                                )
+                                .setQuantity((long) item.getCantidad())
+                                .build();
+                    })
+                    .toList();
+
+
+            SessionCreateParams params = SessionCreateParams.builder()
+                    .addAllLineItem(lineItems)
+                    .setMode(SessionCreateParams.Mode.PAYMENT)
+                    .setSuccessUrl("http://localhost:4200/dashboard")
+                    .setCancelUrl("http://localhost:4200/dashboard")
+                    .build();
+
+            com.stripe.model.checkout.Session session = com.stripe.model.checkout.Session.create(params);
+
+            return session.getUrl();
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error al crear sesión de Stripe", e);
+        }
+    }
+
+
 
     @Override
     public List<PedidoResponse> getAll() {
@@ -196,6 +256,4 @@ public class PedidoServiceImpl implements PedidoService {
 
         return PedidoMapper.toDto(savedPedido);
     }
-
-
 }

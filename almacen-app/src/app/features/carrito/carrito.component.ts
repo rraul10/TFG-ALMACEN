@@ -82,45 +82,43 @@ export class CarritoComponent implements OnInit {
   }
 
   comprar() {
-    if (!this.carrito.length) return alert('El carrito está vacío');
+  if (!this.carrito.length) return alert('El carrito está vacío');
 
-    const clienteId = localStorage.getItem('clienteId');
-    const token = localStorage.getItem('token');
+  const token = localStorage.getItem('token');
+  const clienteId = localStorage.getItem('clienteId');
 
-    if (!clienteId || !token) {
-      return alert('Debes iniciar sesión para realizar la compra.');
-    }
-
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    });
-
-    // Enviar cada producto como compra individual
-    this.carrito.forEach(item => {
-      const compra: Compra = {
-        productoNombre: item.nombre,
-        cantidad: item.cantidad
-      };
-
-      this.http.post(`http://localhost:8080/api/clientes/${clienteId}/comprar`, compra, { headers })
-        .subscribe({
-          next: (res) => {
-            console.log('Pedido realizado ✅', compra);
-          },
-          error: (err) => {
-            console.error('Error al realizar pedido', err);
-            alert(`Error al procesar el producto ${item.nombre}. Revisa la consola.`);
-          }
-        });
-    });
-
-    alert('Pedido(s) enviado(s) correctamente ✅');
-    this.carrito = [];
-    localStorage.removeItem('carrito');
-    this.carritoOpen = false;
+  if (!token || !clienteId) {
+    return alert('Debes iniciar sesión para realizar la compra.');
   }
 
+  const headers = new HttpHeaders({
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  });
+
+  const items = this.carrito.map(item => ({
+    productoId: item.id,
+    cantidad: item.cantidad,
+    precioUnitario: item.precio
+  }));
+
+  this.http.post(`http://localhost:8080/api/pedidos`, {
+    clienteId: clienteId,
+    lineasVenta: items
+  }, { headers })
+    .subscribe({
+      next: (res) => {
+        console.log('Pedido creado ✅', res);
+        alert('Pedido realizado correctamente ✅');
+        this.carrito = [];
+        localStorage.removeItem('carrito');
+      },
+      error: (err) => {
+        console.error('Error al realizar pedido', err);
+        alert('Hubo un error al realizar el pedido. Revisa la consola.');
+      }
+    });
+}
 
   cerrar() {
     this.router.navigate(['/productos']);

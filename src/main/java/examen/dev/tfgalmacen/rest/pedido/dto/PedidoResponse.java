@@ -16,4 +16,6 @@ public class PedidoResponse {
     private EstadoPedido estado;
     private LocalDateTime fecha;
     private List<LineaVentaDTO> lineasVenta;
+    private String url;
+
 }

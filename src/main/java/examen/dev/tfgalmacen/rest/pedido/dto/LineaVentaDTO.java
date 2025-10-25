@@ -9,4 +9,5 @@ import lombok.*;
 public class LineaVentaDTO {
     private Long productoId;
     private int cantidad;
+    private Long precio;
 }
