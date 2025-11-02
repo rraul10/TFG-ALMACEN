@@ -1,6 +1,6 @@
 package examen.dev.tfgalmacen.payment;
 
-import com.stripe.StripeClient;
+import com.stripe.Stripe;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
 
@@ -9,9 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
-
-
-
 
 @RestController
 @RequestMapping("/api/payments")
@@ -24,9 +21,10 @@ public class PaymentController {
     @PostMapping("/checkout")
     public ResponseEntity<Map<String, Object>> createCheckoutSession(@RequestBody List<Map<String, Object>> items) {
         try {
-            StripeClient client = new StripeClient(stripeSecretKey);
+            // 🔑 Configuramos la clave secreta
+            Stripe.apiKey = stripeSecretKey;
 
-            List<SessionCreateParams.LineItem> lineItems = new ArrayList<SessionCreateParams.LineItem>();
+            List<SessionCreateParams.LineItem> lineItems = new ArrayList<>();
 
             for (Map<String, Object> item : items) {
                 String name = (String) item.get("nombre");
@@ -58,7 +56,8 @@ public class PaymentController {
                     .addAllLineItem(lineItems)
                     .build();
 
-            Session session = client.checkout().sessions().create(params);
+            // 💳 Crear la sesión de pago
+            Session session = Session.create(params);
 
             Map<String, Object> response = new HashMap<>();
             response.put("url", session.getUrl());
@@ -72,5 +71,3 @@ public class PaymentController {
         }
     }
 }
-
-
