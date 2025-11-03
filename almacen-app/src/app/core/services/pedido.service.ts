@@ -41,11 +41,27 @@ export class PedidoService {
   }
 
   create(pedido: PedidoRequest): Observable<Pedido> {
-    const token = localStorage.getItem('token');
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+  const token = localStorage.getItem('token');
+  const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    return this.http.post<Pedido>(this.apiUrl, pedido, { headers });
-  }
+  // Transformamos lineasVenta para incluir productoNombre vacío (o podrías pasar el real si lo tienes)
+  const lineasConNombre: LineaVenta[] = pedido.lineasVenta.map(lv => ({
+    productoId: lv.productoId,
+    cantidad: lv.cantidad,
+    precio: lv.precio,
+    productoNombre: '' // <-- aquí podrías poner lv.productoNombre si lo tienes
+  }));
+
+  // Guardamos el pedido en localStorage antes de enviarlo
+  this.guardarLocal({ 
+    ...pedido, 
+    estado: 'Pendiente', 
+    id: Date.now(), 
+    lineasVenta: lineasConNombre 
+  });
+
+  return this.http.post<Pedido>(this.apiUrl, pedido, { headers });
+}
 
 
   update(id: number, pedido: PedidoRequest): Observable<Pedido> {
@@ -53,18 +69,43 @@ export class PedidoService {
   }
 
   delete(id: number): Observable<void> {
+    // También eliminamos del localStorage
+    this.eliminarLocal(id);
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
   getByCliente(clienteId: number): Observable<Pedido[]> {
-  const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+    return this.http.get<Pedido[]>(`${this.apiUrl}/cliente/${clienteId}`, { headers });
+  }
 
-  const headers = new HttpHeaders({
-    'Authorization': `Bearer ${token}`
-  });
+  /** ------------------- MÉTODOS LOCALSTORAGE ------------------- */
 
-  return this.http.get<Pedido[]>(`${this.apiUrl}/cliente/${clienteId}`, { headers });
-}
+  // Guardar un pedido en localStorage
+  guardarLocal(pedido: Pedido) {
+    const pedidos = this.obtenerLocal();
+    pedidos.push(pedido);
+    localStorage.setItem('pedidos', JSON.stringify(pedidos));
+  }
 
+  // Obtener todos los pedidos del localStorage
+  obtenerLocal(): Pedido[] {
+    const data = localStorage.getItem('pedidos');
+    return data ? JSON.parse(data) : [];
+  }
 
+  // Eliminar un pedido del localStorage por id
+  eliminarLocal(id: number) {
+    let pedidos = this.obtenerLocal();
+    pedidos = pedidos.filter(p => p.id !== id);
+    localStorage.setItem('pedidos', JSON.stringify(pedidos));
+  }
+
+  // Limpiar todos los pedidos del localStorage
+  limpiarLocal() {
+    localStorage.removeItem('pedidos');
+  }
 }

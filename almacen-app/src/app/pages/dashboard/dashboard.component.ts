@@ -8,253 +8,236 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { NotificationService } from '@core/services/notification.service';
 
-
-interface PedidoRequest {
-  productos: { id: number; cantidad: number }[];
-}
-
 @Component({
   selector: 'app-dashboard',
   standalone: true,
   imports: [
     RouterModule,
-    CommonModule,         
-    CurrencyPipe,         
+    CommonModule,
+    CurrencyPipe,
     ProductosListComponent,
     HttpClientModule,
     MatSnackBarModule
   ],
   template: `
-    <div class="dashboard-layout">
-      <!-- Barra superior -->
-      <header class="navbar">
-        <h1 class="app-title">📦 Gestión de Almacén</h1>
-
-        <div class="menu-carrito-container">
-          <!-- Icono de carrito, solo visible si el usuario está logueado -->
-          <div *ngIf="isLoggedIn" class="carrito-icon" (click)="toggleCarrito()">
-            🛒 <span class="carrito-count">{{ carrito.length }}</span>
-          </div>
-
-          <!-- Menú usuario -->
-          <!-- Menú usuario -->
-          <div class="user-menu" (click)="toggleMenu()">
-            <img 
-              src="https://cdn-icons-png.flaticon.com/512/847/847969.png" 
-              alt="Usuario" 
-              class="user-icon"
-            />
-            <div class="menu-dropdown" *ngIf="menuOpen">
-              <!-- Mostrar opciones si el usuario está logueado -->
-              <ng-container *ngIf="isLoggedIn; else notLogged">
+  <div class="dashboard-layout">
+    <!-- BARRA SUPERIOR -->
+    <header class="navbar">
+      <h1 class="app-title">📦 Gestión de Almacén</h1>
+      <div class="menu-carrito-container">
+        <div *ngIf="isLoggedIn" class="carrito-icon" (click)="toggleCarrito()">
+          🛒 <span class="carrito-count">{{ carrito.length }}</span>
+        </div>
+        <div class="user-menu" (click)="toggleMenu()">
+          <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" class="user-icon" />
+          <div class="menu-dropdown" *ngIf="menuOpen">
+            <ng-container *ngIf="isLoggedIn; else notLogged">
               <div class="menu-item" (click)="goToProfile()">👤 Mi perfil</div>
               <div class="menu-item" (click)="goToMisPedidos()">📦 Mis pedidos</div>
               <div class="menu-item logout" (click)="logout()">🚪 Cerrar sesión</div>
-              </ng-container>
-
-
-              <!-- Si no está logueado -->
-              <ng-template #notLogged>
-                <div class="menu-item" (click)="goToLogin()">🔐 Iniciar sesión</div>
-                <div class="menu-item" (click)="goToRegister()">📝 Registrarse</div>
-              </ng-template>
-            </div>
+            </ng-container>
+            <ng-template #notLogged>
+              <div class="menu-item" (click)="goToLogin()">🔐 Iniciar sesión</div>
+              <div class="menu-item" (click)="goToRegister()">📝 Registrarse</div>
+            </ng-template>
           </div>
         </div>
-      </header>
-
-      <!-- Contenido principal -->
-      <main class="main-content">
-        <app-productos-list></app-productos-list> <!-- Los productos siempre se muestran -->
-      </main>
-
-      <!-- Modal de carrito, solo visible si el usuario está logueado -->
-      <div *ngIf="carritoOpen && isLoggedIn" class="modal-carrito">
-        <h3>🛒 Tu Carrito</h3>
-        <div *ngIf="carrito.length > 0; else carritoVacio">
-          <div class="item-carrito" *ngFor="let item of carrito; let i = index">
-            <span>{{ item.nombre }}</span>
-            <span>{{ item.precio | currency:'EUR' }}</span>
-            <button (click)="eliminarDelCarrito(i)">❌</button>
-          </div>
-          <div class="total">
-            Total: {{ carritoTotal() | currency:'EUR' }}
-          </div>
-          <button class="btn-comprar" (click)="comprar()">🛒 Comprar</button>
-        </div>
-        <ng-template #carritoVacio>
-          <p>El carrito está vacío</p>
-        </ng-template>
-        <button class="btn-cerrar" (click)="toggleCarrito()">Cerrar</button>
       </div>
+    </header>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="main-content">
+      <app-productos-list></app-productos-list>
+    </main>
+
+    <!-- MODAL CARRITO -->
+    <div *ngIf="carritoOpen && isLoggedIn" class="modal-carrito">
+      <h3>🛒 Tu Carrito</h3>
+      <div *ngIf="carrito.length > 0; else carritoVacio">
+        <div class="item-carrito" *ngFor="let item of carrito; let i = index">
+          <span>{{ item.nombre }}</span>
+          <span>{{ item.precio | currency:'EUR' }}</span>
+          <button (click)="eliminarDelCarrito(i)">❌</button>
+        </div>
+        <div class="total">Total: {{ carritoTotal() | currency:'EUR' }}</div>
+        <button class="btn-comprar" (click)="comprar()">🛒 Comprar</button>
+      </div>
+      <ng-template #carritoVacio>
+        <p>Tu carrito está vacío</p>
+      </ng-template>
+      <button class="btn-cerrar" (click)="toggleCarrito()">Cerrar</button>
     </div>
+  </div>
   `,
   styles: [`
-    .dashboard-layout {
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      background: #f3f4f6;
-      font-family: 'Segoe UI', Roboto, sans-serif;
-    }
+  .dashboard-layout {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    font-family: 'Segoe UI', Roboto, sans-serif;
+    background: url('https://images.unsplash.com/photo-1581091215363-4d08367a6c05?auto=format&fit=crop&w=1470&q=80') no-repeat center center fixed;
+    background-size: cover;
+    color: #1f2937;
+  }
 
-    .navbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #1e293b;
-      color: white;
-      padding: 0.8rem 1.5rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    }
+  /* BARRA SUPERIOR */
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(30, 41, 59, 0.9);
+    color: white;
+    padding: 1rem 2rem;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+  }
 
-    .app-title {
-      margin: 0;
-      font-size: 1.6rem;
-      font-weight: 700;
-    }
+  .app-title {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 700;
+  }
 
-    .menu-carrito-container {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
+  .menu-carrito-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
 
-    .user-menu {
-      position: relative;
-      cursor: pointer;
-    }
+  .user-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 2px solid white;
+    padding: 2px;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
 
-    .user-icon {
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      background-color: white;
-      padding: 4px;
-      transition: transform 0.2s;
-    }
+  .user-icon:hover {
+    transform: scale(1.15);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+  }
 
-    .user-icon:hover {
-      transform: scale(1.1);
-    }
+  .menu-dropdown {
+    position: absolute;
+    top: 55px;
+    right: 0;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    width: 220px;
+    overflow: hidden;
+    animation: fadeIn 0.25s ease-in-out;
+    z-index: 10;
+  }
 
-    .menu-dropdown {
-      position: absolute;
-      top: 50px;
-      right: 0;
-      background-color: white;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      width: 200px;
-      overflow: hidden;
-      animation: fadeIn 0.2s ease-in-out;
-      z-index: 10;
-    }
+  .menu-item {
+    padding: 0.9rem 1.2rem;
+    font-size: 1rem;
+    color: #1f2937;
+    transition: background 0.2s, color 0.2s;
+  }
 
-    .menu-item {
-      padding: 0.8rem 1rem;
-      font-size: 0.95rem;
-      color: #1f2937;
-      transition: background 0.2s;
-    }
+  .menu-item:hover { background-color: #f3f4f6; color: #2563eb; }
+  .menu-item.logout { color: #dc2626; font-weight: 500; }
 
-    .menu-item:hover {
-      background-color: #f3f4f6;
-    }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 
-    .menu-item.logout {
-      color: #dc2626;
-    }
+  /* CONTENIDO PRINCIPAL */
+  .main-content {
+    flex: 1;
+    width: 100%;
+    max-width: 1280px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    background: rgba(255,255,255,0.85);
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    backdrop-filter: blur(5px);
+  }
 
-    .main-content {
-      flex: 1;
-      width: 100%;
-      max-width: 1280px;
-      margin: 2rem auto;
-      padding: 0 1rem;
-      display: block;
-    }
+  /* CARRITO */
+  .carrito-icon {
+    position: relative;
+    font-size: 1.6rem;
+    cursor: pointer;
+  }
 
-    .carrito-icon {
-      position: relative;
-      font-size: 1.6rem;
-      cursor: pointer;
-    }
+  .carrito-count {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #dc2626;
+    color: white;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+  }
 
-    .carrito-count {
-      position: absolute;
-      top: -8px;
-      right: -8px;
-      background: red;
-      color: white;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.8rem;
-    }
+  .modal-carrito {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #f9fafb;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    z-index: 50;
+    width: 360px;
+    animation: fadeIn 0.25s ease-in-out;
+  }
 
-    .modal-carrito {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      border-radius: 12px;
-      padding: 1rem 2rem;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-      z-index: 50;
-      width: 320px;
-    }
+  .item-carrito {
+    display: flex;
+    justify-content: space-between;
+    margin: 0.6rem 0;
+    font-weight: 500;
+  }
 
-    .item-carrito {
-      display: flex;
-      justify-content: space-between;
-      margin: 0.5rem 0;
-    }
+  .total {
+    margin-top: 1rem;
+    font-weight: 700;
+    font-size: 1.1rem;
+    text-align: right;
+  }
 
-    .total {
-      margin-top: 1rem;
-      font-weight: bold;
-      text-align: right;
-    }
+  .btn-comprar, .btn-cerrar {
+    margin-top: 1rem;
+    padding: 0.65rem 1rem;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    font-weight: 600;
+    transition: background 0.2s, transform 0.2s;
+  }
 
-    .btn-comprar, .btn-cerrar {
-      margin-top: 1rem;
-      padding: 0.5rem 1rem;
-      border-radius: 8px;
-      border: none;
-      cursor: pointer;
-      width: 100%;
-    }
+  .btn-comprar { background-color: #2563eb; color: white; }
+  .btn-comprar:hover { background-color: #1e40af; transform: translateY(-2px); }
 
-    .btn-comprar {
-      background: #16a34a;
-      color: white;
-    }
+  .btn-cerrar { background-color: #e2e8f0; }
+  .btn-cerrar:hover { background-color: #cbd5e1; transform: translateY(-2px); }
 
-    .btn-comprar:hover {
-      background: #15803d;
-    }
-
-    .btn-cerrar {
-      background: #e2e8f0;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-5px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-      .snackbar-grande {
-      font-size: 1.2rem;
-      padding: 1rem 2rem;
-      background-color: #1e293b !important;
-      color: #fff !important;
-      border-radius: 12px;
-    }
-    `]
+  .snackbar-grande {
+    font-size: 1.2rem;
+    padding: 1rem 2rem;
+    background-color: #1e293b !important;
+    color: #fff !important;
+    border-radius: 12px;
+  }
+  `]
 })
 export class DashboardComponent {
   menuOpen = false;
@@ -263,165 +246,73 @@ export class DashboardComponent {
   carrito: any[] = [];
 
   constructor(
-  private router: Router,
-  private authService: AuthService,
-  private http: HttpClient,
-  private snackBar: MatSnackBar,
-  private notificationService: NotificationService
-) {
-  this.isLoggedIn = !!localStorage.getItem('token');
-  this.loadCarrito();
-  window.addEventListener('carritoActualizado', () => this.loadCarrito());
+    private router: Router,
+    private authService: AuthService,
+    private http: HttpClient,
+    private snackBar: MatSnackBar,
+    private notificationService: NotificationService
+  ) {
+    this.isLoggedIn = !!localStorage.getItem('token');
+    this.loadCarrito();
+    window.addEventListener('carritoActualizado', () => this.loadCarrito());
+  }
 
-}
+  ngOnInit() {
+    this.notificationService.notification$.subscribe((msg: string) => this.showNotification(msg));
+  }
 
-ngOnInit() {
-  this.notificationService.notification$.subscribe((msg: string) => {
-    this.showNotification(msg);
-  });
-}
-
-
-
-  // Métodos de UI
   toggleMenu() { this.menuOpen = !this.menuOpen; }
   toggleCarrito() { this.carritoOpen = !this.carritoOpen; }
 
-    showNotification(message: string) {
-      this.snackBar.open(message, 'Cerrar', {
-        duration: 3000,
-        horizontalPosition: 'right',
-        verticalPosition: 'top',
-        panelClass: ['snackbar-grande']
+  showNotification(message: string) {
+    this.snackBar.open(message, 'Cerrar', {
+      duration: 3000,
+      horizontalPosition: 'right',
+      verticalPosition: 'top',
+      panelClass: ['snackbar-grande']
     });
   }
 
-
-  // Cargar y actualizar el carrito
   loadCarrito() {
-    if (this.isLoggedIn) {
-      this.carrito = JSON.parse(localStorage.getItem('carrito') || '[]');
-    } else {
-      this.carrito = [];
-    }
+    this.carrito = this.isLoggedIn ? JSON.parse(localStorage.getItem('carrito') || '[]') : [];
   }
 
-  // Calcular el total del carrito
-  carritoTotal() {
-    return this.carrito.reduce((sum, item) => sum + item.precio, 0);
-  }
+  carritoTotal() { return this.carrito.reduce((sum, item) => sum + item.precio, 0); }
+  eliminarDelCarrito(index: number) { this.carrito.splice(index, 1); this.updateCarrito(); }
+  updateCarrito() { if (this.isLoggedIn) localStorage.setItem('carrito', JSON.stringify(this.carrito)); }
 
-  // Eliminar producto del carrito
-  eliminarDelCarrito(index: number) {
-    this.carrito.splice(index, 1);
-    this.updateCarrito();
-  }
+  comprar() {
+    if (!this.carrito.length) { this.showNotification('El carrito está vacío 🛒'); return; }
+    const token = localStorage.getItem('token');
+    if (!token) { this.showNotification('Debes iniciar sesión 🔐'); return; }
 
-  // Actualizar carrito en el almacenamiento local
-  updateCarrito() {
-    if (this.isLoggedIn) {
-      localStorage.setItem('carrito', JSON.stringify(this.carrito));
-    }
-  }
+    const clienteId = 5;
+    const pedidoBody = { clienteId, lineasVenta: this.carrito.map(item => ({ productoId: item.id, cantidad: item.cantidad || 1 })) };
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` });
 
-  // Realizar compra
-  loading = false;
-
-comprar() {
-  if (!this.carrito.length) {
-    this.snackBar.open('El carrito está vacío 🛒', 'Cerrar', {
-      duration: 3000,
-      horizontalPosition: 'center',
-      verticalPosition: 'top',
-      panelClass: ['snackbar-grande']
-    });
-    return;
-  }
-
-  const token = localStorage.getItem('token');
-  if (!token) {
-    this.snackBar.open('Debes iniciar sesión 🔐', 'Cerrar', {
-      duration: 3000,
-      horizontalPosition: 'center',
-      verticalPosition: 'top',
-      panelClass: ['snackbar-grande']
-    });
-    return;
-  }
-
-  const clienteId = 5;
-  const pedidoBody = {
-    clienteId,
-    lineasVenta: this.carrito.map(item => ({
-      productoId: item.id,
-      cantidad: item.cantidad || 1
-    }))
-  };
-
-  const headers = new HttpHeaders({
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`
-  });
-
-  const snackRef = this.snackBar.open('⏳ Procesando tu pedido...', undefined, {
-    horizontalPosition: 'center',
-    verticalPosition: 'top',
-    panelClass: ['snackbar-grande'],
-    duration: undefined
-  });
-
-  this.http.post<any>('http://localhost:8080/api/pedidos', pedidoBody, { headers })
-  .subscribe({
-    next: (res) => {
-      snackRef.dismiss();
-
-      // Vaciar el carrito
-      this.carrito = [];
-      localStorage.removeItem('carrito');
-      this.carritoOpen = false;
-
-      this.snackBar.open('✅ Pedido realizado correctamente', 'Cerrar', {
-        duration: 4000,
-        horizontalPosition: 'center',
-        verticalPosition: 'top',
-        panelClass: ['snackbar-grande']
-      });
-
-      this.router.navigate(['/dashboard']);
-
-      // Redirigir a una URL si se devuelve
-      if (res.url) {
-        window.location.href = res.url;
+    const snackRef = this.snackBar.open('⏳ Procesando tu pedido...', undefined, { horizontalPosition: 'center', verticalPosition: 'top', panelClass: ['snackbar-grande'], duration: undefined });
+    
+    this.http.post<any>('http://localhost:8080/api/pedidos', pedidoBody, { headers }).subscribe({
+      next: res => {
+        snackRef.dismiss();
+        this.carrito = [];
+        localStorage.removeItem('carrito');
+        this.carritoOpen = false;
+        this.showNotification('✅ Pedido realizado correctamente');
+        this.router.navigate(['/dashboard']);
+        if (res.url) window.location.href = res.url;
+      },
+      error: err => {
+        snackRef.dismiss();
+        console.error('Error al realizar pedido', err);
+        this.showNotification('❌ Hubo un error al realizar el pedido. Intenta de nuevo.');
       }
-    },
-    error: (err) => {
-      snackRef.dismiss();
-      console.error('Error al realizar pedido', err);
-      this.snackBar.open('❌ Hubo un error al realizar el pedido. Intenta de nuevo.', 'Cerrar', {
-        duration: 4000,
-        horizontalPosition: 'center',
-        verticalPosition: 'top',
-        panelClass: ['snackbar-grande']
-      });
-    }
-  });
-}
+    });
+  }
 
-  // Navegación
   goToLogin() { this.menuOpen = false; this.router.navigate(['/login']); }
   goToRegister() { this.menuOpen = false; this.router.navigate(['/register']); }
   goToProfile() { this.menuOpen = false; this.router.navigate(['/perfil']); }
-  logout() { 
-    this.menuOpen = false; 
-    localStorage.removeItem('token'); 
-    this.isLoggedIn = false; 
-    this.carrito = [];
-    localStorage.removeItem('carrito');
-    this.router.navigate(['/']);
-  }
-    goToMisPedidos() {
-  this.menuOpen = false; // cerramos el dropdown
-  this.router.navigate(['/mispedidos']); // la ruta donde mostrarás los pedidos
-}
-
+  goToMisPedidos() { this.menuOpen = false; this.router.navigate(['/mispedidos']); }
+  logout() { this.menuOpen = false; localStorage.removeItem('token'); this.isLoggedIn = false; this.carrito = []; localStorage.removeItem('carrito'); this.router.navigate(['/']); }
 }
