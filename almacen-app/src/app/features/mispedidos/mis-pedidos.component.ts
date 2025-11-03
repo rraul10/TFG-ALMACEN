@@ -15,13 +15,19 @@ import { PedidoService, Pedido } from '@core/services/pedido.service';
       </div>
 
       <div *ngFor="let pedido of pedidos" class="pedido-card">
-        <p>Pedido #{{ pedido.id }} - Estado: {{ pedido.estado }}</p>
+        <p><strong>Pedido #{{ pedido.id }}</strong></p>
+        <p><strong>Estado:</strong> {{ pedido.estado }}</p>
+        <p><strong>Fecha:</strong> {{ pedido.fecha | date: 'dd/MM/yyyy HH:mm' }}</p>
+
+        <h4>Productos:</h4>
         <ul>
           <li *ngFor="let lv of pedido.lineasVenta">
-            {{ lv.producto.nombre }} x {{ lv.cantidad }} - {{ lv.precioUnitario | currency:'EUR' }}
+            {{ lv.productoNombre }} x {{ lv.cantidad }} - {{ lv.precio | currency:'EUR' }}
           </li>
         </ul>
-        <p>Total: {{ totalPedido(pedido) | currency:'EUR' }}</p>
+
+
+        <p><strong>Total:</strong> {{ totalPedido(pedido) | currency:'EUR' }}</p>
       </div>
     </div>
   `,
@@ -36,13 +42,22 @@ export class MisPedidosComponent implements OnInit {
   constructor(private pedidoService: PedidoService) {}
 
   ngOnInit(): void {
-    this.pedidoService.getAll().subscribe({
-      next: data => this.pedidos = data,
-      error: err => console.error(err)
-    });
-  }
+  const clienteId = 5; // Aquí usa el ID real del cliente logueado
+  this.pedidoService.getByCliente(clienteId).subscribe({
+    next: (data) => {
+      console.log('Pedidos del cliente:', data);
+      this.pedidos = data;
+    },
+    error: (err) => {
+      console.error('Error al obtener los pedidos del cliente', err);
+    }
+  });
+}
+
+
 
   totalPedido(pedido: Pedido): number {
-    return pedido.lineasVenta.reduce((sum, lv) => sum + lv.cantidad * lv.precioUnitario, 0);
+    return pedido.lineasVenta.reduce((sum, lv) => sum + lv.cantidad * lv.precio, 0);
   }
+
 }

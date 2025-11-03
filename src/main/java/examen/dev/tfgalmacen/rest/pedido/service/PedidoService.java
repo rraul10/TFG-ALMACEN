@@ -4,6 +4,7 @@ import examen.dev.tfgalmacen.rest.pedido.dto.CompraRequest;
 import examen.dev.tfgalmacen.rest.pedido.dto.PedidoRequest;
 import examen.dev.tfgalmacen.rest.pedido.dto.PedidoResponse;
 import examen.dev.tfgalmacen.rest.pedido.models.EstadoPedido;
+import examen.dev.tfgalmacen.rest.pedido.models.Pedido;
 
 import java.util.List;
 
@@ -25,5 +26,5 @@ public interface PedidoService {
 
     PedidoResponse actualizarEstadoPedido(Long id, EstadoPedido nuevoEstado);
 
-    String createStripeCheckout(PedidoRequest pedidoRequest);
+    String createStripeCheckout(PedidoResponse pedido);
 }

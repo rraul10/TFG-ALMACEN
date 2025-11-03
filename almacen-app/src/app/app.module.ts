@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { AppComponent } from './app.component';
 import { LoginComponent } from './pages/login/login.component';
 import { RegisterComponent } from './pages/register/register.component';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @NgModule({
   imports: [
@@ -13,7 +14,8 @@ import { RegisterComponent } from './pages/register/register.component';
     AppComponent,
     LoginComponent,
     RegisterComponent,
-    FormsModule
+    FormsModule,
+    MatSnackBarModule,
   ],
   bootstrap: [AppComponent]
 })

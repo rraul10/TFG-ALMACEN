@@ -4,10 +4,10 @@ import { Observable } from 'rxjs';
 import { HttpHeaders } from '@angular/common/http';
 
 export interface LineaVenta {
-  id?: number;
-  producto: any;
+  productoId: number;
+  productoNombre: string;
   cantidad: number;
-  precioUnitario: number;
+  precio: number;
 }
 
 export interface Pedido {
@@ -17,10 +17,12 @@ export interface Pedido {
   lineasVenta: LineaVenta[];
 }
 
+
 export interface PedidoRequest {
   clienteId: number;
-  lineasVenta: { productoId: number; cantidad: number; precioUnitario: number }[];
+  lineasVenta: { productoId: number; cantidad: number; precio: number }[];
 }
+
 
 @Injectable({
   providedIn: 'root',
@@ -53,4 +55,16 @@ export class PedidoService {
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
+
+  getByCliente(clienteId: number): Observable<Pedido[]> {
+  const token = localStorage.getItem('token');
+
+  const headers = new HttpHeaders({
+    'Authorization': `Bearer ${token}`
+  });
+
+  return this.http.get<Pedido[]>(`${this.apiUrl}/cliente/${clienteId}`, { headers });
+}
+
+
 }

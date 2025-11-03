@@ -47,9 +47,11 @@ interface PedidoRequest {
             <div class="menu-dropdown" *ngIf="menuOpen">
               <!-- Mostrar opciones si el usuario está logueado -->
               <ng-container *ngIf="isLoggedIn; else notLogged">
-                <div class="menu-item" (click)="goToProfile()">👤 Mi perfil</div>
-                <div class="menu-item logout" (click)="logout()">🚪 Cerrar sesión</div>
+              <div class="menu-item" (click)="goToProfile()">👤 Mi perfil</div>
+              <div class="menu-item" (click)="goToMisPedidos()">📦 Mis pedidos</div>
+              <div class="menu-item logout" (click)="logout()">🚪 Cerrar sesión</div>
               </ng-container>
+
 
               <!-- Si no está logueado -->
               <ng-template #notLogged>
@@ -347,7 +349,7 @@ comprar() {
     return;
   }
 
-  const clienteId = 2;
+  const clienteId = 5;
   const pedidoBody = {
     clienteId,
     lineasVenta: this.carrito.map(item => ({
@@ -369,38 +371,40 @@ comprar() {
   });
 
   this.http.post<any>('http://localhost:8080/api/pedidos', pedidoBody, { headers })
-    .subscribe({
-      next: (res) => {
-        snackRef.dismiss();
+  .subscribe({
+    next: (res) => {
+      snackRef.dismiss();
 
-        this.carrito = [];
-        localStorage.removeItem('carrito');
-        this.carritoOpen = false;
+      // Vaciar el carrito
+      this.carrito = [];
+      localStorage.removeItem('carrito');
+      this.carritoOpen = false;
 
-        this.snackBar.open('✅ Pedido realizado correctamente', 'Cerrar', {
-          duration: 4000,
-          horizontalPosition: 'center',
-          verticalPosition: 'top',
-          panelClass: ['snackbar-grande']
-        });
+      this.snackBar.open('✅ Pedido realizado correctamente', 'Cerrar', {
+        duration: 4000,
+        horizontalPosition: 'center',
+        verticalPosition: 'top',
+        panelClass: ['snackbar-grande']
+      });
 
-        this.router.navigate(['/dashboard']);
+      this.router.navigate(['/dashboard']);
 
-        if (res.url) {
-          window.location.href = res.url;
-        }
-      },
-      error: (err) => {
-        snackRef.dismiss();
-        console.error('Error al realizar pedido', err);
-        this.snackBar.open('❌ Hubo un error al realizar el pedido. Intenta de nuevo.', 'Cerrar', {
-          duration: 4000,
-          horizontalPosition: 'center',
-          verticalPosition: 'top',
-          panelClass: ['snackbar-grande']
-        });
+      // Redirigir a una URL si se devuelve
+      if (res.url) {
+        window.location.href = res.url;
       }
-    });
+    },
+    error: (err) => {
+      snackRef.dismiss();
+      console.error('Error al realizar pedido', err);
+      this.snackBar.open('❌ Hubo un error al realizar el pedido. Intenta de nuevo.', 'Cerrar', {
+        duration: 4000,
+        horizontalPosition: 'center',
+        verticalPosition: 'top',
+        panelClass: ['snackbar-grande']
+      });
+    }
+  });
 }
 
   // Navegación
@@ -415,4 +419,9 @@ comprar() {
     localStorage.removeItem('carrito');
     this.router.navigate(['/']);
   }
+    goToMisPedidos() {
+  this.menuOpen = false; // cerramos el dropdown
+  this.router.navigate(['/mispedidos']); // la ruta donde mostrarás los pedidos
+}
+
 }

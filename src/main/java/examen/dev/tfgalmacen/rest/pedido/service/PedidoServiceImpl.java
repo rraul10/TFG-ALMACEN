@@ -4,6 +4,7 @@ import com.stripe.Stripe;
 import com.stripe.param.checkout.SessionCreateParams;
 import examen.dev.tfgalmacen.rest.clientes.models.Cliente;
 import examen.dev.tfgalmacen.rest.clientes.service.ClienteService;
+import examen.dev.tfgalmacen.rest.pedido.controller.PedidoController;
 import examen.dev.tfgalmacen.rest.pedido.dto.CompraRequest;
 import examen.dev.tfgalmacen.rest.pedido.dto.LineaVentaDTO;
 import examen.dev.tfgalmacen.rest.pedido.dto.PedidoRequest;
@@ -23,6 +24,8 @@ import com.stripe.model.checkout.Session;
 import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -42,6 +45,8 @@ public class PedidoServiceImpl implements PedidoService {
     private final EmailService emailService;
     private final TicketService  ticketService;
 
+    private static final Logger logger = LoggerFactory.getLogger(PedidoController.class);
+
     @Value("${stripe.secret.key}")
     private String stripeApiKey;
 
@@ -50,35 +55,25 @@ public class PedidoServiceImpl implements PedidoService {
         Stripe.apiKey = stripeApiKey;
     }
 
-    @Override
-    public String createStripeCheckout(PedidoRequest pedidoRequest) {
+    public String createStripeCheckout(PedidoResponse pedido) {
         try {
-            List<SessionCreateParams.LineItem> lineItems = pedidoRequest.getLineasVenta().stream()
-                    .map(item -> {
-                        Producto producto = productoRepository.findById(item.getProductoId())
-                                .orElseThrow(() -> new ProductoNotFoundException(
-                                        "Producto no encontrado con ID: " + item.getProductoId()));
-
-                        long precioCents = Math.round(producto.getPrecio() * 100);
-
-                        return SessionCreateParams.LineItem.builder()
-                                .setPriceData(
-                                        SessionCreateParams.LineItem.PriceData.builder()
-                                                .setCurrency("eur")
-                                                .setUnitAmount(precioCents)
-                                                .setProductData(
-                                                        SessionCreateParams.LineItem.PriceData.ProductData.builder()
-                                                                .setName(producto.getNombre())
-                                                                .build()
-                                                )
-                                                .build()
-                                )
-                                .setQuantity((long) item.getCantidad())
-                                .build();
-                    })
-                    .toList();
-
-
+            List<SessionCreateParams.LineItem> lineItems = pedido.getLineasVenta().stream()
+                    .map(lv -> SessionCreateParams.LineItem.builder()
+                            .setQuantity((long) lv.getCantidad())
+                            .setPriceData(
+                                    SessionCreateParams.LineItem.PriceData.builder()
+                                            .setCurrency("eur")
+                                            .setUnitAmount((long) (lv.getPrecio() * 100))
+                                            .setProductData(
+                                                    SessionCreateParams.LineItem.PriceData.ProductData.builder()
+                                                            .setName(lv.getProductoNombre())
+                                                            .build()
+                                            )
+                                            .build()
+                            )
+                            .build()
+                    )
+                    .collect(Collectors.toList());
             SessionCreateParams params = SessionCreateParams.builder()
                     .addAllLineItem(lineItems)
                     .setMode(SessionCreateParams.Mode.PAYMENT)
@@ -86,16 +81,14 @@ public class PedidoServiceImpl implements PedidoService {
                     .setCancelUrl("http://localhost:4200/dashboard")
                     .build();
 
-            com.stripe.model.checkout.Session session = com.stripe.model.checkout.Session.create(params);
-
+            // Crear la sesión de Stripe
+            Session session = Session.create(params);
             return session.getUrl();
 
         } catch (Exception e) {
-            throw new RuntimeException("Error al crear sesión de Stripe", e);
+            throw new RuntimeException("Error creando sesión de Stripe", e);
         }
     }
-
-
 
     @Override
     public List<PedidoResponse> getAll() {
@@ -114,14 +107,20 @@ public class PedidoServiceImpl implements PedidoService {
     @Override
     @Transactional
     public PedidoResponse create(PedidoRequest request) {
+        // 🔹 Validación de clienteId
+        if (request.getClienteId() == null) {
+            throw new PedidoNotFoundException("El clienteId es obligatorio para crear un pedido.");
+        }
+
+        // 🔹 Obtener el cliente
+        Cliente cliente = clienteService.getClienteEntityById(request.getClienteId());
+
+        // 🔹 Validación de lineasVenta
         if (request.getLineasVenta() == null || request.getLineasVenta().isEmpty()) {
             throw new PedidoNotFoundException("El pedido debe contener al menos una línea de venta.");
         }
 
-        Cliente cliente = clienteService.getClienteEntityById(request.getClienteId());
-
         List<LineaVenta> lineasVenta = new ArrayList<>();
-
         for (LineaVentaDTO lineaDTO : request.getLineasVenta()) {
             Producto producto = productoRepository.findById(lineaDTO.getProductoId())
                     .orElseThrow(() -> new ProductoNotFoundException(
@@ -160,6 +159,7 @@ public class PedidoServiceImpl implements PedidoService {
 
         return PedidoMapper.toDto(saved);
     }
+
 
     @Override
     public PedidoResponse update(Long id, PedidoRequest request) {
@@ -225,16 +225,6 @@ public class PedidoServiceImpl implements PedidoService {
         return PedidoMapper.toDto(pedido);
     }
 
-
-
-    @Override
-    public List<PedidoResponse> getPedidosByClienteId(Long clienteId) {
-        List<Pedido> pedidos = pedidoRepository.findByClienteIdAndDeletedFalse(clienteId);
-        return pedidos.stream()
-                .map(PedidoMapper::toDto)
-                .collect(Collectors.toList());
-    }
-
     @Override
     public PedidoResponse actualizarEstadoPedido(Long id, EstadoPedido nuevoEstado) {
         Pedido pedido = pedidoRepository.findById(id)
@@ -256,4 +246,13 @@ public class PedidoServiceImpl implements PedidoService {
 
         return PedidoMapper.toDto(savedPedido);
     }
+
+    @Override
+    public List<PedidoResponse> getPedidosByClienteId(Long clienteId) {
+        return pedidoRepository.findByClienteIdAndDeletedFalse(clienteId)
+                .stream()
+                .map(PedidoMapper::toDto)  // Convierte cada Pedido a PedidoResponse
+                .collect(Collectors.toList());
+    }
+
 }

@@ -17,6 +17,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 import java.util.List;
 
@@ -27,6 +30,9 @@ public class ClienteController {
     private final ClienteService clienteService;
     private final PedidoService pedidoService;
     private final StorageService storageService;
+
+    private static final Logger logger = LoggerFactory.getLogger(ClienteController.class);
+
 
     @Autowired
     public ClienteController(ClienteService clienteService, PedidoService pedidoService, StorageService storageService) {
@@ -109,10 +115,10 @@ public class ClienteController {
     }
 
     @GetMapping("/{id}/mispedidos")
-    @PreAuthorize("hasRole('CLIENTE') or hasAnyRole('ADMIN', 'TRABAJADOR')")
     public ResponseEntity<List<PedidoResponse>> getPedidosByCliente(@PathVariable Long id) {
+        logger.info("Consultando los pedidos para el cliente con ID: {}", id);
         List<PedidoResponse> pedidos = pedidoService.getPedidosByClienteId(id);
+        logger.info("Pedidos encontrados para el cliente con ID {}: {}", id, pedidos.size());
         return ResponseEntity.ok(pedidos);
     }
-
 }

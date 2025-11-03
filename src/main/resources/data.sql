@@ -70,6 +70,14 @@ VALUES
     ('Bolsa de Deporte', 'Accesorios', 'bolsa.jpg', 'Bolsa espaciosa para gimnasio o viajes cortos', 29.99, 35, NOW(), NOW(), false),
     ('Cargador Inalámbrico', 'Tecnología', 'cargador.jpg', 'Cargador rápido compatible con la mayoría de smartphones', 19.99, 45, NOW(), NOW(), false);
 
+-- LINEAS DE VENTA
+INSERT INTO linea_venta (pedido_id, producto_id, cantidad, precio_unitario) VALUES
+    (1, 1, 1, 14.99),
+    (1, 2, 2, 59.99),
+    (2, 3, 1, 39.90),
+    (3, 5, 1, 25.50);
+
+
 -- Ajustar secuencia para evitar conflictos con ID ya existentes
 SELECT setval('users_id_seq', (SELECT MAX(id) FROM users));
 
