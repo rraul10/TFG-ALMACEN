@@ -12,7 +12,9 @@ import { AuthService } from '@core/services/auth.service';
     <div class="perfil-layout">
       <!-- BARRA SUPERIOR -->
       <header class="navbar">
-        <div class="navbar-left"></div>
+        <div class="navbar-left">
+          <button class="btn-dashboard" (click)="goToDashboard()">🏠 Dashboard</button>
+        </div>
 
         <div class="user-menu" (click)="toggleMenu()">
           <img 
@@ -21,18 +23,17 @@ import { AuthService } from '@core/services/auth.service';
             class="user-icon"
           />
           <div class="menu-dropdown" *ngIf="menuOpen">
-        <ng-container *ngIf="isLoggedIn; else notLogged">
-          <div class="menu-item" (click)="goToProfile()">👤 Mi perfil</div>
-          <div class="menu-item" (click)="goToMisPedidos()">📦 Mis pedidos</div>
-          <div class="menu-item logout" (click)="logout()">🚪 Cerrar sesión</div>
-        </ng-container>
+            <ng-container *ngIf="isLoggedIn; else notLogged">
+              <div class="menu-item" (click)="goToProfile()">👤 Mi perfil</div>
+              <div class="menu-item" (click)="goToMisPedidos()">📦 Mis pedidos</div>
+              <div class="menu-item logout" (click)="logout()">🚪 Cerrar sesión</div>
+            </ng-container>
 
-        <ng-template #notLogged>
-          <div class="menu-item" (click)="goToLogin()">🔐 Iniciar sesión</div>
-          <div class="menu-item" (click)="goToRegister()">📝 Registrarse</div>
-        </ng-template>
-      </div>
-
+            <ng-template #notLogged>
+              <div class="menu-item" (click)="goToLogin()">🔐 Iniciar sesión</div>
+              <div class="menu-item" (click)="goToRegister()">📝 Registrarse</div>
+            </ng-template>
+          </div>
         </div>
       </header>
 
@@ -41,7 +42,7 @@ import { AuthService } from '@core/services/auth.service';
         <div class="profile-card">
           <div class="profile-header">
             <img 
-              [src]="user.foto || 'https://cdn-icons-png.flaticon.com/512/847/847969.png'" 
+              [src]="fotoPerfil" 
               alt="Foto de perfil"
               class="profile-pic"
             />
@@ -109,6 +110,39 @@ import { AuthService } from '@core/services/auth.service';
       position: sticky;
       top: 0;
       z-index: 100;
+    }
+
+    .navbar-left {
+      margin-right: auto;
+    }
+
+    .btn-dashboard {
+      background: transparent;
+      color: white;
+      border: 1px solid white;
+      border-radius: 8px;
+      padding: 0.4rem 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .btn-dashboard:hover {
+      background: white;
+      color: #1e293b;
+      transform: translateY(-2px);
+    }
+
+    .btn-dashboard-card {
+      background-color: #10b981;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 0.75rem;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      transition: background 0.2s, transform 0.2s;
+      width: 100%;
     }
 
     .user-menu {
@@ -198,7 +232,7 @@ export class PerfilComponent implements OnInit {
   message = '';
   errores: any = {};
   menuOpen = false;
-  isLoggedIn = false; // <-- indicador de sesión
+  isLoggedIn = false;
 
   constructor(private authService: AuthService, private router: Router) {}
 
@@ -262,21 +296,28 @@ export class PerfilComponent implements OnInit {
     return re.test(telefono);
   }
 
+ get fotoPerfil(): string {
+  return this.user.foto && this.user.foto !== 'default.jpg'
+    ? 'http://localhost:8080/uploads/' + this.user.foto
+    : 'http://localhost:8080/uploads/default.jpg';
+}
+
+
+
   toggleMenu() { this.menuOpen = !this.menuOpen; }
 
   goToProfile() { this.menuOpen = false; this.router.navigate(['/perfil']); }
   goToMisPedidos() { this.menuOpen = false; this.router.navigate(['/mispedidos']); }
+  goToDashboard() { this.router.navigate(['/dashboard']); }
 
-  // Nuevo logout que redirige al dashboard
   logout() { 
     this.menuOpen = false; 
     localStorage.removeItem('token'); 
     localStorage.removeItem('user'); 
     this.isLoggedIn = false;
-    this.router.navigate(['/dashboard']); // <-- aquí
+    this.router.navigate(['/dashboard']);
   }
 
-  // Navegación para usuarios no logueados
   goToLogin() { this.menuOpen = false; this.router.navigate(['/login']); }
   goToRegister() { this.menuOpen = false; this.router.navigate(['/register']); }
 }

@@ -2,6 +2,7 @@ package examen.dev.tfgalmacen.auth.users.service;
 
 import examen.dev.tfgalmacen.auth.dto.JwtAuthResponse;
 import examen.dev.tfgalmacen.auth.dto.RegisterClienteRequest;
+import examen.dev.tfgalmacen.auth.dto.UserProfileResponse;
 import examen.dev.tfgalmacen.auth.exceptions.UserNotFound;
 import examen.dev.tfgalmacen.auth.jwt.JwtService;
 import examen.dev.tfgalmacen.auth.users.repository.AuthUserRepository;
@@ -65,8 +66,18 @@ public class AuthUserServiceImpl implements AuthUserService {
 
         String token = jwtService.generateToken(usuario);
 
-        return new JwtAuthResponse(token);
+        UserProfileResponse profile = new UserProfileResponse();
+        profile.setId(usuario.getId());
+        profile.setNombre(usuario.getNombre());
+        profile.setCorreo(usuario.getCorreo());
+        profile.setRoles(usuario.getRoles());
+        profile.setDni(cliente.getDni());
+        profile.setFotoDni(cliente.getFotoDni());
+        profile.setDireccionEnvio(cliente.getDireccionEnvio());
+
+        return new JwtAuthResponse(token, profile);
     }
+
 
 
 }

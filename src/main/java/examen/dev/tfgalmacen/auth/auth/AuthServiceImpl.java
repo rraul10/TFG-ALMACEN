@@ -1,9 +1,6 @@
 package examen.dev.tfgalmacen.auth.auth;
 
-import examen.dev.tfgalmacen.auth.dto.JwtAuthResponse;
-import examen.dev.tfgalmacen.auth.dto.RegisterClienteRequest;
-import examen.dev.tfgalmacen.auth.dto.RegisterUserRequest;
-import examen.dev.tfgalmacen.auth.dto.UserLoginRequest;
+import examen.dev.tfgalmacen.auth.dto.*;
 import examen.dev.tfgalmacen.auth.exceptions.UserNotFound;
 import examen.dev.tfgalmacen.auth.jwt.JwtService;
 import examen.dev.tfgalmacen.auth.users.repository.AuthUserRepository;
@@ -34,7 +31,6 @@ public class AuthServiceImpl implements AuthService {
     private final EmailService emailService;
     private final ClienteRepository clienteRepository;
 
-
     @Override
     public JwtAuthResponse register(RegisterUserRequest request) {
         User user = new User();
@@ -50,25 +46,52 @@ public class AuthServiceImpl implements AuthService {
         emailService.notificarRegistroExitoso(user.getCorreo(), user.getNombre());
 
         String token = jwtService.generateToken((UserDetails) user);
-        return new JwtAuthResponse(token);
+
+        UserProfileResponse profile = new UserProfileResponse();
+        profile.setId(user.getId());
+        profile.setNombre(user.getNombre());
+        profile.setCorreo(user.getCorreo());
+        profile.setRoles(user.getRoles());
+
+        return new JwtAuthResponse(token, profile);
     }
+
+
 
     @Override
     public JwtAuthResponse login(UserLoginRequest request) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getCorreo(), request.getPassword())
-        );
-
         User user = userRepository.findByCorreo(request.getCorreo())
-                .orElseThrow(() -> new UserNotFound("Usuario no encontrado"));
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        String token = jwtService.generateToken((UserDetails) user);
-        return new JwtAuthResponse(token);
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new RuntimeException("Credenciales incorrectas");
+        }
+
+        String token = jwtService.generateToken(user);
+
+        // Crear el perfil base
+        UserProfileResponse profile = new UserProfileResponse();
+        profile.setId(user.getId());
+        profile.setNombre(user.getNombre());
+        profile.setCorreo(user.getCorreo());
+        profile.setRoles(user.getRoles());
+        profile.setApellidos(user.getApellidos());
+        profile.setTelefono(user.getTelefono());
+        profile.setCiudad(user.getCiudad());
+        profile.setFoto(user.getFoto());
+
+        clienteRepository.findByUser(user).ifPresent(cliente -> {
+            profile.setDni(cliente.getDni());
+            profile.setFotoDni(cliente.getFotoDni());
+            profile.setDireccionEnvio(cliente.getDireccionEnvio());
+        });
+
+
+        return new JwtAuthResponse(token, profile);
     }
 
     @Override
     public JwtAuthResponse registerCliente(RegisterClienteRequest request) {
-        // Primero, creamos el usuario
         User usuario = new User();
         usuario.setNombre(request.getNombre());
         usuario.setCorreo(request.getCorreo());
@@ -81,7 +104,7 @@ public class AuthServiceImpl implements AuthService {
         userRepository.save(usuario);
 
         Cliente cliente = new Cliente();
-        cliente.setUser(usuario);  
+        cliente.setUser(usuario);
         cliente.setDni(request.getDni());
         cliente.setFotoDni(request.getFotoDni());
         cliente.setDireccionEnvio(request.getDireccionEnvio());
@@ -92,6 +115,16 @@ public class AuthServiceImpl implements AuthService {
 
         emailService.notificarRegistroExitoso(usuario.getCorreo(), usuario.getNombre());
 
-        return new JwtAuthResponse(token);
+        UserProfileResponse profile = new UserProfileResponse();
+        profile.setId(usuario.getId());
+        profile.setNombre(usuario.getNombre());
+        profile.setCorreo(usuario.getCorreo());
+        profile.setRoles(usuario.getRoles());
+        profile.setDni(cliente.getDni());
+        profile.setFotoDni(cliente.getFotoDni());
+        profile.setDireccionEnvio(cliente.getDireccionEnvio());
+
+        return new JwtAuthResponse(token, profile);
     }
+
 }

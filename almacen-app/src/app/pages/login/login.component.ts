@@ -159,28 +159,23 @@ export class LoginComponent {
   constructor(private authService: AuthService, private router: Router) {}
 
   onSubmit() {
-    this.message = 'Iniciando sesión...';
+  this.message = 'Iniciando sesión...';
 
-this.authService.login({ correo: this.correo, password: this.password }).subscribe({
-  next: (res: any) => {
-    localStorage.setItem('token', res.token);
+  this.authService.login({ correo: this.correo, password: this.password }).subscribe({
+    next: (res: any) => {
+      localStorage.setItem('token', res.token);
 
-    const usuario = {
-      nombre: res.nombre,
-      apellidos: res.apellidos,
-      correo: res.correo,
-      telefono: res.telefono || '',
-      ciudad: res.ciudad || '',
-      fechaRegistro: res.fechaRegistro || new Date().toLocaleDateString(),
-      foto: res.foto || ''
-    };
-    localStorage.setItem('user', JSON.stringify(usuario));
+      localStorage.setItem('user', JSON.stringify(res.user));
 
-    this.message = 'Inicio de sesión correcto. Redirigiendo...';
-    setTimeout(() => this.router.navigate(['/']), 1000);
-  }
-});
+      this.message = 'Inicio de sesión correcto. Redirigiendo...';
 
-
-  }
+      setTimeout(() => this.router.navigate(['/dashboard']), 1000);
+    },
+    error: () => {
+      this.message = '❌ Usuario o contraseña incorrectos';
+    }
+  });
 }
+}
+
+

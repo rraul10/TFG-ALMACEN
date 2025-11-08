@@ -8,4 +8,6 @@ import lombok.Data;
 @AllArgsConstructor
 public class JwtAuthResponse {
     private String token;
+    private UserProfileResponse user;
 }
+
