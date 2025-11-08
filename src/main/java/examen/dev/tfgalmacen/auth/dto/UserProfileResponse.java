@@ -16,16 +16,19 @@ public class UserProfileResponse {
     private String correo;
     private Set<UserRole> roles;
 
-    // Campos del cliente
     private String dni;
     private String fotoDni;
     private String direccionEnvio;
 
-    // Campos del usuario
     private String apellidos;
     private String telefono;
     private String ciudad;
     private String foto;
+
+    private String rol;
+
 }
+
+
 
 

@@ -13,42 +13,108 @@ import { AuthService } from '@core/services/auth.service';
       <div class="register-card">
         <h2>Crear cuenta</h2>
 
-        <form (ngSubmit)="onSubmit()" #registerForm="ngForm">
-          <div class="form-group">
-            <label for="nombre">Nombre completo</label>
-            <input
-              id="nombre"
-              type="text"
-              name="nombre"
-              [(ngModel)]="nombre"
-              placeholder="Tu nombre"
-              required>
-          </div>
+        <form (ngSubmit)="onSubmit()" #registerForm="ngForm" novalidate>
 
-          <div class="form-group">
-            <label for="correo">Correo electrónico</label>
-            <input
-              id="correo"
-              type="email"
-              name="correo"
-              [(ngModel)]="correo"
-              placeholder="ejemplo@correo.com"
-              required>
-          </div>
+  <!-- Nombre -->
+  <div class="form-group">
+    <label for="nombre">Nombre completo</label>
+    <input
+      id="nombre"
+      type="text"
+      name="nombre"
+      [(ngModel)]="nombre"
+      placeholder="Tu nombre"
+      required
+      pattern="^[a-zA-ZÁÉÍÓÚáéíóúÑñ ]+$">
+    <div class="error" *ngIf="registerForm.submitted && (!nombre || !registerForm.controls['nombre']?.valid)">
+      El nombre solo puede contener letras
+    </div>
+  </div>
 
-          <div class="form-group">
-            <label for="password">Contraseña</label>
-            <input
-              id="password"
-              type="password"
-              name="password"
-              [(ngModel)]="password"
-              placeholder="Tu contraseña"
-              required>
-          </div>
+  <!-- Apellidos -->
+  <div class="form-group">
+    <label for="apellidos">Apellidos</label>
+    <input
+      id="apellidos"
+      type="text"
+      name="apellidos"
+      [(ngModel)]="apellidos"
+      placeholder="Tus apellidos"
+      required
+      pattern="^[a-zA-ZÁÉÍÓÚáéíóúÑñ ]+$">
+    <div class="error" *ngIf="registerForm.submitted && (!apellidos || !registerForm.controls['apellidos']?.valid)">
+      Los apellidos solo pueden contener letras
+    </div>
+  </div>
 
-          <button type="submit" [disabled]="registerForm.invalid">Registrar</button>
-        </form>
+  <!-- Correo -->
+  <div class="form-group">
+    <label for="correo">Correo electrónico</label>
+    <input
+      id="correo"
+      type="email"
+      name="correo"
+      [(ngModel)]="correo"
+      placeholder="ejemplo@correo.com"
+      required
+      pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.com$">
+    <div class="error" *ngIf="registerForm.submitted && (!correo || !registerForm.controls['correo']?.valid)">
+      Ingresa un correo válido que termine en .com
+    </div>
+  </div>
+
+  <!-- Teléfono -->
+  <div class="form-group">
+    <label for="telefono">Teléfono</label>
+    <input
+      id="telefono"
+      type="tel"
+      name="telefono"
+      [(ngModel)]="telefono"
+      placeholder="Tu teléfono"
+      required
+      pattern="^[0-9]{9}$">
+    <div class="error" *ngIf="registerForm.submitted && (!telefono || !registerForm.controls['telefono']?.valid)">
+      Ingresa un teléfono válido de 9 dígitos
+    </div>
+  </div>
+
+  <!-- Ciudad -->
+  <div class="form-group">
+    <label for="ciudad">Ciudad</label>
+    <input
+      id="ciudad"
+      type="text"
+      name="ciudad"
+      [(ngModel)]="ciudad"
+      placeholder="Tu ciudad"
+      required>
+    <div class="error" *ngIf="registerForm.submitted && !ciudad">
+      La ciudad es obligatoria
+    </div>
+  </div>
+
+  <!-- Contraseña -->
+  <div class="form-group">
+    <label for="password">Contraseña</label>
+    <input
+      id="password"
+      type="password"
+      name="password"
+      [(ngModel)]="password"
+      placeholder="Tu contraseña"
+      required
+      minlength="6">
+    <div class="error" *ngIf="registerForm.submitted && (!password || password.length < 6)">
+      La contraseña debe tener al menos 6 caracteres
+    </div>
+  </div>
+
+  <button type="submit" [disabled]="registerForm.invalid">Registrar</button>
+
+</form>
+
+
 
         <p class="message">{{ message }}</p>
         <p class="login-link">
@@ -58,26 +124,124 @@ import { AuthService } from '@core/services/auth.service';
     </div>
   `,
   styles: [`
-    .register-page { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #f5f7fa; font-family: 'Segoe UI', Roboto, sans-serif; }
-    .register-card { background-color: #ffffff; padding: 3rem 2.5rem; border-radius: 12px; box-shadow: 0 6px 18px rgba(0,0,0,0.12); width: 100%; max-width: 400px; text-align: center; transition: transform 0.2s, box-shadow 0.2s; }
-    .register-card:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(0,0,0,0.16); }
-    .register-card h2 { margin-bottom: 2rem; color: #1f2937; font-weight: 600; font-size: 1.6rem; }
-    .form-group { margin-bottom: 1.5rem; text-align: left; }
-    label { display: block; font-size: 0.95rem; color: #374151; margin-bottom: 0.4rem; }
-    input { width: 100%; padding: 0.65rem 0.8rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 1rem; transition: border-color 0.2s, box-shadow 0.2s; }
-    input:focus { border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15); outline: none; }
-    button { width: 100%; padding: 0.75rem; background-color: #2563eb; color: white; font-size: 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; transition: background-color 0.3s, box-shadow 0.2s; }
-    button:hover { background-color: #1e40af; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-    button:disabled { background-color: #9ca3af; cursor: not-allowed; }
-    .message { margin-top: 1rem; color: #ef4444; }
-    .login-link { margin-top: 1rem; font-size: 0.9rem; color: #374151; }
-    .login-link a { color: #2563eb; text-decoration: none; font-weight: 500; }
-    .login-link a:hover { text-decoration: underline; }
+    /* General styles */
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f4f7fa;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.error {
+  color: #ef4444;
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+}
+
+.register-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  background-color: #f4f7fa;
+}
+
+.register-card {
+  background: #fff;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+}
+
+h2 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+label {
+  font-weight: 600;
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 5px;
+  display: block;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #333;
+  margin-top: 5px;
+}
+
+input:focus {
+  border-color: #4caf50;
+  outline: none;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  background-color: #4caf50;
+  color: white;
+  font-size: 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:disabled {
+  background-color: #cfd8dc;
+  cursor: not-allowed;
+}
+
+button:hover:not(:disabled) {
+  background-color: #45a049;
+}
+
+.message {
+  color: #ff0000;
+  font-size: 14px;
+  text-align: center;
+}
+
+.login-link {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.login-link a {
+  color: #4caf50;
+  text-decoration: none;
+}
+
+.login-link a:hover {
+  text-decoration: underline;
+}
+
   `]
 })
 export class RegisterComponent {
   nombre = '';
+  apellidos = '';
   correo = '';
+  telefono = '';
+  ciudad = '';
   password = '';
   message = '';
 
@@ -86,7 +250,14 @@ export class RegisterComponent {
   onSubmit() {
     this.message = 'Intentando registro...';
 
-    const data = { nombre: this.nombre, correo: this.correo, password: this.password };
+    const data = {
+      nombre: this.nombre,
+      apellidos: this.apellidos,
+      correo: this.correo,
+      telefono: this.telefono,
+      ciudad: this.ciudad,
+      password: this.password
+    };
 
     this.authService.register(data).subscribe({
       next: () => {
@@ -95,18 +266,24 @@ export class RegisterComponent {
           next: (res: any) => {
             localStorage.setItem('token', res.token);
 
-            // Guardamos también la info del usuario para el perfil
-            localStorage.setItem('user', JSON.stringify(res.usuario)); // <--- aquí
+            // Guardamos el usuario completo devuelto por el backend
+            localStorage.setItem('user', JSON.stringify(res.user));
+
+            // Si quieres guardar el rol también
+            if (res.user.roles && res.user.roles.length > 0) {
+              localStorage.setItem('rol', res.user.roles[0]);
+            }
 
             this.message = 'Registro e inicio de sesión correcto, redirigiendo...';
             setTimeout(() => this.router.navigate(['/']), 1000);
           },
           error: (err: any) => {
-            console.error('Error en login automático:', err);
-            this.message = 'Registro correcto, pero error en el login automático';
+            console.error('Error login automático:', err);
+            this.message = 'Registro correcto, pero error en login automático';
             setTimeout(() => this.router.navigate(['/login']), 2000);
           }
         });
+
       },
       error: (err: any) => {
         console.error('Error en registro:', err);

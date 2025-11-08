@@ -1,7 +1,6 @@
 package examen.dev.tfgalmacen.auth.auth;
 
 import examen.dev.tfgalmacen.auth.dto.*;
-import examen.dev.tfgalmacen.auth.exceptions.UserNotFound;
 import examen.dev.tfgalmacen.auth.jwt.JwtService;
 import examen.dev.tfgalmacen.auth.users.repository.AuthUserRepository;
 import examen.dev.tfgalmacen.rest.clientes.models.Cliente;
@@ -10,8 +9,9 @@ import examen.dev.tfgalmacen.rest.users.UserRole;
 import examen.dev.tfgalmacen.rest.users.models.User;
 import examen.dev.tfgalmacen.websockets.notifications.EmailService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,6 +23,8 @@ import java.util.Collections;
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
+    private static final Logger logger = LoggerFactory.getLogger(AuthServiceImpl.class);
+
     private final AuthUserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -33,29 +35,66 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public JwtAuthResponse register(RegisterUserRequest request) {
+        logger.debug("Iniciando el registro de usuario con correo: {}", request.getCorreo());
+
+        // Crear el objeto de usuario
         User user = new User();
         user.setNombre(request.getNombre());
+        user.setApellidos(request.getApellidos());
         user.setCorreo(request.getCorreo());
+        user.setTelefono(request.getTelefono());
+        user.setCiudad(request.getCiudad());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRoles(Collections.singleton(request.getRole() != null ? request.getRole() : UserRole.CLIENTE));
+
+        logger.info("Usuario creado: {}", user);
+
+        // Determinar el rol del usuario
+        UserRole role = UserRole.CLIENTE;
+        if (request.getRole() != null) {
+            try {
+                role = UserRole.valueOf(request.getRole());
+                logger.info("Rol asignado: {}", role);
+            } catch (IllegalArgumentException e) {
+                logger.warn("Rol no válido recibido: {}", request.getRole());
+            }
+        }
+
+        user.setRoles(Collections.singleton(role));
         user.setCreated(LocalDateTime.now());
         user.setUpdated(LocalDateTime.now());
         user.setDeleted(false);
 
-        userRepository.save(user);
+        // Guardar el usuario en la base de datos
+        try {
+            userRepository.save(user);
+            logger.info("Usuario registrado con éxito con ID: {}", user.getId());
+        } catch (Exception e) {
+            logger.error("Error al registrar el usuario: {}", e.getMessage());
+            throw new RuntimeException("Error al registrar el usuario");
+        }
+
+        // Enviar notificación por email
         emailService.notificarRegistroExitoso(user.getCorreo(), user.getNombre());
 
+        // Generar el token JWT
         String token = jwtService.generateToken((UserDetails) user);
+        logger.debug("Token JWT generado para el usuario con correo: {}", user.getCorreo());
 
+        // Crear el perfil de usuario para la respuesta
         UserProfileResponse profile = new UserProfileResponse();
         profile.setId(user.getId());
         profile.setNombre(user.getNombre());
+        profile.setApellidos(user.getApellidos());
         profile.setCorreo(user.getCorreo());
+        profile.setTelefono(user.getTelefono());
+        profile.setCiudad(user.getCiudad());
         profile.setRoles(user.getRoles());
+        profile.setRol(role.name());
+
+        logger.debug("Perfil de usuario creado: {}", profile);
 
         return new JwtAuthResponse(token, profile);
     }
-
 
 
     @Override
