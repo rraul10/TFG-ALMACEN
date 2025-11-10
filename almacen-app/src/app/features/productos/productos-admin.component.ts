@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Producto, ProductoService } from '@core/services/producto.service';
 import { RoleService } from '@core/services/role.service';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-productos-admin',
@@ -17,6 +18,7 @@ import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
           (click)="productoSeleccionado = { nombre: '', tipo: '', precio: 0, stock: 0, imagen: '', descripcion: '' }">
           ➕ Añadir Producto
         </button>
+        <button class="btn-add-product" (click)="volverAlDashboard()">🏠 Dashboard</button>
       </div>
 
       <!-- Lista de productos -->
@@ -241,7 +243,8 @@ export class ProductosAdminComponent implements OnInit {
   constructor(
     private productoService: ProductoService,
     private roleService: RoleService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -299,6 +302,10 @@ export class ProductosAdminComponent implements OnInit {
         error: (err) => console.error('Error creando producto', err)
       });
     }
+  }
+
+   volverAlDashboard() {
+    this.router.navigate(['/dashboard']);
   }
 
   eliminarProducto(id: number) {

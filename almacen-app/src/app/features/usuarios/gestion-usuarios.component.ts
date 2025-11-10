@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { UserService, User } from '@core/services/user.service'; 
+import { Router } from '@angular/router';
+
 
 @Component({    
   selector: 'app-gestion-usuarios',
@@ -12,7 +14,10 @@ import { UserService, User } from '@core/services/user.service';
     <div class="panel-container">
       <div class="panel-header">
         <h1>👥 Gestión de Usuarios</h1>
-        <button class="btn btn-primary" (click)="nuevoUsuario()">➕ Nuevo Usuario</button>
+        <div>
+          <button class="btn btn-primary" (click)="nuevoUsuario()">➕ Nuevo Usuario</button>
+          <button class="btn btn-secondary" (click)="volverAlDashboard()">🏠 Dashboard</button>
+        </div>
       </div>
 
       <div class="usuarios-container">
@@ -112,7 +117,7 @@ export class GestionUsuariosComponent implements OnInit {
   usuarios: User[] = [];
   usuarioSeleccionado: User | null = null;
 
-  constructor(private userService: UserService, private snackBar: MatSnackBar) {}
+  constructor(private userService: UserService, private snackBar: MatSnackBar,  private router: Router) {}
 
   ngOnInit(): void { this.cargarUsuarios(); }
 
@@ -161,6 +166,11 @@ export class GestionUsuariosComponent implements OnInit {
       error: (err: any) => console.error('Error guardando usuario', err)
     });
   }
+
+  volverAlDashboard() {
+  this.router.navigate(['/dashboard']);
+}
+
 
   eliminarUsuario(id: number) {
     if (!confirm('¿Seguro que quieres eliminar este usuario?')) return;

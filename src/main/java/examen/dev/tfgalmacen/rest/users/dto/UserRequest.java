@@ -14,8 +14,13 @@ import java.util.Set;
 @AllArgsConstructor
 public class UserRequest {
     private String nombre;
+    private String apellidos;
     private String correo;
     private String password;
+    private String telefono;
+    private String ciudad;
+    private String foto;
     private Set<UserRole> roles;
 }
+
 
