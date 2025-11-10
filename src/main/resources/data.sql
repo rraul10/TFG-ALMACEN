@@ -1,19 +1,19 @@
 -- USERS
-INSERT INTO users (id, nombre, apellidos, correo, password, telefono, ciudad, foto, created, updated, deleted) VALUES
-    (1, 'Admin Principal', 'Admin', 'admin@example.com', '$2a$12$UFlfPUUOd3hVjJYrJLvPYekmFtsZbuTzh2q0yhmYSDbaNoTCOf/TS', '600000001', 'Madrid', 'admin.jpg', NOW(), NOW(), false),
-    (2, 'Trabajador Uno', 'Perez', 'trabajador1@example.com', '$2a$12$/d1KeggIn8zzJlkxSiievuWZtxTnPRsx9KhV/34F3ceV1SwZO.WeG', '600000002', 'Barcelona', 'trabajador1.jpg', NOW(), NOW(), false),
-    (3, 'Trabajador Dos', 'Gomez', 'trabajador2@example.com', '$2a$12$0lcB19.P54vSZ.GeZR/Y6Ob/DH3YAk2eRvyhMxt0hi4UVMUA348BK', '600000003', 'Valencia', 'trabajador2.jpg', NOW(), NOW(), false),
-    (4, 'Trabajador Tres', 'Lopez', 'trabajador3@example.com', '$2a$12$r6M0D9rxAx..zSsvHJ9d1OFXDNfy0/VeeQIeGhi1OJT.4/dRkXCr6', '600000004', 'Sevilla', 'trabajador3.jpg', NOW(), NOW(), false),
-    (5, 'Raúl', 'Fernández', 'raulspotify6106@gmail.com', '$2a$12$T25nQ90HvBR/3WIxPryDzeE6IX.pQiFA.wrqfCg/LLVMkFoXVLOje', '600000005', 'Madrid', 'imagenral.jpg', NOW(), NOW(), false),
-    (6, 'Yahya', 'El Hadri', 'yahya@example.com', '$2a$12$PFvGQIyLW.a2lKL2q8BLvOT1TAO6uGmYwRPxWaRVhIvFRT9ZOzF6W', '600000006', 'Barcelona', 'yahya.jpg', NOW(), NOW(), false),
-    (7, 'Samuel', 'Cortes', 'samu@example.com', '$2a$12$PFvGQIyLW.a2lKL2q8BLvOT1TAO6uGmYwRPxWaRVhIvFRT9ZOzF6W', '600000007', 'Valencia', 'samuel.jpg', NOW(), NOW(), false),
-    (8, 'Javier', 'Hernandez', 'javi@example.com', '$2a$12$PFvGQIyLW.a2lKL2q8BLvOT1TAO6uGmYwRPxWaRVhIvFRT9ZOzF6W', '600000008', 'Sevilla', 'javierh.jpg', NOW(), NOW(), false),
-    (9, 'Javier', 'Ruiz', 'javierruiz@example.com', '$2a$12$PFvGQIyLW.a2lKL2q8BLvOT1TAO6uGmYwRPxWaRVhIvFRT9ZOzF6W', '600000009', 'Bilbao', 'javierruiz.jpg', NOW(), NOW(), false),
-    (10, 'Pedro', 'PicaPiedra', 'pedro@example.com', '$2a$12$PFvGQIyLW.a2lKL2q8BLvOT1TAO6uGmYwRPxWaRVhIvFRT9ZOzF6W', '600000010', 'Zaragoza', 'pedro.jpg', NOW(), NOW(), false),
-    (11, 'Ruben', 'Gomez', 'ruben@example.com', '$2a$12$PFvGQIyLW.a2lKL2q8BLvOT1TAO6uGmYwRPxWaRVhIvFRT9ZOzF6W', '600000011', 'Madrid', 'ruben.jpg', NOW(), NOW(), false),
-    (12, 'Sergio', 'Peña', 'sergio@example.com', '$2a$12$PFvGQIyLW.a2lKL2q8BLvOT1TAO6uGmYwRPxWaRVhIvFRT9ZOzF6W', '600000012', 'Barcelona', 'sergio.jpg', NOW(), NOW(), false),
-    (13, 'Victor', 'Conde', 'victor@example.com', '$2a$12$PFvGQIyLW.a2lKL2q8BLvOT1TAO6uGmYwRPxWaRVhIvFRT9ZOzF6W', '600000013', 'Valencia', 'victor.jpg', NOW(), NOW(), false),
-    (14, 'Javier', 'Garzas', 'javiergarzas@example.com', '$2a$12$PFvGQIyLW.a2lKL2q8BLvOT1TAO6uGmYwRPxWaRVhIvFRT9ZOzF6W', '600000014', 'Sevilla', 'javiergarzas.jpg', NOW(), NOW(), false);
+    INSERT INTO users (id, nombre, apellidos, correo, password, telefono, ciudad, foto, created, updated, deleted) VALUES
+        (1, 'Admin Principal', 'Admin', 'admin@example.com', '$2a$12$UFlfPUUOd3hVjJYrJLvPYekmFtsZbuTzh2q0yhmYSDbaNoTCOf/TS', '600000001', 'Madrid', 'admin.jpg', NOW(), NOW(), false),
+        (2, 'Trabajador Uno', 'Perez', 'trabajador1@example.com', '$2a$12$/d1KeggIn8zzJlkxSiievuWZtxTnPRsx9KhV/34F3ceV1SwZO.WeG', '600000002', 'Barcelona', 'trabajador1.jpg', NOW(), NOW(), false),
+        (3, 'Trabajador Dos', 'Gomez', 'trabajador2@example.com', '$2a$12$0lcB19.P54vSZ.GeZR/Y6Ob/DH3YAk2eRvyhMxt0hi4UVMUA348BK', '600000003', 'Valencia', 'trabajador2.jpg', NOW(), NOW(), false),
+        (4, 'Trabajador Tres', 'Lopez', 'trabajador3@example.com', '$2a$12$r6M0D9rxAx..zSsvHJ9d1OFXDNfy0/VeeQIeGhi1OJT.4/dRkXCr6', '600000004', 'Sevilla', 'trabajador3.jpg', NOW(), NOW(), false),
+        (5, 'Raúl', 'Fernández', 'raulspotify6106@gmail.com', '$2a$12$T25nQ90HvBR/3WIxPryDzeE6IX.pQiFA.wrqfCg/LLVMkFoXVLOje', '600000005', 'Madrid', 'imagenral.jpg', NOW(), NOW(), false),
+        (6, 'Yahya', 'El Hadri', 'yahya@example.com', '$2a$12$PFvGQIyLW.a2lKL2q8BLvOT1TAO6uGmYwRPxWaRVhIvFRT9ZOzF6W', '600000006', 'Barcelona', 'yahya.jpg', NOW(), NOW(), false),
+        (7, 'Samuel', 'Cortes', 'samu@example.com', '$2a$12$PFvGQIyLW.a2lKL2q8BLvOT1TAO6uGmYwRPxWaRVhIvFRT9ZOzF6W', '600000007', 'Valencia', 'samuel.jpg', NOW(), NOW(), false),
+        (8, 'Javier', 'Hernandez', 'javi@example.com', '$2a$12$PFvGQIyLW.a2lKL2q8BLvOT1TAO6uGmYwRPxWaRVhIvFRT9ZOzF6W', '600000008', 'Sevilla', 'javierh.jpg', NOW(), NOW(), false),
+        (9, 'Javier', 'Ruiz', 'javierruiz@example.com', '$2a$12$PFvGQIyLW.a2lKL2q8BLvOT1TAO6uGmYwRPxWaRVhIvFRT9ZOzF6W', '600000009', 'Bilbao', 'javierruiz.jpg', NOW(), NOW(), false),
+        (10, 'Pedro', 'PicaPiedra', 'pedro@example.com', '$2a$12$PFvGQIyLW.a2lKL2q8BLvOT1TAO6uGmYwRPxWaRVhIvFRT9ZOzF6W', '600000010', 'Zaragoza', 'pedro.jpg', NOW(), NOW(), false),
+        (11, 'Ruben', 'Gomez', 'ruben@example.com', '$2a$12$PFvGQIyLW.a2lKL2q8BLvOT1TAO6uGmYwRPxWaRVhIvFRT9ZOzF6W', '600000011', 'Madrid', 'ruben.jpg', NOW(), NOW(), false),
+        (12, 'Sergio', 'Peña', 'sergio@example.com', '$2a$12$PFvGQIyLW.a2lKL2q8BLvOT1TAO6uGmYwRPxWaRVhIvFRT9ZOzF6W', '600000012', 'Barcelona', 'sergio.jpg', NOW(), NOW(), false),
+        (13, 'Victor', 'Conde', 'victor@example.com', '$2a$12$PFvGQIyLW.a2lKL2q8BLvOT1TAO6uGmYwRPxWaRVhIvFRT9ZOzF6W', '600000013', 'Valencia', 'victor.jpg', NOW(), NOW(), false),
+        (14, 'Javier', 'Garzas', 'javiergarzas@example.com', '$2a$12$PFvGQIyLW.a2lKL2q8BLvOT1TAO6uGmYwRPxWaRVhIvFRT9ZOzF6W', '600000014', 'Sevilla', 'javiergarzas.jpg', NOW(), NOW(), false);
 
 -- ROLES
 INSERT INTO user_roles (user_id, roles) VALUES

@@ -4,8 +4,7 @@ import { CommonModule, CurrencyPipe } from '@angular/common';
 import { AuthService } from '@core/services/auth.service';
 import { ProductosListComponent } from '../../features/productos/productos-list.component';
 import { HttpClient, HttpClientModule, HttpHeaders } from '@angular/common/http';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { NotificationService } from '@core/services/notification.service';
 
 @Component({
@@ -25,17 +24,29 @@ import { NotificationService } from '@core/services/notification.service';
     <header class="navbar">
       <h1 class="app-title">📦 Gestión de Almacén</h1>
       <div class="menu-carrito-container">
-        <div *ngIf="isLoggedIn" class="carrito-icon" (click)="toggleCarrito()">
+        <!-- Mostrar carrito solo si está logueado y NO es admin -->
+        <div *ngIf="isLoggedIn && !isAdmin" class="carrito-icon" (click)="toggleCarrito()">
           🛒 <span class="carrito-count">{{ carrito.length }}</span>
         </div>
+
+
         <div class="user-menu" (click)="toggleMenu()">
           <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" class="user-icon" />
           <div class="menu-dropdown" *ngIf="menuOpen">
             <ng-container *ngIf="isLoggedIn; else notLogged">
               <div class="menu-item" (click)="goToProfile()">👤 Mi perfil</div>
-              <div class="menu-item" (click)="goToMisPedidos()">📦 Mis pedidos</div>
+              <div *ngIf="!isAdmin" class="menu-item" (click)="goToMisPedidos()">📦 Mis pedidos</div>
+
+              <!-- Opciones de administración -->
+              <div *ngIf="isAdmin" class="menu-separator"></div>
+              <div *ngIf="isAdmin" class="menu-item" (click)="goToGestion('clientes')">👥 Gestión de Clientes</div>
+              <div *ngIf="isAdmin" class="menu-item" (click)="goToGestion('productos')">📦 Gestión de Productos</div>
+              <div *ngIf="isAdmin" class="menu-item" (click)="goToGestion('pedidos')">🧾 Gestión de Pedidos</div>
+              <div *ngIf="isAdmin" class="menu-item" (click)="goToGestion('trabajadores')">👷 Gestión de Trabajadores</div>
+
               <div class="menu-item logout" (click)="logout()">🚪 Cerrar sesión</div>
             </ng-container>
+
             <ng-template #notLogged>
               <div class="menu-item" (click)="goToLogin()">🔐 Iniciar sesión</div>
               <div class="menu-item" (click)="goToRegister()">📝 Registrarse</div>
@@ -51,7 +62,7 @@ import { NotificationService } from '@core/services/notification.service';
     </main>
 
     <!-- MODAL CARRITO -->
-    <div *ngIf="carritoOpen && isLoggedIn" class="modal-carrito">
+    <div *ngIf="carritoOpen && isLoggedIn && !isAdmin" class="modal-carrito">
       <h3>🛒 Tu Carrito</h3>
       <div *ngIf="carrito.length > 0; else carritoVacio">
         <div class="item-carrito" *ngFor="let item of carrito; let i = index">
@@ -243,6 +254,7 @@ export class DashboardComponent {
   menuOpen = false;
   carritoOpen = false;
   isLoggedIn = false;
+  isAdmin = false;
   carrito: any[] = [];
 
   constructor(
@@ -252,7 +264,8 @@ export class DashboardComponent {
     private snackBar: MatSnackBar,
     private notificationService: NotificationService
   ) {
-    this.isLoggedIn = !!localStorage.getItem('token');
+    this.isLoggedIn = this.authService.isLoggedIn();
+    this.isAdmin = this.authService.isAdmin();
     this.loadCarrito();
     window.addEventListener('carritoActualizado', () => this.loadCarrito());
   }
@@ -314,5 +327,19 @@ export class DashboardComponent {
   goToRegister() { this.menuOpen = false; this.router.navigate(['/register']); }
   goToProfile() { this.menuOpen = false; this.router.navigate(['/perfil']); }
   goToMisPedidos() { this.menuOpen = false; this.router.navigate(['/mispedidos']); }
-  logout() { this.menuOpen = false; localStorage.removeItem('token'); this.isLoggedIn = false; this.carrito = []; localStorage.removeItem('carrito'); this.router.navigate(['/']); }
+
+  goToGestion(tipo: string) {
+    this.menuOpen = false;
+    this.router.navigate([`/admin/${tipo}`]);
+  }
+
+  logout() {
+    this.menuOpen = false;
+    this.authService.logout();
+    this.isLoggedIn = false;
+    this.isAdmin = false;
+    this.carrito = [];
+    localStorage.removeItem('carrito');
+    this.router.navigate(['/']);
+  }
 }

@@ -23,13 +23,20 @@ import { NotificationService } from '@core/services/notification.service';
           <p class="stock" *ngIf="isAdminOrTrabajador()">📦 Stock: {{ p.stock }}</p>
 
           <!-- Mostrar la cantidad solo si el usuario está logueado -->
-          <label *ngIf="isLoggedIn">
-            Cantidad:
-            <input type="number" min="1" [max]="p.stock" [(ngModel)]="p.cantidadSeleccionada" [name]="'cantidad_' + p.id" />
-          </label>
+        <label *ngIf="isLoggedIn && !isAdminOrTrabajador()">
+          Cantidad:
+          <input type="number" min="1" [max]="p.stock" [(ngModel)]="p.cantidadSeleccionada" [name]="'cantidad_' + p.id" />
+        </label>
+
 
           <!-- Mostrar el botón de "Añadir al carrito" solo si el usuario está logueado -->
-          <button class="btn-add" *ngIf="isLoggedIn" (click)="agregarAlCarrito(p)">Añadir al carrito</button>
+          <!-- Mostrar el botón solo si está logueado y NO es admin -->
+          <button
+            class="btn-add"
+            *ngIf="isLoggedIn && !isAdminOrTrabajador()"
+            (click)="agregarAlCarrito(p)">
+            Añadir al carrito
+          </button>
 
           <!-- Si no está logueado, solo mostrar el botón sin permitir añadir al carrito -->
           <div class="" *ngIf="!isLoggedIn" disabled></div>
