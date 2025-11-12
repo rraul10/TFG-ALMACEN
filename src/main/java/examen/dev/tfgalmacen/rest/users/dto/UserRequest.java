@@ -1,5 +1,6 @@
 package examen.dev.tfgalmacen.rest.users.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import examen.dev.tfgalmacen.rest.users.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,6 +13,7 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class UserRequest {
     private String nombre;
     private String apellidos;

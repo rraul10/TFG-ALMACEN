@@ -46,4 +46,19 @@ export class UserService {
   delete(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
   }
+
+ createWithFile(formData: FormData): Observable<User> {
+  const token = localStorage.getItem('token') || '';
+  const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+  return this.http.post<User>(this.apiUrl, formData, { headers });
+}
+
+  updateWithFile(id: number, formData: FormData): Observable<User> {
+    const token = localStorage.getItem('token') || '';
+    console.log(atob(token!.split('.')[1])); 
+
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+    return this.http.put<User>(`${this.apiUrl}/${id}`, formData, { headers });
+  }
+
 }

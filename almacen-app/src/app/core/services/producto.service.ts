@@ -1,17 +1,17 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface Producto {
-  id?: number; 
+  id?: number;
   nombre: string;
   tipo: string;
   descripcion: string;
   precio: number;
   stock: number;
   imagen: string;
-  cantidadSeleccionada?: number; 
-  cantidad?: number;          
+  cantidadSeleccionada?: number;
+  cantidad?: number;
 }
 
 @Injectable({
@@ -39,6 +39,23 @@ export class ProductoService {
   }
 
   delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    const token = localStorage.getItem('token') || '';
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`
+    });
+    return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers });
   }
+
+  createWithFile(formData: FormData): Observable<Producto> {
+    const token = localStorage.getItem('token') || '';
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+    return this.http.post<Producto>(`${this.apiUrl}/create`, formData, { headers });
+  }
+
+  updateWithFile(id: number, formData: FormData): Observable<Producto> {
+    const token = localStorage.getItem('token') || '';
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+    return this.http.put<Producto>(`${this.apiUrl}/${id}`, formData, { headers });
+  }
+
 }

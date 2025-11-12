@@ -21,7 +21,6 @@ import { Router } from '@angular/router';
         <button class="btn-add-product" (click)="volverAlDashboard()">🏠 Dashboard</button>
       </div>
 
-      <!-- Lista de productos -->
       <div class="productos-grid">
         <div class="producto-card" *ngFor="let p of productos">
           <img [src]="'http://localhost:8080/files/' + p.imagen" alt="{{ p.nombre }}" />
@@ -35,40 +34,26 @@ import { Router } from '@angular/router';
         </div>
       </div>
 
-      <!-- Formulario para crear/editar producto -->
-    <div class="form-producto" *ngIf="productoSeleccionado">
-    <h3>{{ productoSeleccionado.id ? 'Editar Producto' : 'Añadir Producto' }}</h3>
+      <!-- Modal -->
+      <div class="modal-backdrop" *ngIf="productoSeleccionado">
+        <div class="form-producto modal">
+          <h3>{{ productoSeleccionado.id ? 'Editar Producto' : 'Añadir Producto' }}</h3>
 
-    <label>Nombre:
-        <input type="text" [(ngModel)]="productoSeleccionado.nombre" />
-    </label>
+          <label>Nombre:<input [(ngModel)]="productoSeleccionado.nombre" /></label>
+          <label>Tipo:<input [(ngModel)]="productoSeleccionado.tipo" /></label>
+          <label>Precio:<input type="number" [(ngModel)]="productoSeleccionado.precio" /></label>
+          <label>Stock:<input type="number" [(ngModel)]="productoSeleccionado.stock" /></label>
+          <label>Imagen:
+            <input type="file" (change)="onFileSelected($event)" />
+          </label>
+          <label>Descripción:<textarea [(ngModel)]="productoSeleccionado.descripcion"></textarea></label>
 
-    <label>Tipo:
-        <input type="text" [(ngModel)]="productoSeleccionado.tipo" />
-    </label>
-
-    <label>Imagen:
-        <input type="text" [(ngModel)]="productoSeleccionado.imagen" />
-    </label>
-
-    <label>Descripción:
-        <textarea [(ngModel)]="productoSeleccionado.descripcion"></textarea>
-    </label>
-
-    <label>Precio:
-        <input type="number" [(ngModel)]="productoSeleccionado.precio" />
-    </label>
-
-    <label>Stock:
-        <input type="number" [(ngModel)]="productoSeleccionado.stock" />
-    </label>
-
-    <div class="botones">
-        <button (click)="guardarProducto()">💾 Guardar</button>
-        <button (click)="limpiarSeleccion()">✖ Cancelar</button>
-    </div>
-    </div>
-
+          <div class="botones">
+            <button (click)="guardarProducto()">💾 Guardar</button>
+            <button (click)="cancelarEdicion()">✖ Cancelar</button>
+          </div>
+        </div>
+      </div>
     </div>
   `,
   styles: [`
@@ -109,7 +94,6 @@ import { Router } from '@angular/router';
       transform: translateY(-2px);
     }
 
-    /* Grid de productos */
     .productos-grid {
       display: flex;
       flex-wrap: wrap;
@@ -141,15 +125,6 @@ import { Router } from '@angular/router';
       object-fit: cover;
       border-radius: 8px;
       margin-bottom: 0.5rem;
-    }
-
-    .producto-card h3 {
-      font-size: 1.1rem;
-      margin: 0.5rem 0;
-    }
-
-    .producto-card p {
-      margin: 0.2rem 0;
     }
 
     .card-buttons {
@@ -186,17 +161,25 @@ import { Router } from '@angular/router';
       background-color: #b91c1c;
     }
 
-    /* Formulario de producto */
-    .form-producto {
-        border: 1px solid #94a3b8;
-        border-radius: 12px;
-        padding: 1.2rem;
-        max-width: 500px;
-        margin: 2rem auto 0;
-        background: #f9fafb;
-        text-align: left;
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      top:0; left:0; right:0; bottom:0;
+      background-color: rgba(0,0,0,0.4);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
     }
 
+    .modal {
+      width: 90%;
+      max-width: 500px;
+      background-color: #f9fafb;
+      border-radius: 12px;
+      padding: 1.2rem;
+      border: 1px solid #94a3b8;
+    }
 
     .form-producto label {
       display: block;
@@ -239,6 +222,7 @@ export class ProductosAdminComponent implements OnInit {
   productos: Producto[] = [];
   productoSeleccionado: Producto | null = null;
   isAdmin = false;
+  selectedFile: File | null = null;
 
   constructor(
     private productoService: ProductoService,
@@ -248,11 +232,8 @@ export class ProductosAdminComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    console.log('ProductosAdminComponent cargado');
     this.isAdmin = this.roleService.isAdmin();
     if (!this.isAdmin) return;
-
-    this.productoSeleccionado = null; // Asegúrate de que se inicialice en null
     this.cargarProductos();
   }
 
@@ -264,10 +245,12 @@ export class ProductosAdminComponent implements OnInit {
   }
 
   seleccionarProducto(p: Producto) {
+  // Clonamos el objeto para que ngModel funcione sin mutar la lista original
     this.productoSeleccionado = { ...p };
+    this.selectedFile = null; // reseteamos la imagen seleccionada
   }
 
-  limpiarSeleccion() {
+  cancelarEdicion() {
     this.productoSeleccionado = null;
   }
 
@@ -277,40 +260,58 @@ export class ProductosAdminComponent implements OnInit {
     const productoData = {
       nombre: this.productoSeleccionado.nombre,
       tipo: this.productoSeleccionado.tipo,
-      imagen: this.productoSeleccionado.imagen,
       descripcion: this.productoSeleccionado.descripcion,
       precio: this.productoSeleccionado.precio,
-      stock: this.productoSeleccionado.stock
+      stock: this.productoSeleccionado.stock,
+      imagen: this.productoSeleccionado.imagen
     };
 
-    if (this.productoSeleccionado.id) {
-      this.productoService.update(this.productoSeleccionado.id, productoData).subscribe({
-        next: () => {
-          this.snackBar.open('Producto actualizado ✅', 'Cerrar', { duration: 2000 });
-          this.cargarProductos();
-          this.limpiarSeleccion();
-        },
-        error: (err) => console.error('Error actualizando producto', err)
-      });
-    } else {
-      this.productoService.create(productoData).subscribe({
-        next: () => {
-          this.snackBar.open('Producto añadido ✅', 'Cerrar', { duration: 2000 });
-          this.cargarProductos();
-          this.limpiarSeleccion();
-        },
-        error: (err) => console.error('Error creando producto', err)
-      });
+    const formData = new FormData();
+    formData.append('producto', new Blob([JSON.stringify(productoData)], { type: 'application/json' }));
+
+    if (this.selectedFile) {
+      formData.append('imagen', this.selectedFile);
     }
+
+    const request$ = this.productoSeleccionado.id
+      ? this.productoService.updateWithFile(this.productoSeleccionado.id, formData)
+      : this.productoService.createWithFile(formData);
+
+    request$.subscribe({
+      next: () => {
+        this.snackBar.open(
+          this.productoSeleccionado!.id ? 'Producto actualizado ✅' : 'Producto añadido ✅',
+          'Cerrar',
+          { duration: 2000 }
+        );
+        this.cargarProductos();
+        this.cancelarEdicion();
+      },
+      error: (err) => console.error('Error guardando producto', err)
+    });
   }
 
-   volverAlDashboard() {
+
+
+  nuevoProducto() {
+    this.productoSeleccionado = { nombre: '', tipo: '', precio: 0, stock: 0, imagen: '', descripcion: '' };
+    this.selectedFile = null; 
+  }
+
+  volverAlDashboard() {
     this.router.navigate(['/dashboard']);
   }
 
+  onFileSelected(event: any) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.selectedFile = input.files[0];
+    }
+  }
+
+
   eliminarProducto(id: number) {
     if (!confirm('¿Seguro que quieres eliminar este producto?')) return;
-
     this.productoService.delete(id).subscribe({
       next: () => {
         this.snackBar.open('Producto eliminado ✅', 'Cerrar', { duration: 2000 });

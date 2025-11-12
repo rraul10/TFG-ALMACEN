@@ -5,7 +5,6 @@ import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { UserService, User } from '@core/services/user.service'; 
 import { Router } from '@angular/router';
 
-
 @Component({    
   selector: 'app-gestion-usuarios',
   standalone: true,
@@ -50,7 +49,7 @@ import { Router } from '@angular/router';
           <label>Contraseña:<input [(ngModel)]="usuarioSeleccionado!.password" type="password" /></label>
           <label>Teléfono:<input [(ngModel)]="usuarioSeleccionado!.telefono" /></label>
           <label>Ciudad:<input [(ngModel)]="usuarioSeleccionado!.ciudad" /></label>
-          <label>Foto:<input [(ngModel)]="usuarioSeleccionado!.foto" /></label>
+          <label>Foto:<input type="file" (change)="onFileSelected($event)" /></label>
         </div>
 
         <div class="form-actions">
@@ -117,13 +116,21 @@ export class GestionUsuariosComponent implements OnInit {
   usuarios: User[] = [];
   usuarioSeleccionado: User | null = null;
 
-  constructor(private userService: UserService, private snackBar: MatSnackBar,  private router: Router) {}
+  selectedFile: File | null = null;
 
-  ngOnInit(): void { this.cargarUsuarios(); }
+  constructor(
+    private userService: UserService,
+    private snackBar: MatSnackBar,
+    private router: Router
+  ) {}
+
+  ngOnInit(): void {
+    this.cargarUsuarios();
+  }
 
   cargarUsuarios() {
     this.userService.getAll().subscribe({
-      next: (data: User[]) => this.usuarios = data,
+      next: (data: User[]) => (this.usuarios = data),
       error: (err: any) => console.error('Error cargando usuarios', err)
     });
   }
@@ -144,14 +151,40 @@ export class GestionUsuariosComponent implements OnInit {
     };
   }
 
-  editarUsuario(u: User) { this.usuarioSeleccionado = { ...u }; }
-  cancelarEdicion() { this.usuarioSeleccionado = null; }
+  editarUsuario(u: User) {
+    this.usuarioSeleccionado = { ...u };
+    this.selectedFile = null;
+  }
+
+  cancelarEdicion() {
+    this.usuarioSeleccionado = null;
+    this.selectedFile = null;
+  }
+
+  onFileSelected(event: any) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.selectedFile = input.files[0];
+    }
+  }
 
   guardarUsuario() {
     if (!this.usuarioSeleccionado) return;
+
+    // Crear copia para enviar y quitar id si es nuevo
+    const userToSend: Partial<User> = { ...this.usuarioSeleccionado }; // Partial hace todos opcionales
+    if (userToSend.id === 0) delete userToSend.id;
+
+
+    const formData = new FormData();
+    formData.append('user', JSON.stringify(userToSend));
+    if (this.selectedFile) {
+      formData.append('foto', this.selectedFile);
+    }
+
     const req = this.usuarioSeleccionado.id
-      ? this.userService.update(this.usuarioSeleccionado.id, this.usuarioSeleccionado)
-      : this.userService.create(this.usuarioSeleccionado);
+      ? this.userService.updateWithFile(this.usuarioSeleccionado.id, formData)
+      : this.userService.createWithFile(formData);
 
     req.subscribe({
       next: () => {
@@ -163,13 +196,9 @@ export class GestionUsuariosComponent implements OnInit {
         this.cargarUsuarios();
         this.cancelarEdicion();
       },
-      error: (err: any) => console.error('Error guardando usuario', err)
+      error: (err) => console.error('Error guardando usuario', err)
     });
   }
-
-  volverAlDashboard() {
-  this.router.navigate(['/dashboard']);
-}
 
 
   eliminarUsuario(id: number) {
@@ -181,5 +210,9 @@ export class GestionUsuariosComponent implements OnInit {
       },
       error: (err: any) => console.error('Error eliminando usuario', err)
     });
+  }
+
+  volverAlDashboard() {
+    this.router.navigate(['/dashboard']);
   }
 }

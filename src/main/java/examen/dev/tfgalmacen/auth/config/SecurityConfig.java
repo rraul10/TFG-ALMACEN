@@ -39,7 +39,11 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers("/auth/login", "/auth/register").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/api/productos", "/api/productos/**").permitAll()
+                        .requestMatchers("/api/productos/create").hasAnyRole("ADMIN","TRABAJADOR")
+                        .requestMatchers(HttpMethod.PUT, "/api/productos/**").hasAnyRole("ADMIN","TRABAJADOR")
+                        .requestMatchers(HttpMethod.DELETE, "/api/productos/**").hasAnyRole("ADMIN","TRABAJADOR")
+                        .requestMatchers(HttpMethod.GET, "/api/productos/**").permitAll() // opcional, solo lectura abierta
+
                         .requestMatchers("/api/payments/**").permitAll()
                         .requestMatchers("/api/users/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_TRABAJADOR")
                         .requestMatchers("/api/clientes/create").hasAnyAuthority("ROLE_ADMIN", "ROLE_TRABAJADOR")

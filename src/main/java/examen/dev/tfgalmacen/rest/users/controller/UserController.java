@@ -1,11 +1,17 @@
 package examen.dev.tfgalmacen.rest.users.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import examen.dev.tfgalmacen.rest.users.dto.UserRequest;
 import examen.dev.tfgalmacen.rest.users.dto.UserResponse;
 import examen.dev.tfgalmacen.rest.users.service.UserService;
+import examen.dev.tfgalmacen.storage.service.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -14,10 +20,12 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final StorageService storageService;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, StorageService storageService) {
         this.userService = userService;
+        this.storageService = storageService;
     }
 
     @GetMapping
@@ -30,10 +38,26 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
-    @PostMapping
-    public ResponseEntity<UserResponse> createUser(@RequestBody UserRequest userRequest) {
-        return ResponseEntity.ok(userService.createUser(userRequest));
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<UserResponse> createUser(
+            @RequestPart("user") String userJson,
+            @RequestPart(value = "foto", required = false) MultipartFile foto
+    ) throws JsonProcessingException {
+
+        ObjectMapper mapper = new ObjectMapper();
+        UserRequest userRequest = mapper.readValue(userJson, UserRequest.class);
+
+        if (foto != null && !foto.isEmpty()) {
+            String nombreFoto = storageService.store(foto);
+            userRequest.setFoto(nombreFoto);
+        } else {
+            userRequest.setFoto("default.jpg");
+        }
+
+        UserResponse userResponse = userService.createUser(userRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(userResponse);
     }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @RequestBody UserRequest userRequest) {
