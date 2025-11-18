@@ -14,8 +14,11 @@ export interface Pedido {
   id?: number;
   fecha?: string;
   estado?: string;
+  clienteId?: number;       
+  clienteNombre?: string; 
   lineasVenta: LineaVenta[];
 }
+
 
 
 export interface PedidoRequest {
@@ -73,6 +76,14 @@ export class PedidoService {
     this.eliminarLocal(id);
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
+
+  actualizarEstado(id: number, estado: string) {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+
+    return this.http.put(`${this.apiUrl}/estado/${id}?estado=${estado}`, {}, { headers });
+  }
+
 
   getByCliente(clienteId: number): Observable<Pedido[]> {
     const token = localStorage.getItem('token');

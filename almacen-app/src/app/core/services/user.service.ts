@@ -14,6 +14,7 @@ export interface User {
   created: string;
   updated: string;
   deleted: boolean;
+   rol: string; 
 }
 
 @Injectable({

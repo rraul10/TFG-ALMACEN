@@ -44,7 +44,7 @@ import { NotificationService } from '@core/services/notification.service';
               <div *ngIf="isAdmin" class="menu-item" (click)="goToGestion('clientes')">👥 Gestión de Clientes</div>
               <div *ngIf="isAdmin" class="menu-item" (click)="goToGestion('productos')">📦 Gestión de Productos</div>
               <div *ngIf="isAdmin" class="menu-item" (click)="goToGestion('pedidos')">🧾 Gestión de Pedidos</div>
-            
+
               <div class="menu-item logout" (click)="logout()">🚪 Cerrar sesión</div>
             </ng-container>
 
@@ -94,8 +94,6 @@ import { NotificationService } from '@core/services/notification.service';
             </select>
           </div>
 
-
-
           <!-- CONTADOR DE RESULTADOS -->
           <div class="resultados-info">
             <span class="resultados-count">
@@ -118,8 +116,6 @@ import { NotificationService } from '@core/services/notification.service';
         [tipoSeleccionado]="tipoSeleccionado"
         (productosFiltered)="onProductosFiltered($event)">
       </app-productos-list>
-
-
     </main>
 
     <!-- MODAL CARRITO -->
@@ -753,6 +749,7 @@ export class DashboardComponent {
   ngOnInit() {
     this.isLoggedIn = this.authService.isLoggedIn();
     this.isAdmin = this.roleService.isAdmin();
+    console.log('isAdmin en ngOnInit:', this.isAdmin);
     this.isCliente = this.roleService.isCliente();
     this.isTrabajador = this.roleService.isTrabajador();
     this.notificationService.notification$.subscribe((msg: string) => this.showNotification(msg));
@@ -901,10 +898,11 @@ export class DashboardComponent {
   goToProfile() { this.menuOpen = false; this.router.navigate(['/perfil']); }
   goToMisPedidos() { this.menuOpen = false; this.router.navigate(['/mispedidos']); }
 
-  goToGestion(tipo: string) {
-    this.menuOpen = false;
-    this.router.navigate([`/admin/${tipo}`]);
-  }
+  goToGestion(path: string): void {
+  console.log('Navegando a:', path);  // Este log debería mostrarse al hacer clic
+  this.router.navigate([`/admin/${path}`]);
+}
+
 
   logout() {
     this.menuOpen = false;
