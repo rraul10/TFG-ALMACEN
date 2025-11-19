@@ -85,9 +85,12 @@ public class PedidoMapper {
     public static LineaVentaDTO toDto(LineaVenta lineaVenta) {
         LineaVentaDTO dto = new LineaVentaDTO();
         dto.setProductoId(lineaVenta.getProducto().getId());
+        dto.setProductoNombre(lineaVenta.getProducto().getNombre());
         dto.setCantidad(lineaVenta.getCantidad());
+        dto.setPrecio(lineaVenta.getPrecioUnitario());
         return dto;
     }
+
 
     public static LineaVenta toEntity(LineaVentaDTO dto) {
         LineaVenta lineaVenta = new LineaVenta();

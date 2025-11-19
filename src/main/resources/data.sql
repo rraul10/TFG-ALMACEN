@@ -51,12 +51,6 @@ INSERT INTO trabajador (id, user_id, numero_seguridad_social, created, updated, 
     (2, 3, 'SS002', NOW(), NOW(), false),
     (3, 4, 'SS003', NOW(), NOW(), false);
 
--- PEDIDOS (cliente_id = 1)
-INSERT INTO pedido (id, cliente_id, estado, fecha, created, updated, deleted) VALUES
-    (1, 1, 'PENDIENTE', NOW(), NOW(), NOW(), false),
-    (2, 1, 'PREPARACION', NOW(), NOW(), NOW(), false),
-    (3, 1, 'ENVIADO', NOW(), NOW(), NOW(), false);
-
 INSERT INTO productos (nombre, tipo, imagen, descripcion, precio, stock, created, updated, is_deleted) VALUES
                                                                                                            ('Auriculares Gaming Xtreme 7.1', 'Auriculares', 'auriculares_gaming_7_1.jpg', 'Auriculares para gaming con sonido 7.1 envolvente y micrófono retráctil', 129.99, 50, NOW(), NOW(), false),
                                                                                                            ('Teclado Mecánico RGB Pro', 'Teclado', 'teclado_mecanico_rgb.jpg', 'Teclado mecánico con switches táctiles, iluminación RGB personalizable', 89.95, 75, NOW(), NOW(), false),
@@ -110,13 +104,49 @@ INSERT INTO productos (nombre, tipo, imagen, descripcion, precio, stock, created
                                                                                                            ('Monitor Portátil 15.6″ USB‑C', 'Monitor', 'monitor_portatil_15_6_usb_c.jpg', 'Monitor portátil 15.6″ con conexión USB‑C, ideal para movilidad', 209.90, 37, NOW(), NOW(), false);
 
 
--- LINEAS DE VENTA
-INSERT INTO linea_venta (pedido_id, producto_id, cantidad, precio_unitario) VALUES
-    (1, 1, 1, 14.99),
-    (1, 2, 2, 59.99),
-    (2, 3, 1, 39.90),
-    (3, 5, 1, 25.50);
+-- PEDIDOS DE EJEMPLO (clientes 1 a 10)
+INSERT INTO pedido (id, cliente_id, estado, fecha, created, updated, deleted) VALUES
+                                                                                  (4, 2, 'PENDIENTE', NOW(), NOW(), NOW(), false),
+                                                                                  (5, 2, 'PREPARACION', NOW(), NOW(), NOW(), false),
+                                                                                  (6, 3, 'ENVIADO', NOW(), NOW(), NOW(), false),
+                                                                                  (7, 3, 'ENTREGADO', NOW(), NOW(), NOW(), false),
+                                                                                  (8, 4, 'PENDIENTE', NOW(), NOW(), NOW(), false),
+                                                                                  (9, 4, 'ENVIADO', NOW(), NOW(), NOW(), false),
+                                                                                  (10, 5, 'PREPARACION', NOW(), NOW(), NOW(), false),
+                                                                                  (11, 5, 'ENTREGADO', NOW(), NOW(), NOW(), false),
+                                                                                  (12, 6, 'PENDIENTE', NOW(), NOW(), NOW(), false),
+                                                                                  (13, 7, 'ENVIADO', NOW(), NOW(), NOW(), false),
+                                                                                  (14, 7, 'PREPARACION', NOW(), NOW(), NOW(), false),
+                                                                                  (15, 8, 'ENTREGADO', NOW(), NOW(), NOW(), false),
+                                                                                  (16, 9, 'PENDIENTE', NOW(), NOW(), NOW(), false),
+                                                                                  (17, 10, 'ENVIADO', NOW(), NOW(), NOW(), false),
+                                                                                  (18, 10, 'PREPARACION', NOW(), NOW(), NOW(), false);
 
+-- LINEAS DE VENTA DE EJEMPLO
+SELECT setval('pedido_id_seq', (SELECT MAX(id) FROM pedido));
+
+-- Ajustar secuencia de pedido_id y linea_venta_id
+SELECT setval('linea_venta_id_seq', (SELECT MAX(id) FROM linea_venta));
+
+INSERT INTO linea_venta (pedido_id, producto_id, cantidad, precio_unitario) VALUES
+                                                                                (4, 1, 1, 129.99),
+                                                                                (4, 2, 1, 89.95),
+                                                                                (5, 3, 2, 59.99),
+                                                                                (6, 4, 1, 299.90),
+                                                                                (6, 5, 1, 799.99),
+                                                                                (7, 6, 1, 249.50),
+                                                                                (7, 7, 2, 179.00),
+                                                                                (8, 8, 1, 219.99),
+                                                                                (9, 9, 1, 139.95),
+                                                                                (10, 10, 1, 109.90),
+                                                                                (11, 11, 2, 89.99),
+                                                                                (12, 12, 1, 449.00),
+                                                                                (13, 13, 1, 74.99),
+                                                                                (14, 14, 3, 49.99),
+                                                                                (15, 15, 1, 59.50),
+                                                                                (16, 16, 1, 99.99),
+                                                                                (17, 17, 2, 219.90),
+                                                                                (18, 18, 1, 549.00);
 
 -- Ajustar secuencia para evitar conflictos con ID ya existentes
 SELECT setval('users_id_seq', (SELECT MAX(id) FROM users));
@@ -127,7 +157,6 @@ SELECT setval('trabajador_id_seq', (SELECT MAX(id) FROM trabajador));
 -- Ajustar secuencia para evitar conflictos con IDs ya existentes en "cliente"
 SELECT setval('cliente_id_seq', (SELECT MAX(id) FROM cliente));
 
-SELECT setval('pedido_id_seq', (SELECT MAX(id) FROM pedido));
 
 
 

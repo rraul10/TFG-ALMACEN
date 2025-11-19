@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { HttpHeaders } from '@angular/common/http';
+import { map, catchError, of } from 'rxjs';
+
 
 export interface LineaVenta {
   productoId: number;
@@ -36,35 +38,73 @@ export class PedidoService {
   constructor(private http: HttpClient) {}
 
   getAll(): Observable<Pedido[]> {
-    return this.http.get<Pedido[]>(this.apiUrl);
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    return this.http.get<Pedido[]>(this.apiUrl, { headers }).pipe(
+      catchError(err => {
+        console.warn('Backend no responde, usando solo localStorage', err);
+        return of([]);
+      }),
+      map((backend: Pedido[]) => {
+        const local = this.obtenerLocal();
+        return [...backend, ...local];
+      })
+    );
   }
 
-  getById(id: number): Observable<Pedido> {
-    return this.http.get<Pedido>(`${this.apiUrl}/${id}`);
+
+  getByCliente(clienteId: number): Observable<Pedido[]> {
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+
+    return this.http.get<Pedido[]>(`${this.apiUrl}/cliente/${clienteId}`, { headers }).pipe(
+      catchError(err => {
+        console.warn('Backend no responde, filtrando pedidos en localStorage', err);
+        const pedidos = this.obtenerLocal().filter(p => p.clienteId === clienteId);
+        return of(pedidos);
+      })
+    );
   }
 
   create(pedido: PedidoRequest): Observable<Pedido> {
-  const token = localStorage.getItem('token');
-  const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    const token = localStorage.getItem('token');
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-  // Transformamos lineasVenta para incluir productoNombre vacío (o podrías pasar el real si lo tienes)
-  const lineasConNombre: LineaVenta[] = pedido.lineasVenta.map(lv => ({
-    productoId: lv.productoId,
-    cantidad: lv.cantidad,
-    precio: lv.precio,
-    productoNombre: '' // <-- aquí podrías poner lv.productoNombre si lo tienes
-  }));
+   const lineasConNombre: LineaVenta[] = pedido.lineasVenta.map(lv => ({
+      productoId: lv.productoId,
+      cantidad: lv.cantidad,
+      precio: lv.precio,
+      productoNombre: '' // <- necesario para cumplir la interfaz
+    }));
 
-  // Guardamos el pedido en localStorage antes de enviarlo
-  this.guardarLocal({ 
-    ...pedido, 
-    estado: 'Pendiente', 
-    id: Date.now(), 
-    lineasVenta: lineasConNombre 
-  });
 
-  return this.http.post<Pedido>(this.apiUrl, pedido, { headers });
-}
+
+    // Construimos el pedido completo local
+    const pedidoLocal: Pedido = {
+      id: Date.now(),
+      clienteId: pedido.clienteId,
+      fecha: new Date().toISOString(),
+      estado: 'PENDIENTE',
+      lineasVenta: lineasConNombre
+    };
+
+    // Guardamos en localStorage
+    this.guardarLocal(pedidoLocal);
+
+    // Mandamos al backend
+    return this.http.post<Pedido>(this.apiUrl, pedido, { headers }).pipe(
+      catchError(err => {
+        console.warn('ERROR enviando pedido al servidor, usando local', err);
+        return of(pedidoLocal);
+      })
+    );
+  }
+
 
 
   update(id: number, pedido: PedidoRequest): Observable<Pedido> {
@@ -82,15 +122,6 @@ export class PedidoService {
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
     return this.http.put(`${this.apiUrl}/estado/${id}?estado=${estado}`, {}, { headers });
-  }
-
-
-  getByCliente(clienteId: number): Observable<Pedido[]> {
-    const token = localStorage.getItem('token');
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}`
-    });
-    return this.http.get<Pedido[]>(`${this.apiUrl}/cliente/${clienteId}`, { headers });
   }
 
   /** ------------------- MÉTODOS LOCALSTORAGE ------------------- */

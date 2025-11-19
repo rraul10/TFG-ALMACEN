@@ -34,7 +34,7 @@ import { NotificationService } from '@core/services/notification.service';
 
         <div class="user-menu" (click)="toggleMenu()">
           <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" class="user-icon" />
-          <div class="menu-dropdown" *ngIf="menuOpen">
+          <div class="menu-dropdown" *ngIf="menuOpen" (click)="$event.stopPropagation()">
             <ng-container *ngIf="isLoggedIn; else notLogged">
               <div class="menu-item" (click)="goToProfile()">👤 Mi perfil</div>
               <div *ngIf="isCliente" class="menu-item" (click)="goToMisPedidos()">📦 Mis pedidos</div>
@@ -899,10 +899,9 @@ export class DashboardComponent {
   goToMisPedidos() { this.menuOpen = false; this.router.navigate(['/mispedidos']); }
 
   goToGestion(path: string): void {
-  console.log('Navegando a:', path);  // Este log debería mostrarse al hacer clic
-  this.router.navigate([`/admin/${path}`]);
-}
-
+    console.log('Navegando a:', path);
+    this.router.navigateByUrl(`/admin/${path}`);
+  }
 
   logout() {
     this.menuOpen = false;

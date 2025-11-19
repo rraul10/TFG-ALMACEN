@@ -13,6 +13,7 @@ import { PerfilComponent } from './app/pages/perfil/perfil.component';
 import { MisPedidosComponent } from './app/features/mispedidos/mis-pedidos.component';
 import { GestionUsuariosComponent } from './app/features/usuarios/gestion-usuarios.component';
 import { ProductosAdminComponent } from './app/features/productos/productos-admin.component';
+import { PedidosAdminComponent } from './app/features/pedidos/pedidos-admin.component';
 
 bootstrapApplication(AppComponent, {
   providers: [
@@ -33,6 +34,8 @@ bootstrapApplication(AppComponent, {
       // Rutas admin
       { path: 'admin/clientes', component: GestionUsuariosComponent },
       { path: 'admin/productos', component: ProductosAdminComponent },
+      { path: 'admin/pedidos', component: PedidosAdminComponent },
+
 
       // fallback
       { path: '**', redirectTo: 'dashboard' }
