@@ -22,18 +22,26 @@ public class TfgAlmacenApplication extends SpringBootServletInitializer {
 
     private static void loadEnv() throws IOException {
         Properties props = new Properties();
-        FileInputStream fis = new FileInputStream(".env");
-        props.load(fis);
-        fis.close();
+        try (FileInputStream fis = new FileInputStream(".env")) {
+            props.load(fis);
+        }
 
-        // Variables disponibles para Spring
-        System.setProperty("jwt.secret", props.getProperty("JWT_SECRET"));
-        System.setProperty("jwt.expiration", "3600");
-        System.setProperty("spring.datasource.username", props.getProperty("DB_USER"));
-        System.setProperty("spring.datasource.password", props.getProperty("DB_PASSWORD"));
-        System.setProperty("spring.mail.username", props.getProperty("EMAIL_USER"));
-        System.setProperty("spring.mail.password", props.getProperty("EMAIL_PASSWORD"));
-        System.setProperty("stripe.secret.key", props.getProperty("STRIPE_SECRET_KEY"));
+        setSystemPropertyIfExists("jwt.secret", props.getProperty("JWT_SECRET"));
+        setSystemPropertyIfExists("jwt.expiration", "3600");
+        setSystemPropertyIfExists("spring.datasource.username", props.getProperty("DB_USER"));
+        setSystemPropertyIfExists("spring.datasource.password", props.getProperty("DB_PASSWORD"));
+        setSystemPropertyIfExists("spring.mail.username", props.getProperty("EMAIL_USER"));
+        setSystemPropertyIfExists("spring.mail.password", props.getProperty("EMAIL_PASSWORD"));
+        setSystemPropertyIfExists("stripe.secret.key", props.getProperty("STRIPE_SECRET_KEY"));
     }
+
+    private static void setSystemPropertyIfExists(String key, String value) {
+        if (value != null) {
+            System.setProperty(key, value);
+        } else {
+            System.out.println("⚠ Warning: La variable " + key + " no está definida en .env");
+        }
+    }
+
 }
 

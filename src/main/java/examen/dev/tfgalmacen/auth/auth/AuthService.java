@@ -10,6 +10,5 @@ public interface AuthService {
     JwtAuthResponse login(UserLoginRequest request);
     JwtAuthResponse register(RegisterUserRequest request);
     JwtAuthResponse registerCliente(RegisterClienteRequest request);
-
 }
 

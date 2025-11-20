@@ -5,6 +5,9 @@ import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { provideRouter } from '@angular/router';
+import { LOCALE_ID } from '@angular/core';
+import { registerLocaleData } from '@angular/common';
+import localeEs from '@angular/common/locales/es';
 import { AppComponent } from './app/app.component';
 import { DashboardComponent } from './app/pages/dashboard/dashboard.component';
 import { LoginComponent } from './app/pages/login/login.component';
@@ -15,6 +18,8 @@ import { GestionUsuariosComponent } from './app/features/usuarios/gestion-usuari
 import { ProductosAdminComponent } from './app/features/productos/productos-admin.component';
 import { PedidosAdminComponent } from './app/features/pedidos/pedidos-admin.component';
 
+registerLocaleData(localeEs);
+
 bootstrapApplication(AppComponent, {
   providers: [
     importProvidersFrom(
@@ -23,6 +28,7 @@ bootstrapApplication(AppComponent, {
       FormsModule,
       MatSnackBarModule
     ),
+    { provide: LOCALE_ID, useValue: 'es-ES' }, 
     provideRouter([
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: DashboardComponent },
@@ -35,7 +41,6 @@ bootstrapApplication(AppComponent, {
       { path: 'admin/clientes', component: GestionUsuariosComponent },
       { path: 'admin/productos', component: ProductosAdminComponent },
       { path: 'admin/pedidos', component: PedidosAdminComponent },
-
 
       // fallback
       { path: '**', redirectTo: 'dashboard' }
