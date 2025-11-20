@@ -19,6 +19,9 @@ const routes: Routes = [
   { path: 'admin/productos', component: ProductosAdminComponent },
   { path: 'admin/pedidos', component: PedidosAdminComponent },
 
+  { path: 'trabajador/productos', component: ProductosAdminComponent },
+  { path: 'trabajador/pedidos', component: PedidosAdminComponent },
+
   { path: '**', redirectTo: 'dashboard' }
 ];
 

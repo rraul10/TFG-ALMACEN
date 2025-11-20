@@ -12,7 +12,7 @@ import { Router } from '@angular/router';
   standalone: true,
   imports: [CommonModule, FormsModule, MatSnackBarModule],
   template: `
-    <div class="gestion-layout" *ngIf="isAdmin">
+    <div class="gestion-layout">
       <!-- HEADER -->
       <header class="page-header">
         <div class="header-content">
@@ -1224,9 +1224,16 @@ export class ProductosAdminComponent implements OnInit {
 
   ngOnInit(): void {
     this.isAdmin = this.roleService.isAdmin();
-    if (!this.isAdmin) return;
-    this.cargarProductos();
+    const isTrabajador = this.roleService.isTrabajador();
+
+    if (!this.isAdmin && !isTrabajador) {
+      this.router.navigate(['/dashboard']);
+      return;
+    }
+
+    this.cargarProductos(); 
   }
+
 
   cargarProductos() {
     this.productoService.getProductos().subscribe(

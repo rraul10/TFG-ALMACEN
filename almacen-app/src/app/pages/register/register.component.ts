@@ -10,210 +10,330 @@ import { AuthService } from '@core/services/auth.service';
   imports: [FormsModule, CommonModule, RouterModule],
   template: `
     <div class="register-page">
-      <div class="background-pattern"></div>
-      
-      <div class="register-card">
-        <!-- Logo/Icono del almacén -->
-        <div class="logo-container">
-          <svg class="warehouse-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M9 22V12H15V22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+      <!-- Partículas de fondo -->
+      <div class="particles">
+        <div class="particle" *ngFor="let p of particles" 
+            [style.left.%]="p.x" 
+            [style.animation-delay]="p.delay"
+            [style.animation-duration]="p.duration">
+        </div>
+      </div>
+
+      <div class="register-container">
+        <!-- Panel informativo -->
+        <div class="info-panel">
+          <div class="info-content">
+            <div class="brand-header">
+              <div class="brand-icon">⚡</div>
+              <div>
+                <h1>Almacén Electrónico</h1>
+                <p class="brand-tagline">Tu tienda de tecnología de confianza</p>
+              </div>
+            </div>
+
+            <div class="hero-text">
+              <h2>Únete a nuestra comunidad</h2>
+              <p>Crea tu cuenta y disfruta de beneficios exclusivos</p>
+            </div>
+            
+            <div class="benefits-list">
+              <div class="benefit-item">
+                <div class="benefit-icon">🎁</div>
+                <div class="benefit-text">
+                  <strong>Bienvenida especial</strong>
+                  <span>10% de descuento en tu primera compra</span>
+                </div>
+              </div>
+              
+              <div class="benefit-item">
+                <div class="benefit-icon">🚀</div>
+                <div class="benefit-text">
+                  <strong>Acceso prioritario</strong>
+                  <span>a ofertas y lanzamientos exclusivos</span>
+                </div>
+              </div>
+              
+              <div class="benefit-item">
+                <div class="benefit-icon">💳</div>
+                <div class="benefit-text">
+                  <strong>Programa de puntos</strong>
+                  <span>acumula recompensas con cada compra</span>
+                </div>
+              </div>
+
+              <div class="benefit-item">
+                <div class="benefit-icon">📦</div>
+                <div class="benefit-text">
+                  <strong>Seguimiento en tiempo real</strong>
+                  <span>de todos tus pedidos</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="trust-badges">
+              <div class="badge-item">
+                <div class="badge-number">15K+</div>
+                <div class="badge-label">Clientes satisfechos</div>
+              </div>
+              <div class="badge-item">
+                <div class="badge-number">100%</div>
+                <div class="badge-label">Seguro</div>
+              </div>
+              <div class="badge-item">
+                <div class="badge-number">24/7</div>
+                <div class="badge-label">Soporte</div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <h2>Crear cuenta</h2>
-        <p class="subtitle">Formulario de registro.</p>
-
-        <form (ngSubmit)="onSubmit()" #registerForm="ngForm" novalidate class="register-form">
+        <!-- Panel de Registro -->
+        <div class="register-card">
+          <div class="card-glow"></div>
           
-          <!-- Nombre -->
-          <div class="form-group">
-            <label for="nombre">Nombre completo</label>
-            <div class="input-wrapper">
-              <svg class="input-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              <input
-                id="nombre"
-                type="text"
-                name="nombre"
-                [(ngModel)]="nombre"
-                placeholder="Ej: Juan"
-                required
-                pattern="^[a-zA-ZÁÉÍÓÚáéíóúÑñ ]+$">
-            </div>
-            <div class="error" *ngIf="registerForm.submitted && (!nombre || !registerForm.controls['nombre']?.valid)">
-              El nombre solo puede contener letras
-            </div>
+          <div class="card-header">
+            <h2>Crear Cuenta</h2>
+            <p class="subtitle">Completa el formulario para registrarte</p>
           </div>
 
-          <!-- Apellidos -->
-          <div class="form-group">
-            <label for="apellidos">Apellidos</label>
-            <div class="input-wrapper">
-              <svg class="input-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              <input
-                id="apellidos"
-                type="text"
-                name="apellidos"
-                [(ngModel)]="apellidos"
-                placeholder="Ej: García López"
-                required
-                pattern="^[a-zA-ZÁÉÍÓÚáéíóúÑñ ]+$">
+          <form (ngSubmit)="onSubmit()" #registerForm="ngForm" class="register-form">
+            <!-- Nombre -->
+            <div class="form-group">
+              <label for="nombre">Nombre completo</label>
+              <div class="input-wrapper">
+                <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                </svg>
+                <input 
+                  id="nombre"
+                  type="text" 
+                  name="nombre" 
+                  [(ngModel)]="nombre" 
+                  placeholder="Raul"
+                  required
+                  pattern="^[a-zA-ZÁÉÍÓÚáéíóúÑñ ]+$"
+                  autocomplete="given-name">
+              </div>
+              <div class="error" *ngIf="registerForm.submitted && (!nombre || !registerForm.controls['nombre']?.valid)">
+                El nombre solo puede contener letras
+              </div>
             </div>
-            <div class="error" *ngIf="registerForm.submitted && (!apellidos || !registerForm.controls['apellidos']?.valid)">
-              Los apellidos solo pueden contener letras
+
+            <!-- Apellidos -->
+            <div class="form-group">
+              <label for="apellidos">Apellidos</label>
+              <div class="input-wrapper">
+                <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                </svg>
+                <input 
+                  id="apellidos"
+                  type="text" 
+                  name="apellidos" 
+                  [(ngModel)]="apellidos" 
+                  placeholder="Fernández Delgado"
+                  required
+                  pattern="^[a-zA-ZÁÉÍÓÚáéíóúÑñ ]+$"
+                  autocomplete="family-name">
+              </div>
+              <div class="error" *ngIf="registerForm.submitted && (!apellidos || !registerForm.controls['apellidos']?.valid)">
+                Los apellidos solo pueden contener letras
+              </div>
             </div>
+
+            <!-- Correo -->
+            <div class="form-group">
+              <label for="correo">Correo Electrónico</label>
+              <div class="input-wrapper">
+                <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                        d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"/>
+                </svg>
+                <input 
+                  id="correo"
+                  type="email" 
+                  name="correo" 
+                  [(ngModel)]="correo" 
+                  placeholder="raul@ejemplo.com"
+                  required
+                  pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.com$"
+                  autocomplete="email">
+              </div>
+              <div class="error" *ngIf="registerForm.submitted && (!correo || !registerForm.controls['correo']?.valid)">
+                Ingresa un correo válido que termine en .com
+              </div>
+            </div>
+
+            <!-- Teléfono -->
+            <div class="form-group">
+              <label for="telefono">Teléfono</label>
+              <div class="input-wrapper">
+                <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                        d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                </svg>
+                <input 
+                  id="telefono"
+                  type="tel" 
+                  name="telefono" 
+                  [(ngModel)]="telefono" 
+                  placeholder="123456789"
+                  required
+                  pattern="^[0-9]{9}$"
+                  autocomplete="tel">
+              </div>
+              <div class="error" *ngIf="registerForm.submitted && (!telefono || !registerForm.controls['telefono']?.valid)">
+                Ingresa un teléfono válido de 9 dígitos
+              </div>
+            </div>
+
+            <!-- Ciudad -->
+            <div class="form-group">
+              <label for="ciudad">Ciudad</label>
+              <div class="input-wrapper">
+                <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                <input 
+                  id="ciudad"
+                  type="text" 
+                  name="ciudad" 
+                  [(ngModel)]="ciudad" 
+                  placeholder="Madrid"
+                  required
+                  autocomplete="address-level2">
+              </div>
+              <div class="error" *ngIf="registerForm.submitted && !ciudad">
+                La ciudad es obligatoria
+              </div>
+            </div>
+
+            <!-- Contraseña -->
+            <div class="form-group">
+              <label for="password">Contraseña</label>
+              <div class="input-wrapper">
+                <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                </svg>
+                <input 
+                  id="password"
+                  type="password" 
+                  name="password" 
+                  [(ngModel)]="password" 
+                  placeholder="Mínimo 6 caracteres"
+                  required
+                  minlength="6"
+                  autocomplete="new-password">
+              </div>
+              <div class="error" *ngIf="registerForm.submitted && (!password || password.length < 6)">
+                La contraseña debe tener al menos 6 caracteres
+              </div>
+            </div>
+
+            <button type="submit" [disabled]="registerForm.invalid" class="submit-btn">
+              <span *ngIf="!message.includes('Intentando')">
+                Crear Cuenta
+              </span>
+              <span *ngIf="message.includes('Intentando')" class="loading">
+                <span class="spinner"></span>
+                Registrando...
+              </span>
+            </button>
+
+            <div *ngIf="message && !message.includes('Intentando')" 
+                [class]="message.includes('Error') || message.includes('error') ? 'message error' : 'message success'">
+              {{ message }}
+            </div>
+          </form>
+
+          <div class="divider">
+            <span>o</span>
           </div>
 
-          <!-- Correo -->
-          <div class="form-group">
-            <label for="correo">Correo electrónico</label>
-            <div class="input-wrapper">
-              <svg class="input-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M20 4H4C2.9 4 2.01 4.9 2.01 6L2 18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4ZM20 8L12 13L4 8V6L12 11L20 6V8Z" fill="currentColor"/>
-              </svg>
-              <input
-                id="correo"
-                type="email"
-                name="correo"
-                [(ngModel)]="correo"
-                placeholder="usuario@empresa.com"
-                required
-                pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.com$">
-            </div>
-            <div class="error" *ngIf="registerForm.submitted && (!correo || !registerForm.controls['correo']?.valid)">
-              Ingresa un correo válido que termine en .com
-            </div>
+          <div class="login-section">
+            <p>¿Ya tienes una cuenta?</p>
+            <a routerLink="/login" class="login-link">Iniciar sesión</a>
           </div>
 
-          <!-- Teléfono -->
-          <div class="form-group">
-            <label for="telefono">Teléfono</label>
-            <div class="input-wrapper">
-              <svg class="input-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M22 16.92V19.92C22 20.4696 21.5523 20.9204 21.0034 20.9931C20.3657 21.0753 19.7749 21.12 19.24 21.12C10.4486 21.12 3.32001 13.9914 3.32001 5.2C3.32001 4.66506 3.36472 4.07427 3.44694 3.43658C3.51964 2.88774 3.97046 2.44 4.52001 2.44H7.52001C7.77615 2.44 7.99177 2.62835 8.03515 2.88074C8.07154 3.09498 8.10458 3.27782 8.13514 3.43658C8.34471 4.62784 8.71401 5.76806 9.23478 6.83726C9.35808 7.09362 9.27866 7.40156 9.04652 7.5701L7.44001 8.68C8.88001 11.68 11.32 14.12 14.32 15.56L15.4295 13.9535C15.5151 13.8279 15.6447 13.7402 15.7918 13.7088C15.9388 13.6773 16.0923 13.7043 16.2205 13.7839C17.2897 14.3047 18.4299 14.6741 19.6212 14.8836C19.78 14.9142 19.9628 14.9473 20.177 14.9836C20.4294 15.027 20.6178 15.2426 20.6178 15.4988V16.92H22Z" fill="currentColor"/>
-              </svg>
-              <input
-                id="telefono"
-                type="tel"
-                name="telefono"
-                [(ngModel)]="telefono"
-                placeholder="123456789"
-                required
-                pattern="^[0-9]{9}$">
-            </div>
-            <div class="error" *ngIf="registerForm.submitted && (!telefono || !registerForm.controls['telefono']?.valid)">
-              Ingresa un teléfono válido de 9 dígitos
-            </div>
+          <div class="security-note">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+            </svg>
+            <span>Tus datos están protegidos</span>
           </div>
-
-          <!-- Ciudad -->
-          <div class="form-group">
-            <label for="ciudad">Ciudad</label>
-            <div class="input-wrapper">
-              <svg class="input-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M21 10C21 17 12 23 12 23C12 23 3 17 3 10C3 7.61305 3.94821 5.32387 5.63604 3.63604C7.32387 1.94821 9.61305 1 12 1C14.3869 1 16.6761 1.94821 18.364 3.63604C20.0518 5.32387 21 7.61305 21 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M12 13C13.6569 13 15 11.6569 15 10C15 8.34315 13.6569 7 12 7C10.3431 7 9 8.34315 9 10C9 11.6569 10.3431 13 12 13Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              <input
-                id="ciudad"
-                type="text"
-                name="ciudad"
-                [(ngModel)]="ciudad"
-                placeholder="Ej: Madrid"
-                required>
-            </div>
-            <div class="error" *ngIf="registerForm.submitted && !ciudad">
-              La ciudad es obligatoria
-            </div>
-          </div>
-
-          <!-- Contraseña -->
-          <div class="form-group">
-            <label for="password">Contraseña</label>
-            <div class="input-wrapper">
-              <svg class="input-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M18 8H17V6C17 3.24 14.76 1 12 1C9.24 1 7 3.24 7 6V8H6C4.9 8 4 8.9 4 10V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V10C20 8.9 19.1 8 18 8ZM12 17C10.9 17 10 16.1 10 15C10 13.9 10.9 13 12 13C13.1 13 14 13.9 14 15C14 16.1 13.1 17 12 17ZM15.1 8H8.9V6C8.9 4.29 10.29 2.9 12 2.9C13.71 2.9 15.1 4.29 15.1 6V8Z" fill="currentColor"/>
-              </svg>
-              <input
-                id="password"
-                type="password"
-                name="password"
-                [(ngModel)]="password"
-                placeholder="Mínimo 6 caracteres"
-                required
-                minlength="6">
-            </div>
-            <div class="error" *ngIf="registerForm.submitted && (!password || password.length < 6)">
-              La contraseña debe tener al menos 6 caracteres
-            </div>
-          </div>
-
-          <button type="submit" [disabled]="registerForm.invalid" class="submit-btn">
-            <span *ngIf="!message.includes('Intentando')">Crear cuenta</span>
-            <span *ngIf="message.includes('Intentando')" class="loading">
-              <span class="spinner"></span>
-              Registrando...
-            </span>
-          </button>
-
-          <div *ngIf="message && !message.includes('Intentando')" 
-               [class]="message.includes('Error') || message.includes('error') ? 'message error' : 'message success'">
-            {{ message }}
-          </div>
-        </form>
-
-        <div class="login-section">
-          <p>¿Ya tienes una cuenta? <a routerLink="login" class="login-link">Inicia sesión</a></p>
         </div>
       </div>
     </div>
   `,
   styles: [`
     * {
-      box-sizing: border-box;
       margin: 0;
       padding: 0;
+      box-sizing: border-box;
     }
 
     .register-page {
       min-height: 100vh;
       display: flex;
-      justify-content: center;
       align-items: center;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+      justify-content: center;
+      font-family: 'Segoe UI', Roboto, sans-serif;
+      background: 
+        linear-gradient(rgba(15, 23, 42, 0.92), rgba(15, 23, 42, 0.95)),
+        url('https://images.unsplash.com/photo-1553413077-190dd305871c?w=1920&h=1080&fit=crop') center/cover fixed;
       position: relative;
-      padding: 40px 20px;
+      overflow: hidden;
+      padding: 2rem;
     }
 
-    .background-pattern {
-      position: absolute;
+    /* PARTÍCULAS ANIMADAS */
+    .particles {
+      position: fixed;
       top: 0;
       left: 0;
-      right: 0;
-      bottom: 0;
-      background-image: 
-        repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,.05) 35px, rgba(255,255,255,.05) 70px);
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
       opacity: 0.3;
     }
 
-    .register-card {
-      background: white;
-      border-radius: 20px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-      padding: 40px 45px;
-      width: 100%;
-      max-width: 480px;
-      position: relative;
-      z-index: 1;
-      animation: fadeInUp 0.6s ease-out;
+    .particle {
+      position: absolute;
+      width: 3px;
+      height: 3px;
+      background: rgba(102, 126, 234, 0.4);
+      border-radius: 50%;
+      animation: float 20s infinite ease-in-out;
+      box-shadow: 0 0 8px rgba(102, 126, 234, 0.6);
     }
 
-    @keyframes fadeInUp {
+    @keyframes float {
+      0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateY(-100vh) translateX(50px); opacity: 0; }
+    }
+
+    .register-container {
+      display: grid;
+      grid-template-columns: 1fr 500px;
+      max-width: 1400px;
+      width: 100%;
+      gap: 3rem;
+      position: relative;
+      z-index: 1;
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    @keyframes fadeIn {
       from {
         opacity: 0;
         transform: translateY(30px);
@@ -224,98 +344,145 @@ import { AuthService } from '@core/services/auth.service';
       }
     }
 
-    .logo-container {
-      width: 70px;
-      height: 70px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      border-radius: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 20px;
-      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+    /* CARD DE REGISTRO */
+    .register-card {
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      padding: 2.5rem;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      position: relative;
+      overflow: hidden;
+      animation: slideInRight 0.8s ease-out;
+      max-height: 90vh;
+      overflow-y: auto;
     }
 
-    .warehouse-icon {
-      width: 40px;
-      height: 40px;
-      color: white;
+    /* Scrollbar personalizado */
+    .register-card::-webkit-scrollbar {
+      width: 8px;
     }
 
-    h2 {
+    .register-card::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.05);
+      border-radius: 10px;
+    }
+
+    .register-card::-webkit-scrollbar-thumb {
+      background: rgba(102, 126, 234, 0.3);
+      border-radius: 10px;
+    }
+
+    .register-card::-webkit-scrollbar-thumb:hover {
+      background: rgba(102, 126, 234, 0.5);
+    }
+
+    @keyframes slideInRight {
+      from {
+        opacity: 0;
+        transform: translateX(50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .card-glow {
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(102, 126, 234, 0.1) 0%, transparent 70%);
+      animation: rotate 20s linear infinite;
+    }
+
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .card-header {
       text-align: center;
+      margin-bottom: 2rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .card-header h2 {
       font-size: 1.8rem;
       color: #1e293b;
-      margin-bottom: 6px;
+      margin-bottom: 0.5rem;
       font-weight: 700;
     }
 
-    .subtitle {
-      text-align: center;
+    .card-header .subtitle {
       color: #64748b;
-      font-size: 0.9rem;
-      margin-bottom: 30px;
+      font-size: 0.95rem;
     }
 
     .register-form {
       display: flex;
       flex-direction: column;
-      gap: 18px;
+      gap: 1rem;
+      position: relative;
+      z-index: 1;
     }
 
     .form-group {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 0.4rem;
     }
 
     .form-group label {
-      font-size: 0.875rem;
+      font-size: 0.9rem;
       font-weight: 600;
       color: #334155;
     }
 
     .input-wrapper {
       position: relative;
-      display: flex;
-      align-items: center;
     }
 
     .input-icon {
       position: absolute;
-      left: 14px;
-      width: 18px;
-      height: 18px;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 20px;
+      height: 20px;
       color: #94a3b8;
       pointer-events: none;
     }
 
-    .input-wrapper input {
+    .form-group input {
       width: 100%;
-      padding: 12px 14px 12px 44px;
+      padding: 0.85rem 1rem 0.85rem 3rem;
       border: 2px solid #e2e8f0;
-      border-radius: 10px;
+      border-radius: 12px;
       font-size: 0.95rem;
       transition: all 0.3s ease;
       background: #f8fafc;
+      color: #1e293b;
     }
 
-    .input-wrapper input:focus {
+    .form-group input::placeholder {
+      color: #94a3b8;
+    }
+
+    .form-group input:focus {
       outline: none;
       border-color: #667eea;
       background: white;
       box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
     }
 
-    .input-wrapper input:focus + .input-icon,
-    .input-wrapper:focus-within .input-icon {
-      color: #667eea;
-    }
-
     .error {
       color: #ef4444;
       font-size: 0.8rem;
-      margin-top: 2px;
       animation: slideIn 0.3s ease-out;
     }
 
@@ -331,26 +498,43 @@ import { AuthService } from '@core/services/auth.service';
     }
 
     .submit-btn {
-      margin-top: 10px;
-      padding: 14px;
+      margin-top: 0.75rem;
+      padding: 1rem;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
       border: none;
-      border-radius: 10px;
+      border-radius: 12px;
       font-size: 1rem;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.3s ease;
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
+      gap: 0.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .submit-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: left 0.5s;
+    }
+
+    .submit-btn:hover:not(:disabled)::before {
+      left: 100%;
     }
 
     .submit-btn:hover:not(:disabled) {
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+      box-shadow: 0 6px 25px rgba(102, 126, 234, 0.6);
     }
 
     .submit-btn:active:not(:disabled) {
@@ -358,7 +542,7 @@ import { AuthService } from '@core/services/auth.service';
     }
 
     .submit-btn:disabled {
-      background: #94a3b8;
+      background: linear-gradient(135deg, #94a3b8 0%, #cbd5e1 100%);
       cursor: not-allowed;
       box-shadow: none;
     }
@@ -366,12 +550,12 @@ import { AuthService } from '@core/services/auth.service';
     .loading {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 0.75rem;
     }
 
     .spinner {
-      width: 16px;
-      height: 16px;
+      width: 18px;
+      height: 18px;
       border: 2px solid rgba(255, 255, 255, 0.3);
       border-top-color: white;
       border-radius: 50%;
@@ -383,42 +567,77 @@ import { AuthService } from '@core/services/auth.service';
     }
 
     .message {
-      padding: 12px 16px;
-      border-radius: 8px;
+      padding: 1rem;
+      border-radius: 12px;
       font-size: 0.9rem;
-      text-align: center;
       font-weight: 500;
-      animation: slideIn 0.3s ease-out;
+      animation: slideInMsg 0.3s ease-out;
+    }
+
+    @keyframes slideInMsg {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .message.error {
       background: #fee2e2;
       color: #dc2626;
-      border: 1px solid #fecaca;
+      border: 2px solid #fecaca;
     }
 
     .message.success {
       background: #d1fae5;
       color: #059669;
-      border: 1px solid #a7f3d0;
+      border: 2px solid #a7f3d0;
+    }
+
+    .divider {
+      text-align: center;
+      margin: 1.5rem 0 1.25rem;
+      position: relative;
+    }
+
+    .divider::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: #e2e8f0;
+    }
+
+    .divider span {
+      position: relative;
+      background: rgba(255, 255, 255, 0.98);
+      padding: 0 1rem;
+      color: #94a3b8;
+      font-size: 0.9rem;
+      font-weight: 600;
     }
 
     .login-section {
       text-align: center;
-      margin-top: 25px;
-      padding-top: 20px;
-      border-top: 1px solid #e2e8f0;
     }
 
     .login-section p {
       color: #64748b;
-      font-size: 0.9rem;
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
     }
 
     .login-link {
+      display: inline-block;
       color: #667eea;
       text-decoration: none;
       font-weight: 600;
+      font-size: 1rem;
       transition: color 0.2s;
     }
 
@@ -427,33 +646,258 @@ import { AuthService } from '@core/services/auth.service';
       text-decoration: underline;
     }
 
-    /* Responsive */
-    @media (max-width: 768px) {
+    .security-note {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 1.5rem;
+      padding: 0.6rem;
+      color: #10b981;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    .security-note svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* PANEL INFORMATIVO */
+    .info-panel {
+      display: flex;
+      align-items: center;
+      position: relative;
+      animation: slideInLeft 0.8s ease-out 0.2s both;
+    }
+
+    @keyframes slideInLeft {
+      from {
+        opacity: 0;
+        transform: translateX(-50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .info-content {
+      width: 100%;
+    }
+
+    .brand-header {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      margin-bottom: 3rem;
+    }
+
+    .brand-icon {
+      width: 70px;
+      height: 70px;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      flex-shrink: 0;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .brand-header h1 {
+      font-size: 2rem;
+      color: white;
+      margin: 0 0 0.25rem 0;
+      font-weight: 800;
+      text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .brand-tagline {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 1rem;
+      margin: 0;
+      text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.3);
+    }
+
+    .hero-text {
+      margin-bottom: 2.5rem;
+    }
+
+    .hero-text h2 {
+      font-size: 2.25rem;
+      color: white;
+      margin-bottom: 1rem;
+      font-weight: 800;
+      line-height: 1.2;
+      text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .hero-text p {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 1.15rem;
+      line-height: 1.6;
+      text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.3);
+    }
+
+    .benefits-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      margin-bottom: 3rem;
+    }
+
+    .benefit-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      padding: 1.25rem;
+      transition: all 0.3s ease;
+    }
+
+    .benefit-item:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateX(8px);
+    }
+
+    .benefit-icon {
+      width: 40px;
+      height: 40px;
+      background: rgba(255, 255, 255, 0.15);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      flex-shrink: 0;
+    }
+
+    .benefit-text {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .benefit-text strong {
+      color: white;
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+
+    .benefit-text span {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.9rem;
+    }
+
+    .trust-badges {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+    }
+
+    .badge-item {
+      text-align: center;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 14px;
+      padding: 1.5rem 1rem;
+    }
+
+    .badge-number {
+      font-size: 2rem;
+      font-weight: 800;
+      color: white;
+      margin-bottom: 0.5rem;
+      text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .badge-label {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 1200px) {
+      .register-container {
+        grid-template-columns: 1fr 450px;
+        gap: 2rem;
+      }
+
+      .hero-text h2 {
+        font-size: 1.85rem;
+      }
+
+      .benefits-list {
+        gap: 1rem;
+      }
+
+      .benefit-item {
+        padding: 1rem;
+      }
+    }
+
+    @media (max-width: 968px) {
       .register-page {
-        padding: 30px 15px;
+        padding: 1.5rem;
+      }
+
+      .register-container {
+        grid-template-columns: 1fr;
+        max-width: 500px;
       }
 
       .register-card {
-        padding: 35px 30px;
-        border-radius: 16px;
+        padding: 2rem;
+        order: 1;
       }
 
-      h2 {
-        font-size: 1.6rem;
+      .info-panel {
+        display: none;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .register-page {
+        padding: 1rem;
       }
 
-      .logo-container {
-        width: 60px;
-        height: 60px;
+      .register-card {
+        padding: 1.5rem;
+        border-radius: 20px;
       }
 
-      .warehouse-icon {
-        width: 35px;
-        height: 35px;
+      .card-header h2 {
+        font-size: 1.5rem;
+      }
+
+      .form-group input {
+        padding: 0.8rem 0.9rem 0.8rem 2.75rem;
+        font-size: 0.95rem;
+      }
+
+      .input-icon {
+        width: 18px;
+        height: 18px;
+        left: 0.85rem;
+      }
+
+      .submit-btn {
+        padding: 0.95rem;
+        font-size: 0.95rem;
       }
 
       .register-form {
-        gap: 16px;
+        gap: 0.9rem;
       }
     }
   `]
@@ -466,6 +910,13 @@ export class RegisterComponent {
   ciudad = '';
   password = '';
   message = '';
+
+  // Partículas animadas
+  particles = Array.from({ length: 50 }, (_, i) => ({
+    x: Math.random() * 100,
+    delay: `${Math.random() * 20}s`,
+    duration: `${15 + Math.random() * 10}s`
+  }));
 
   constructor(private authService: AuthService, private router: Router) {}
 
@@ -493,8 +944,8 @@ export class RegisterComponent {
               localStorage.setItem('rol', res.user.roles[0]);
             }
 
-            this.message = '✓ Registro exitoso. Redirigiendo...';
-            setTimeout(() => this.router.navigate(['/']), 1000);
+            this.message = '✓ Registro exitoso. Redirigiendo al dashboard...';
+            setTimeout(() => this.router.navigate(['/dashboard']), 1500);
           },
           error: (err: any) => {
             console.error('Error login automático:', err);
@@ -505,7 +956,7 @@ export class RegisterComponent {
       },
       error: (err: any) => {
         console.error('Error en registro:', err);
-        this.message = 'Error en registro. Verifica tus datos.';
+        this.message = 'Error en registro. Verifica tus datos e inténtalo de nuevo.';
       }
     });
   }

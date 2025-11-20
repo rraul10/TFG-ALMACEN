@@ -42,6 +42,26 @@ export class AuthService {
     return this.http.post(`${this.apiUrl}/auth/register/cliente`, data);
   }
 
+  getClienteData(userId: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/cliente/user/${userId}`);
+  }
+
+  updateClienteData(userId: number, data: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/cliente/user/${userId}`, data);
+  }
+
+  getTrabajadorData(userId: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/trabajador/user/${userId}`);
+  }
+
+  updateTrabajadorData(userId: number, data: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/trabajador/user/${userId}`, data);
+  }
+
+  updateUserData(userId: number, data: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/user/${userId}`, data);
+  }
+
   isLoggedIn(): boolean {
     return !!localStorage.getItem('token');
   }

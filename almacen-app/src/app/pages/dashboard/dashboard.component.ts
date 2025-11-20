@@ -42,8 +42,8 @@ import { NotificationService } from '@core/services/notification.service';
             <!-- Opciones de administración -->
             <div *ngIf="isAdmin" class="menu-separator"></div>
             <div *ngIf="isAdmin" class="menu-item" (click)="goToGestion('clientes')">👥 Gestión de Clientes</div>
-            <div *ngIf="isAdmin" class="menu-item" (click)="goToGestion('productos')">📦 Gestión de Productos</div>
-            <div *ngIf="isAdmin" class="menu-item" (click)="goToGestion('pedidos')">🧾 Gestión de Pedidos</div>
+            <div *ngIf="isAdmin  || isTrabajador" class="menu-item" (click)="goToGestion('productos')">📦 Gestión de Productos</div>
+            <div *ngIf="isAdmin || isTrabajador" class="menu-item" (click)="goToGestion('pedidos')">🧾 Gestión de Pedidos</div>
 
             <div class="menu-item logout" (click)="logout()">🚪 Cerrar sesión</div>
           </ng-container>

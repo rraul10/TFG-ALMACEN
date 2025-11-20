@@ -17,6 +17,7 @@ import { MisPedidosComponent } from './app/features/mispedidos/mis-pedidos.compo
 import { GestionUsuariosComponent } from './app/features/usuarios/gestion-usuarios.component';
 import { ProductosAdminComponent } from './app/features/productos/productos-admin.component';
 import { PedidosAdminComponent } from './app/features/pedidos/pedidos-admin.component';
+import { adminTrabajadorGuard } from 'guards/admin-trabajador-guard';
 
 registerLocaleData(localeEs);
 
@@ -29,7 +30,7 @@ bootstrapApplication(AppComponent, {
       MatSnackBarModule
     ),
     { provide: LOCALE_ID, useValue: 'es-ES' }, 
-    provideRouter([
+   provideRouter([
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: DashboardComponent },
       { path: 'login', component: LoginComponent },
@@ -37,13 +38,24 @@ bootstrapApplication(AppComponent, {
       { path: 'perfil', component: PerfilComponent },
       { path: 'mispedidos', component: MisPedidosComponent },
 
-      // Rutas admin
-      { path: 'admin/clientes', component: GestionUsuariosComponent },
-      { path: 'admin/productos', component: ProductosAdminComponent },
-      { path: 'admin/pedidos', component: PedidosAdminComponent },
+      { 
+        path: 'admin/clientes', 
+        component: GestionUsuariosComponent,
+        canActivate: [adminTrabajadorGuard] 
+      },
+      { 
+        path: 'admin/productos', 
+        component: ProductosAdminComponent,
+        canActivate: [adminTrabajadorGuard]
+      },
+      { 
+        path: 'admin/pedidos', 
+        component: PedidosAdminComponent,
+        canActivate: [adminTrabajadorGuard]
+      },
 
-      // fallback
       { path: '**', redirectTo: 'dashboard' }
     ])
+
   ]
 });

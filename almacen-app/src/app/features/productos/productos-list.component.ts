@@ -32,10 +32,6 @@ import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
             <div class="producto-footer">
               <div class="precio-stock">
                 <span class="producto-precio">{{ producto.precio|currency:'EUR':'symbol':'1.2-2' }}</span>
-
-                <span class="producto-stock" [class.sin-stock]="producto.stock === 0">
-                  {{ producto.stock > 0 ? producto.stock + ' en stock' : 'Sin stock' }}
-                </span>
               </div>
               
               <button 

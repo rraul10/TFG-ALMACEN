@@ -95,12 +95,12 @@ import { AuthService } from '@core/services/auth.service';
                 <h1>{{ user.nombre }} {{ user.apellidos }}</h1>
                 <p class="user-email">{{ user.correo }}</p>
                 <div class="user-badges">
-                  <span class="badge">
+                  <span class="badge" [class.badge-trabajador]="esTrabajador" [class.badge-cliente]="!esTrabajador">
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                       <path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
-                    Usuario activo
+                    {{ esTrabajador ? 'Trabajador' : 'Cliente' }}
                   </span>
                   <span class="badge" *ngIf="user.fechaRegistro">
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -200,6 +200,92 @@ import { AuthService } from '@core/services/auth.service';
                     />
                     <span class="error-message" *ngIf="errores.ciudad">{{ errores.ciudad }}</span>
                   </div>
+                </div>
+              </div>
+
+              <!-- SECCIÓN SEGÚN ROL -->
+              <div class="form-section">
+                <div class="section-header">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 12H15M9 16H15M17 21H7C5.89543 21 5 20.1046 5 19V5C5 3.89543 5.89543 3 7 3H12.5858C12.851 3 13.1054 3.10536 13.2929 3.29289L18.7071 8.70711C18.8946 8.89464 19 9.149 19 9.41421V19C19 20.1046 18.1046 21 17 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <h2>Información {{ esTrabajador ? 'Laboral' : 'de Cliente' }}</h2>
+                </div>
+
+                <div class="form-grid">
+                  <!-- SI ES CLIENTE: DNI y Dirección -->
+                  <ng-container *ngIf="!esTrabajador">
+                    <div class="form-group">
+                      <label for="dni">DNI</label>
+                      <input 
+                        id="dni"
+                        type="text" 
+                        [(ngModel)]="clienteData.dni" 
+                        name="dni"
+                        placeholder="12345678A"
+                        maxlength="9"
+                        [class.error-input]="errores.dni"
+                      />
+                      <span class="error-message" *ngIf="errores.dni">{{ errores.dni }}</span>
+                    </div>
+
+                    <div class="form-group full-width">
+                      <label for="direccion">Dirección de envío</label>
+                      <input 
+                        id="direccion"
+                        type="text" 
+                        [(ngModel)]="clienteData.direccion_envio" 
+                        name="direccion"
+                        placeholder="Calle Principal, 123, 28001 Madrid"
+                        [class.error-input]="errores.direccion"
+                      />
+                      <span class="error-message" *ngIf="errores.direccion">{{ errores.direccion }}</span>
+                    </div>
+
+                    <!-- Upload foto DNI -->
+                    <div class="form-group full-width">
+                      <label for="foto-dni">Foto del DNI (opcional)</label>
+                      <div class="file-upload-wrapper">
+                        <input 
+                          id="foto-dni" 
+                          type="file" 
+                          (change)="onDniFileSelected($event)" 
+                          accept="image/*"
+                          class="file-input"
+                        />
+                        <label for="foto-dni" class="file-upload-label">
+                          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15M17 8L12 3M12 3L7 8M12 3V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          </svg>
+                          {{ clienteData.foto_dni && clienteData.foto_dni !== 'default.jpg' ? 'Cambiar foto del DNI' : 'Subir foto del DNI' }}
+                        </label>
+                      </div>
+                      <div *ngIf="clienteData.foto_dni && clienteData.foto_dni !== 'default.jpg'" class="file-preview">
+                        <img [src]="'http://localhost:8080/uploads/' + clienteData.foto_dni" alt="DNI">
+                        <button type="button" class="btn-remove" (click)="removeDniFile()">
+                          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M6 18L18 6M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  </ng-container>
+
+                  <!-- SI ES TRABAJADOR: NSS -->
+                  <ng-container *ngIf="esTrabajador">
+                    <div class="form-group">
+                      <label for="nss">Número de Seguridad Social</label>
+                      <input 
+                        id="nss"
+                        type="text" 
+                        [(ngModel)]="trabajadorData.numero_seguridad_social" 
+                        name="nss"
+                        placeholder="SS001234567890"
+                        [class.error-input]="errores.nss"
+                      />
+                      <span class="error-message" *ngIf="errores.nss">{{ errores.nss }}</span>
+                    </div>
+                  </ng-container>
                 </div>
               </div>
 
@@ -527,6 +613,16 @@ import { AuthService } from '@core/services/auth.service';
       height: 16px;
     }
 
+    .badge-trabajador {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+    }
+
+    .badge-cliente {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
     /* PROFILE CONTENT */
     .profile-content {
       background: white;
@@ -621,6 +717,85 @@ import { AuthService } from '@core/services/auth.service';
       display: flex;
       align-items: center;
       gap: 4px;
+    }
+
+    /* FILE UPLOAD */
+    .file-upload-wrapper {
+      position: relative;
+    }
+
+    .file-input {
+      display: none;
+    }
+
+    .file-upload-label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 12px 16px;
+      background: #f8fafc;
+      border: 2px dashed #cbd5e1;
+      border-radius: 10px;
+      color: #64748b;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .file-upload-label svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .file-upload-label:hover {
+      background: #f1f5f9;
+      border-color: #667eea;
+      color: #667eea;
+    }
+
+    .file-preview {
+      margin-top: 12px;
+      position: relative;
+      display: inline-block;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .file-preview img {
+      max-width: 200px;
+      height: auto;
+      display: block;
+    }
+
+    .btn-remove {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 32px;
+      height: 32px;
+      background: #dc2626;
+      border: none;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-remove svg {
+      width: 16px;
+      height: 16px;
+      color: white;
+    }
+
+    .btn-remove:hover {
+      background: #b91c1c;
+      transform: scale(1.1);
     }
 
     .form-actions {
@@ -812,10 +987,22 @@ export class PerfilComponent implements OnInit {
     foto: '',
     fechaRegistro: ''
   };
+
+  clienteData: any = {
+    dni: '',
+    direccion_envio: '',
+    foto_dni: 'default.jpg'
+  };
+
+  trabajadorData: any = {
+    numero_seguridad_social: ''
+  };
+
   message = '';
   errores: any = {};
   menuOpen = false;
   isLoggedIn = false;
+  esTrabajador = false;
 
   constructor(private authService: AuthService, private router: Router) {}
 
@@ -826,30 +1013,155 @@ export class PerfilComponent implements OnInit {
 
     if (userData && token) {
       this.user = JSON.parse(userData);
-    } 
+      
+      // Determinar si es trabajador basándose en los roles
+      if (this.user.roles && this.user.roles.length > 0) {
+        this.esTrabajador = this.user.roles.some((rol: string) => 
+          rol.toLowerCase().includes('trabajador') || rol.toLowerCase().includes('admin')
+        );
+      }
+
+      // Cargar datos específicos según el rol desde el backend
+      if (this.esTrabajador) {
+        this.cargarDatosTrabajador();
+      } else {
+        this.cargarDatosCliente();
+      }
+    }
+  }
+
+  cargarDatosCliente() {
+    // Hacer petición GET al backend para obtener datos del cliente
+    this.authService.getClienteData(this.user.id).subscribe({
+      next: (response: any) => {
+        if (response) {
+          this.clienteData.dni = response.dni || '';
+          this.clienteData.direccion_envio = response.direccion_envio || '';
+          this.clienteData.foto_dni = response.foto_dni || 'default.jpg';
+        }
+      },
+      error: (err) => {
+        console.error('Error al cargar datos del cliente:', err);
+      }
+    });
+  }
+
+  cargarDatosTrabajador() {
+    // Hacer petición GET al backend para obtener datos del trabajador
+    this.authService.getTrabajadorData(this.user.id).subscribe({
+      next: (response: any) => {
+        if (response) {
+          this.trabajadorData.numero_seguridad_social = response.numero_seguridad_social || '';
+        }
+      },
+      error: (err) => {
+        console.error('Error al cargar datos del trabajador:', err);
+      }
+    });
   }
 
   guardarCambios() {
     this.errores = {};
     this.message = '';
 
+    // Validaciones básicas
     if (!this.user.nombre.trim()) this.errores.nombre = '❌ El nombre es obligatorio';
     if (!this.user.apellidos.trim()) this.errores.apellidos = '❌ Los apellidos son obligatorios';
     if (!this.user.correo.trim()) this.errores.correo = '❌ El correo es obligatorio';
     else if (!this.validarEmail(this.user.correo)) this.errores.correo = '❌ Correo inválido';
     if (!this.user.telefono.trim()) this.errores.telefono = '❌ El teléfono es obligatorio';
-    else if (!this.validarTelefono(this.user.telefono)) this.errores.telefono = '❌ Teléfono inválido';
+    else if (!this.validarTelefono(this.user.telefono)) this.errores.telefono = '❌ Teléfono inválido (7-15 dígitos)';
     if (!this.user.ciudad.trim()) this.errores.ciudad = '❌ La ciudad es obligatoria';
+
+    // Validaciones específicas según el rol
+    if (this.esTrabajador) {
+      if (!this.trabajadorData.numero_seguridad_social.trim()) {
+        this.errores.nss = '❌ El número de seguridad social es obligatorio';
+      }
+    } else {
+      if (!this.clienteData.dni.trim()) {
+        this.errores.dni = '❌ El DNI es obligatorio';
+      } else if (!this.validarDNI(this.clienteData.dni)) {
+        this.errores.dni = '❌ DNI inválido (8 números + letra)';
+      }
+      
+      if (!this.clienteData.direccion_envio.trim()) {
+        this.errores.direccion = '❌ La dirección de envío es obligatoria';
+      }
+    }
 
     if (Object.keys(this.errores).length > 0) {
       this.message = '❌ Corrige los errores antes de guardar';
       return;
     }
 
-    localStorage.setItem('user', JSON.stringify(this.user));
-    this.message = '✅ Cambios guardados correctamente';
+    // Guardar datos del usuario (nombre, apellidos, correo, teléfono, ciudad)
+    const userData = {
+      nombre: this.user.nombre,
+      apellidos: this.user.apellidos,
+      correo: this.user.correo,
+      telefono: this.user.telefono,
+      ciudad: this.user.ciudad
+    };
 
-    setTimeout(() => this.router.navigate(['/dashboard']), 1000);
+    this.authService.updateUserData(this.user.id, userData).subscribe({
+      next: () => {
+        // Actualizar localStorage con los nuevos datos
+        const updatedUser = { ...this.user };
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+
+        // Guardar datos específicos según el rol
+        if (this.esTrabajador) {
+          this.guardarDatosTrabajador();
+        } else {
+          this.guardarDatosCliente();
+        }
+      },
+      error: (err) => {
+        console.error('Error al actualizar usuario:', err);
+        this.message = '❌ Error al guardar los cambios. Intenta de nuevo.';
+      }
+    });
+  }
+
+  guardarDatosCliente() {
+    const clienteData = {
+      dni: this.clienteData.dni,
+      direccion_envio: this.clienteData.direccion_envio,
+      foto_dni: this.clienteData.foto_dni
+    };
+
+    this.authService.updateClienteData(this.user.id, clienteData).subscribe({
+      next: () => {
+        this.message = '✅ Cambios guardados correctamente';
+        setTimeout(() => {
+          this.message = '';
+        }, 3000);
+      },
+      error: (err) => {
+        console.error('Error al actualizar datos del cliente:', err);
+        this.message = '❌ Error al guardar los datos del cliente.';
+      }
+    });
+  }
+
+  guardarDatosTrabajador() {
+    const trabajadorData = {
+      numero_seguridad_social: this.trabajadorData.numero_seguridad_social
+    };
+
+    this.authService.updateTrabajadorData(this.user.id, trabajadorData).subscribe({
+      next: () => {
+        this.message = '✅ Cambios guardados correctamente';
+        setTimeout(() => {
+          this.message = '';
+        }, 3000);
+      },
+      error: (err) => {
+        console.error('Error al actualizar datos del trabajador:', err);
+        this.message = '❌ Error al guardar los datos del trabajador.';
+      }
+    });
   }
 
   onFileSelected(event: any) {
@@ -869,6 +1181,27 @@ export class PerfilComponent implements OnInit {
     reader.readAsDataURL(file);
   }
 
+  onDniFileSelected(event: any) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      alert('❌ Solo se permiten imágenes');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      // En producción, deberías subir esto al backend
+      this.clienteData.foto_dni = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  removeDniFile() {
+    this.clienteData.foto_dni = 'default.jpg';
+  }
+
   validarEmail(email: string): boolean {
     const re = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
     return re.test(email);
@@ -879,13 +1212,16 @@ export class PerfilComponent implements OnInit {
     return re.test(telefono);
   }
 
- get fotoPerfil(): string {
-  return this.user.foto && this.user.foto !== 'default.jpg'
-    ? 'http://localhost:8080/uploads/' + this.user.foto
-    : 'http://localhost:8080/uploads/default.jpg';
-}
+  validarDNI(dni: string): boolean {
+    const re = /^[0-9]{8}[A-Za-z]$/;
+    return re.test(dni);
+  }
 
-
+  get fotoPerfil(): string {
+    return this.user.foto && this.user.foto !== 'default.jpg'
+      ? 'http://localhost:8080/uploads/' + this.user.foto
+      : 'http://localhost:8080/uploads/default.jpg';
+  }
 
   toggleMenu() { this.menuOpen = !this.menuOpen; }
 

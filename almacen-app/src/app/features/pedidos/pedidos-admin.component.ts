@@ -11,7 +11,7 @@ import { RoleService } from '@core/services/role.service';
   standalone: true,
   imports: [CommonModule, FormsModule, MatSnackBarModule],
   template: `
-    <div class="gestion-layout" *ngIf="isAdmin">
+    <div class="gestion-layout">
       <div class="background-pattern"></div>
 
       <!-- HEADER -->
@@ -1433,10 +1433,16 @@ export class PedidosAdminComponent implements OnInit {
 
   ngOnInit() {
     this.isAdmin = this.roleService.isAdmin();
-    if (!this.isAdmin) return;
+    const isTrabajador = this.roleService.isTrabajador();
+
+    if (!this.isAdmin && !isTrabajador) {
+      this.router.navigate(['/dashboard']);
+      return;
+    }
 
     this.cargarPedidos();
   }
+
 
   cargarPedidos() {
     this.pedidoService.getAll().subscribe({

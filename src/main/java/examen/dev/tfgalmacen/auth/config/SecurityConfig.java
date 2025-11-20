@@ -52,11 +52,13 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/pedidos/**").hasAuthority("ROLE_CLIENTE")
                         .requestMatchers(HttpMethod.GET, "/api/pedidos/cliente/**").hasAuthority("ROLE_CLIENTE")
                         .requestMatchers(HttpMethod.GET, "/api/pedidos/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_TRABAJADOR")
+                        .requestMatchers(HttpMethod.PUT, "/api/pedidos/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_TRABAJADOR")
+
                         .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/jacoco", "/jacoco/**").permitAll()
                         .anyRequest().authenticated()
                 )
-                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS   ))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
