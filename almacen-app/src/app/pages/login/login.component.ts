@@ -26,7 +26,7 @@ import { AuthService } from '@core/services/auth.service';
             <div class="brand-header">
               <div class="brand-icon">⚡</div>
               <div>
-                <h1>Almacén Electrónico</h1>
+                <h1>TechStore</h1>
                 <p class="brand-tagline">Tu tienda de tecnología de confianza</p>
               </div>
             </div>

@@ -12,45 +12,83 @@ import { NotificationService } from '@core/services/notification.service';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [
-    RouterModule,
-    CommonModule,
-    CurrencyPipe,
-    FormsModule,
-    ProductosListComponent,
-    HttpClientModule,
-    MatSnackBarModule
-  ],
+  imports: [RouterModule, CommonModule, CurrencyPipe, FormsModule, ProductosListComponent, HttpClientModule, MatSnackBarModule],
   template: `
 <div class="dashboard-layout">
   <!-- BARRA SUPERIOR -->
   <header class="navbar">
-    <h1 class="app-title">⚡ Almacén Electrónico</h1>
-    <div class="menu-carrito-container">
-      <!-- Mostrar carrito solo si está logueado y NO es admin -->
-      <div *ngIf="isLoggedIn && isCliente" class="carrito-icon" (click)="toggleCarrito()">
-        🛒 <span class="carrito-count">{{ carrito.length }}</span>
+    <div class="nav-left">
+      <div class="logo-container">
+        <span class="logo-icon">⚡</span>
+        <div class="logo-text">
+          <h1 class="app-title">TechStore</h1>
+          <span class="app-subtitle">Premium Electronics</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="nav-right">
+      <div *ngIf="isLoggedIn && isCliente" class="carrito-wrapper" (click)="toggleCarrito()">
+        <div class="carrito-icon-btn">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+          </svg>
+          <span class="carrito-badge" *ngIf="carrito.length">{{ carrito.length }}</span>
+        </div>
       </div>
 
       <div class="user-menu" (click)="toggleMenu()">
-        <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" class="user-icon" />
+        <div class="avatar-btn">
+          <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" class="user-icon" />
+          <svg class="chevron" [class.rotated]="menuOpen" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 9l6 6 6-6"/>
+          </svg>
+        </div>
+        
         <div class="menu-dropdown" *ngIf="menuOpen" (click)="$event.stopPropagation()">
           <ng-container *ngIf="isLoggedIn; else notLogged">
-            <div class="menu-item" (click)="goToProfile()">👤 Mi perfil</div>
-            <div *ngIf="isCliente" class="menu-item" (click)="goToMisPedidos()">📦 Mis pedidos</div>
-
-            <!-- Opciones de administración -->
-            <div *ngIf="isAdmin" class="menu-separator"></div>
-            <div *ngIf="isAdmin" class="menu-item" (click)="goToGestion('clientes')">👥 Gestión de Usuarios</div>
-            <div *ngIf="isAdmin  || isTrabajador" class="menu-item" (click)="goToGestion('productos')">📦 Gestión de Productos</div>
-            <div *ngIf="isAdmin || isTrabajador" class="menu-item" (click)="goToGestion('pedidos')">🧾 Gestión de Pedidos</div>
-
-            <div class="menu-item logout" (click)="logout()">🚪 Cerrar sesión</div>
+            <div class="menu-user-info">
+              <span class="menu-greeting">¡Hola!</span>
+              <span class="menu-role">{{ isAdmin ? 'Administrador' : isCliente ? 'Cliente' : 'Trabajador' }}</span>
+            </div>
+            <div class="menu-divider"></div>
+            <div class="menu-item" (click)="goToProfile()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Mi perfil
+            </div>
+            <div *ngIf="isCliente" class="menu-item" (click)="goToMisPedidos()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+              Mis pedidos
+            </div>
+            <div *ngIf="isAdmin || isTrabajador" class="menu-divider"></div>
+            <div *ngIf="isAdmin" class="menu-item" (click)="goToGestion('clientes')">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              Gestión Usuarios
+            </div>
+            <div *ngIf="isAdmin || isTrabajador" class="menu-item" (click)="goToGestion('productos')">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+              Gestión Productos
+            </div>
+            <div *ngIf="isAdmin || isTrabajador" class="menu-item" (click)="goToGestion('pedidos')">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+              Gestión Pedidos
+            </div>
+            <div class="menu-divider"></div>
+            <div class="menu-item logout" (click)="logout()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              Cerrar sesión
+            </div>
           </ng-container>
-
           <ng-template #notLogged>
-            <div class="menu-item" (click)="goToLogin()">🔐 Iniciar sesión</div>
-            <div class="menu-item" (click)="goToRegister()">📝 Registrarse</div>
+            <div class="menu-item" (click)="goToLogin()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+              Iniciar sesión
+            </div>
+            <div class="menu-item" (click)="goToRegister()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+              Registrarse
+            </div>
           </ng-template>
         </div>
       </div>
@@ -59,924 +97,345 @@ import { NotificationService } from '@core/services/notification.service';
 
   <!-- CONTENIDO PRINCIPAL -->
   <main class="main-content">
-    <!-- CARRUSEL DE PRODUCTOS DESTACADOS -->
-    <div class="carousel-container">
-      <div class="carousel-wrapper">
-        <button class="carousel-btn prev" (click)="prevSlide()">❮</button>
-        
+    <!-- HERO CARRUSEL -->
+    <section class="hero-carousel">
+      <div class="carousel-inner">
         <div class="carousel-track" [style.transform]="'translateX(-' + (currentSlide * 100) + '%)'">
           <div class="carousel-slide" *ngFor="let slide of carouselSlides">
-            <div class="slide-content" [style.background]="slide.gradient">
-              <div class="slide-text">
+            <div class="slide-bg" [style.background]="slide.gradient"></div>
+            <div class="slide-content">
+              <div class="slide-info">
+                <span class="slide-badge">{{ slide.badge }}</span>
                 <h2 class="slide-title">{{ slide.title }}</h2>
-                <p class="slide-description">{{ slide.description }}</p>
-                <div class="slide-badge">{{ slide.badge }}</div>
+                <p class="slide-desc">{{ slide.description }}</p>
+                <button class="slide-cta">Ver ofertas →</button>
               </div>
-              <div class="slide-image">
+              <div class="slide-visual">
                 <img [src]="slide.image" [alt]="slide.title" />
               </div>
             </div>
           </div>
         </div>
-
-        <button class="carousel-btn next" (click)="nextSlide()">❯</button>
+        
+        <button class="nav-btn prev" (click)="prevSlide()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <button class="nav-btn next" (click)="nextSlide()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
       </div>
       
-      <div class="carousel-indicators">
-        <span 
-          *ngFor="let slide of carouselSlides; let i = index" 
-          class="indicator" 
-          [class.active]="i === currentSlide"
-          (click)="goToSlide(i)">
-        </span>
+      <div class="carousel-dots">
+        <button *ngFor="let s of carouselSlides; let i = index" 
+                class="dot" [class.active]="i === currentSlide" 
+                (click)="goToSlide(i)"></button>
       </div>
-    </div>
+    </section>
 
-    <!-- SECCIÓN DE FILTROS Y BÚSQUEDA -->
-    <div *ngIf="isCliente" class="filtros-container">
-      <div class="filtros-header">
-        <h2>Buscar y Filtrar Productos🔍 </h2>
-      </div>
-
-      <div class="filtros-content">
-        <!-- BUSCADOR -->
-        <div *ngIf="isCliente" class="search-box">
-          <input
-            type="text"
-            [(ngModel)]="searchTerm"
-            (ngModelChange)="applyFilters()"
-            placeholder="Buscar por nombre..."
-            class="search-input"
-          />
-          <button *ngIf="searchTerm" (click)="clearSearch()" class="clear-btn">✖</button>
+    <!-- FILTROS MODERNOS -->
+    <section *ngIf="isCliente" class="filters-section">
+      <div class="filters-bar">
+        <div class="search-wrapper">
+          <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+          </svg>
+          <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()" placeholder="Buscar productos..." class="search-input"/>
+          <button *ngIf="searchTerm" class="clear-search" (click)="clearSearch()">×</button>
         </div>
 
-        <!-- FILTRO POR TIPO -->
-        <div *ngIf="isCliente" class="tipo-filter">
-          <label class="filter-label">Filtrar por tipo:</label>
-
-          <select
-            [(ngModel)]="tipoSeleccionado"
-            (change)="applyFilters()"
-            class="select-tipo"
-          >
-            <option value="">Todos</option>
-            <option *ngFor="let tipo of tiposDisponibles" [value]="tipo">
-              {{ tipo }}
-            </option>
+        <div class="filter-group">
+          <select [(ngModel)]="tipoSeleccionado" (change)="applyFilters()" class="filter-select">
+            <option value="">Categorías</option>
+            <option *ngFor="let tipo of tiposDisponibles" [value]="tipo">{{ tipo }}</option>
           </select>
         </div>
 
-        <!-- CONTADOR DE RESULTADOS -->
-        <div class="resultados-info">
-          <span class="resultados-count">
-            {{ productosFiltrados.length }} producto(s) encontrado(s)
-          </span>
-          <button
-            *ngIf="searchTerm || tipoSeleccionado"
-            (click)="clearAllFilters()"
-            class="reset-filters-btn"
-          >
-            Limpiar filtros🔄 
-          </button>
+        <div class="filter-group">
+          <select [(ngModel)]="ordenSeleccionado" (change)="applyFilters()" class="filter-select">
+            <option value="">Ordenar por..</option>
+            <option value="precio-asc">Precio: Menor a Mayor</option>
+            <option value="precio-desc">Precio: Mayor a Menor</option>
+            <option value="nombre-asc">Nombre: A - Z</option>
+            <option value="nombre-desc">Nombre: Z - A</option>
+          </select>
         </div>
-      </div>
-    </div>
 
-    <!-- GRID DE PRODUCTOS PAGINADO -->
+        <div class="results-count">
+          <span class="count">{{ productosFiltrados.length }}</span> productos
+        </div>
+
+        <button *ngIf="searchTerm || tipoSeleccionado || ordenSeleccionado" (click)="clearAllFilters()" class="clear-all-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          Limpiar
+        </button>
+      </div>
+    </section>
+
+    <!-- PRODUCTOS -->
     <app-productos-list
       [searchTerm]="searchTerm"
       [tipoSeleccionado]="tipoSeleccionado"
+      [ordenSeleccionado]="ordenSeleccionado"
       (productosFiltered)="onProductosFiltered($event)">
     </app-productos-list>
   </main>
 
   <!-- MODAL CARRITO -->
-  <div *ngIf="carritoOpen && isLoggedIn && isCliente" class="modal-overlay" (click)="toggleCarrito()">
-    <div class="modal-carrito" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h3>Tu Carrito🛒 </h3>
-        <button class="close-icon" (click)="toggleCarrito()">✖</button>
+  <div *ngIf="carritoOpen && isLoggedIn && isCliente" class="cart-overlay" (click)="toggleCarrito()">
+    <div class="cart-modal" (click)="$event.stopPropagation()">
+      <div class="cart-header">
+        <h3>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+          </svg>
+          Tu Carrito
+        </h3>
+        <button class="close-btn" (click)="toggleCarrito()">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
       </div>
 
-      <div class="modal-body">
-        <div *ngIf="carrito.length > 0; else carritoVacio">
-          <div class="item-carrito" *ngFor="let item of carrito; let i = index">
-            <div class="item-info">
-              <span class="item-nombre">{{ item.nombre }}</span>
-              <span class="item-tipo">{{ item.tipo }}</span>
+      <div class="cart-body">
+        <div *ngIf="carrito.length > 0; else emptyCart" class="cart-items">
+          <div class="cart-item" *ngFor="let item of carrito; let i = index">
+            <div class="item-details">
+              <span class="item-name">{{ item.nombre }}</span>
+              <span class="item-cat">{{ item.tipo }}</span>
             </div>
-            <div class="item-actions">
-              <span class="item-precio">{{ item.precio | currency:'EUR' }}</span>
-              <button (click)="eliminarDelCarrito(i)" class="delete-btn">🗑️</button>
+            <div class="item-price-action">
+              <span class="item-price">{{ item.precio | currency:'EUR' }}</span>
+              <button class="remove-btn" (click)="eliminarDelCarrito(i)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              </button>
             </div>
-          </div>
-
-          <div class="modal-footer">
-            <div class="total">
-              <span>Total:</span>
-              <span class="total-amount">{{ carritoTotal() | currency:'EUR' }}</span>
-            </div>
-            <button class="btn-comprar" (click)="comprar()">
-              <span>Realizar Pedido🛒</span>
-            </button>
           </div>
         </div>
 
-        <ng-template #carritoVacio>
-          <div class="carrito-vacio">
-            <div class="vacio-icon">🛒</div>
+        <ng-template #emptyCart>
+          <div class="empty-cart">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3">
+              <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+            </svg>
             <p>Tu carrito está vacío</p>
-            <small>Agrega productos para comenzar</small>
+            <span>Añade productos para comenzar</span>
           </div>
         </ng-template>
+      </div>
+
+      <div *ngIf="carrito.length > 0" class="cart-footer">
+        <div class="cart-total">
+          <span>Total</span>
+          <span class="total-price">{{ carritoTotal() | currency:'EUR' }}</span>
+        </div>
+        <button class="checkout-btn" (click)="comprar()">
+          Realizar Pedido
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
       </div>
     </div>
   </div>
 
-  <!-- Partículas de fondo animadas -->
-  <div class="particles">
-    <div class="particle" *ngFor="let p of particles" 
-         [style.left.%]="p.x" 
-         [style.animation-delay]="p.delay"
-         [style.animation-duration]="p.duration">
-    </div>
+  <!-- PARTÍCULAS -->
+  <div class="particles-bg">
+    <div class="particle" *ngFor="let p of particles" [style.left.%]="p.x" [style.animationDelay]="p.delay" [style.animationDuration]="p.duration"></div>
   </div>
 </div>
   `,
   styles: [`
+/* === VARIABLES Y BASE === */
+:host { --primary: #6366f1; --primary-dark: #4f46e5; --accent: #06b6d4; --bg-dark: #0f172a; --bg-card: #1e293b; --text: #f8fafc; --text-muted: #94a3b8; --border: rgba(255,255,255,0.1); --success: #10b981; --danger: #ef4444; }
+
 .dashboard-layout {
-  display: flex;
-  flex-direction: column;
   min-height: 100vh;
-  font-family: 'Segoe UI', Roboto, sans-serif;
-  background: 
-    linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.92)),
-    url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1920&h=1080&fit=crop') center/cover fixed;
-  color: #1f2937;
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+  color: var(--text);
+  font-family: 'Inter', -apple-system, sans-serif;
   position: relative;
   overflow-x: hidden;
 }
 
-/* PARTÍCULAS ANIMADAS */
-.particles {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.3;
-}
-
-.particle {
-  position: absolute;
-  width: 3px;
-  height: 3px;
-  background: rgba(102, 126, 234, 0.4);
-  border-radius: 50%;
-  animation: float 20s infinite ease-in-out;
-  box-shadow: 0 0 8px rgba(102, 126, 234, 0.6);
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
-  10% { opacity: 1; }
-  90% { opacity: 1; }
-  100% { transform: translateY(-100vh) translateX(50px); opacity: 0; }
-}
-
-/* BARRA SUPERIOR */
+/* === NAVBAR === */
 .navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(255, 255, 255, 0.98);
-  backdrop-filter: blur(20px);
-  color: #1f2937;
   padding: 1rem 2rem;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
   position: sticky;
   top: 0;
   z-index: 100;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-.app-title {
-  margin: 0;
-  font-size: 1.8rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: none;
-}
+.nav-left { display: flex; align-items: center; gap: 1rem; }
+.logo-container { display: flex; align-items: center; gap: 0.75rem; }
+.logo-icon { font-size: 2rem; filter: drop-shadow(0 0 10px rgba(99, 102, 241, 0.5)); }
+.logo-text { display: flex; flex-direction: column; }
+.app-title { margin: 0; font-size: 1.5rem; font-weight: 700; background: linear-gradient(135deg, #6366f1, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.app-subtitle { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; }
 
-.menu-carrito-container {
+.nav-right { display: flex; align-items: center; gap: 1rem; }
+
+.carrito-wrapper { position: relative; cursor: pointer; }
+.carrito-icon-btn { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 12px; background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.2); color: var(--primary); transition: all 0.3s; }
+.carrito-icon-btn:hover { background: rgba(99, 102, 241, 0.2); transform: translateY(-2px); }
+.carrito-badge { position: absolute; top: -4px; right: -4px; width: 20px; height: 20px; background: var(--danger); color: white; font-size: 0.7rem; font-weight: 700; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+
+.user-menu { position: relative; }
+.avatar-btn { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; border-radius: 12px; cursor: pointer; transition: background 0.3s; }
+.avatar-btn:hover { background: rgba(255,255,255,0.05); }
+.user-icon { width: 40px; height: 40px; border-radius: 10px; border: 2px solid var(--primary); }
+.chevron { color: var(--text-muted); transition: transform 0.3s; }
+.chevron.rotated { transform: rotate(180deg); }
+
+.menu-dropdown { position: absolute; top: calc(100% + 8px); right: 0; background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; min-width: 220px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.4); animation: dropIn 0.2s ease; }
+@keyframes dropIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+.menu-user-info { padding: 1rem; background: rgba(99, 102, 241, 0.1); }
+.menu-greeting { display: block; font-weight: 600; color: var(--text); }
+.menu-role { font-size: 0.8rem; color: var(--text-muted); }
+.menu-divider { height: 1px; background: var(--border); margin: 0.25rem 0; }
+.menu-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.85rem 1rem; color: var(--text-muted); cursor: pointer; transition: all 0.2s; }
+.menu-item:hover { background: rgba(99, 102, 241, 0.1); color: var(--text); padding-left: 1.25rem; }
+.menu-item.logout { color: var(--danger); }
+.menu-item.logout:hover { background: rgba(239, 68, 68, 0.1); }
+
+/* === HERO CAROUSEL === */
+.hero-carousel { margin: 2rem auto; max-width: 1300px; padding: 0 1.5rem; }
+.carousel-inner { position: relative; border-radius: 24px; overflow: hidden; box-shadow: 0 25px 50px rgba(0,0,0,0.5); }
+.carousel-track { display: flex; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+.carousel-slide { min-width: 100%; position: relative; height: 380px; }
+.slide-bg { position: absolute; inset: 0; opacity: 0.9; }
+.slide-content { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; height: 100%; padding: 3rem; }
+.slide-info { flex: 1; max-width: 500px; }
+.slide-badge { display: inline-block; padding: 0.4rem 1rem; background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border-radius: 20px; font-size: 0.8rem; font-weight: 600; margin-bottom: 1rem; border: 1px solid rgba(255,255,255,0.2); }
+.slide-title { font-size: 2.75rem; font-weight: 800; margin: 0 0 0.75rem; line-height: 1.1; text-shadow: 0 2px 20px rgba(0,0,0,0.3); }
+.slide-desc { font-size: 1.1rem; color: rgba(255,255,255,0.85); margin: 0 0 1.5rem; line-height: 1.5; }
+.slide-cta { padding: 0.85rem 1.75rem; background: white; color: #1e293b; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+.slide-cta:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+.slide-visual { flex: 1; display: flex; justify-content: center; align-items: center; }
+.slide-visual img { max-height: 300px; object-fit: contain; filter: drop-shadow(0 20px 40px rgba(0,0,0,0.4)); animation: float 4s ease-in-out infinite; }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+
+.nav-btn { position: absolute; top: 50%; transform: translateY(-50%); width: 48px; height: 48px; border-radius: 50%; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; z-index: 10; }
+.nav-btn:hover { background: rgba(255,255,255,0.2); transform: translateY(-50%) scale(1.1); }
+.nav-btn.prev { left: 1rem; }
+.nav-btn.next { right: 1rem; }
+
+.carousel-dots { display: flex; justify-content: center; gap: 8px; margin-top: 1rem; }
+.dot { width: 10px; height: 10px; border-radius: 5px; background: rgba(255,255,255,0.3); border: none; cursor: pointer; transition: all 0.3s; }
+.dot:hover { background: rgba(255,255,255,0.5); }
+.dot.active { width: 32px; background: var(--primary); }
+
+/* === FILTERS === */
+.filters-section { max-width: 1300px; margin: 0 auto 2rem; padding: 0 1.5rem; }
+.filters-bar {
   display: flex;
-  align-items: center;
-  gap: 1.5rem;
+  align-items: center; /* alinea todo verticalmente centrado */
+  gap: 1rem; /* espacio entre cada elemento */
+  flex-wrap: wrap; /* opcional: si no cabe todo, baja los elementos */
 }
 
-.user-menu {
-  position: relative;
-  cursor: pointer;
-}
-
-.user-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  border: 2px solid #667eea;
-  padding: 2px;
-  transition: all 0.3s ease;
-  background: rgba(102, 126, 234, 0.1);
-}
-
-.user-icon:hover {
-  transform: scale(1.1);
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-}
-
-.menu-dropdown {
-  position: absolute;
-  top: 55px;
-  right: 0;
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-  width: 220px;
-  overflow: hidden;
-  animation: slideDown 0.3s ease;
-  z-index: 10;
-}
-
-.menu-item {
-  padding: 0.9rem 1.2rem;
-  font-size: 1rem;
-  color: #1f2937;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.menu-item:hover {
-  background: #f3f4f6;
-  color: #667eea;
-  padding-left: 1.5rem;
-  border-left: 3px solid #667eea;
-}
-
-.menu-item.logout {
-  color: #dc2626;
-  font-weight: 500;
-  border-top: 1px solid #e5e7eb;
-}
-
-.menu-separator {
-  height: 1px;
-  background: #e5e7eb;
-  margin: 0.5rem 0;
-}
-
-@keyframes slideDown {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* CONTENIDO PRINCIPAL */
-.main-content {
-  flex: 1;
-  width: 100%;
-  max-width: 1400px;
-  margin: 2rem auto;
-  padding: 0 1.5rem;
-  position: relative;
-  z-index: 1;
-}
-
-/* CARRUSEL */
-.carousel-container {
-  margin-bottom: 3rem;
-  position: relative;
-  border-radius: 20px;
-  overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-}
-
-.carousel-wrapper {
-  position: relative;
-  width: 100%;
-  height: 450px;
-  overflow: hidden;
-  background: rgba(15, 15, 35, 0.5);
-}
-
-.carousel-track {
-  display: flex;
-  transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  height: 100%;
-}
-
-.carousel-slide {
-  min-width: 100%;
-  height: 100%;
-}
-
-.slide-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 100%;
-  padding: 3rem 4rem;
-  position: relative;
-  overflow: hidden;
-}
-
-.slide-text {
-  flex: 1;
-  z-index: 2;
-  animation: slideInLeft 0.8s ease;
-}
-
-@keyframes slideInLeft {
-  from { opacity: 0; transform: translateX(-50px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-
-.slide-title {
-  font-size: 3.5rem;
-  font-weight: 800;
-  margin: 0 0 1rem 0;
-  color: white;
-  text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
-  line-height: 1.2;
-}
-
-.slide-description {
-  font-size: 1.3rem;
-  color: rgba(255, 255, 255, 0.9);
-  margin: 0 0 1.5rem 0;
-  max-width: 500px;
-  text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
-}
-
-.slide-badge {
-  display: inline-block;
-  padding: 0.7rem 1.5rem;
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
-  border-radius: 30px;
-  color: white;
-  font-weight: 600;
-  font-size: 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-}
-
-.slide-image {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1;
-  animation: float 3s ease-in-out infinite;
-}
-
-.slide-image img {
-  max-width: 100%;
-  max-height: 350px;
-  object-fit: contain;
-  filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.5));
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-20px); }
-}
-
-.carousel-btn {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: white;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  font-size: 1.5rem;
-  cursor: pointer;
-  z-index: 10;
-  transition: all 0.3s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.carousel-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: translateY(-50%) scale(1.1);
-  box-shadow: 0 5px 20px rgba(255, 255, 255, 0.3);
-}
-
-.carousel-btn.prev { left: 20px; }
-.carousel-btn.next { right: 20px; }
-
-.carousel-indicators {
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 10px;
-  z-index: 10;
-}
-
-.indicator {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.4);
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.indicator:hover {
-  background: rgba(255, 255, 255, 0.6);
-  transform: scale(1.2);
-}
-
-.indicator.active {
-  background: white;
-  width: 30px;
-  border-radius: 6px;
-}
-
-/* FILTROS */
-.filtros-container {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 12px;
-  padding: 1rem 1.5rem;
-  margin-bottom: 2rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  animation: fadeInUp 0.5s ease;
-}
-
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.filtros-header h2 {
-  margin: 0 0 1rem 0;
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #1f2937;
-}
-
-.filtros-content {
-  display: grid;
-  grid-template-columns: 2fr 1fr auto;
-  gap: 1rem;
-  align-items: end;
-}
-
-/* BUSCADOR */
-.search-box {
-  position: relative;
-  width: 90%;
-} 
-
-.search-input {
-  width: 100%;
-  padding: 0.75rem 2.5rem 0.75rem 1rem;
-  border: 2px solid #e5e7eb;
-  border-radius: 10px;
-  font-size: 0.95rem;
-  transition: all 0.3s;
-  background: white;
-  color: #1f2937;
-}
-
-.search-input::placeholder {
-  color: #9ca3af;
-}
-
-.search-input:focus {
-  outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-.clear-btn {
-  position: absolute;
-  right: 0.75rem;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  color: #9ca3af;
-  cursor: pointer;
-  font-size: 1.1rem;
-  padding: 0.25rem;
-  transition: color 0.2s;
-}
-
-.clear-btn:hover {
-  color: #dc2626;
-}
-
-/* FILTRO POR TIPO */
-.tipo-filter {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.filter-label {
-  font-weight: 600;
-  color: #4b5563;
-  font-size: 0.85rem;
-  margin-bottom: -0.25rem;
-}
-
-.select-tipo {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  font-size: 0.95rem;
-  border: 2px solid #e5e7eb;
-  border-radius: 10px;
-  background: white;
-  color: #1f2937;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.select-tipo option {
-  background: white;
-  color: #1f2937;
-}
-
-.select-tipo:focus {
-  outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-/* RESULTADOS */
-.resultados-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  align-items: flex-end;
-}
-
-.resultados-count {
-  font-weight: 600;
-  color: #667eea;
-  font-size: 0.9rem;
-  white-space: nowrap;
-}
-
-.reset-filters-btn {
-  padding: 0.5rem 0.9rem;
-  border: none;
-  border-radius: 8px;
-  background: #f3f4f6;
-  color: #4b5563;
-  cursor: pointer;
-  font-weight: 500;
-  font-size: 0.85rem;
-  transition: all 0.2s;
-  white-space: nowrap;
-}
-
-.reset-filters-btn:hover {
-  background: #e5e7eb;
-  transform: translateY(-1px);
-}
-
-/* CARRITO */
-.carrito-icon {
-  position: relative;
-  font-size: 1.8rem;
-  cursor: pointer;
-  transition: transform 0.2s;
-}
-
-.carrito-icon:hover {
-  transform: scale(1.1);
-}
-
-.carrito-count {
-  position: absolute;
-  top: -8px;
-  right: -8px;
-  background: #ff4444;
-  color: white;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.75rem;
-  font-weight: 700;
-  animation: pulse 2s infinite;
-  box-shadow: 0 0 10px rgba(255, 68, 68, 0.8);
-}
-
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-}
-
-/* MODAL */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(10px);
-  z-index: 200;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.modal-carrito {
-  background: rgba(15, 15, 35, 0.98);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(102, 126, 234, 0.3);
-  border-radius: 20px;
-  width: 90%;
-  max-width: 500px;
-  max-height: 80vh;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-  animation: slideUp 0.3s ease;
-}
-
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(50px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem;
-  border-bottom: 1px solid rgba(102, 126, 234, 0.2);
-}
-
-.modal-header h3 {
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: white;
-}
-
-.close-icon {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: rgba(255, 255, 255, 0.6);
-  padding: 0.25rem;
-  transition: color 0.2s;
-}
-
-.close-icon:hover {
-  color: #ff4444;
-}
-
-.modal-body {
-  padding: 1.5rem;
-  overflow-y: auto;
-  flex: 1;
-}
-
-.item-carrito {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem;
-  margin-bottom: 0.75rem;
-  background: rgba(102, 126, 234, 0.1);
-  border: 1px solid rgba(102, 126, 234, 0.2);
-  border-radius: 12px;
-  transition: all 0.2s;
-}
-
-.item-carrito:hover {
-  background: rgba(102, 126, 234, 0.15);
-  transform: translateX(4px);
-  border-color: rgba(102, 126, 234, 0.4);
-}
-
-.item-info {
+.search-wrapper { position: relative; flex: 1; min-width: 200px; max-width: 350px; }
+.search-icon { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; }
+.search-input { width: 100%; padding: 0.75rem 2.5rem 0.75rem 3rem; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 0.95rem; transition: all 0.3s; }
+.search-input::placeholder { color: var(--text-muted); }
+.search-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15); }
+.clear-search { position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); font-size: 1.25rem; cursor: pointer; line-height: 1; }
+.clear-search:hover { color: var(--danger); }
+.filter-group {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
 }
 
-.item-nombre {
-  font-weight: 600;
-  color: white;
+.search-wrapper {
+  flex: 1; /* ocupa todo el espacio disponible */
+  min-width: 200px; /* evita que se achique demasiado */
 }
 
-.item-tipo {
-  font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.6);
+.filter-group, .results-count, .clear-all-btn {
+  flex: 0 0 auto; /* tamaño natural, no crecen */
 }
 
-.item-actions {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+
+.filter-group label { font-size: 0.75rem; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+.filter-select { padding: 0.65rem 2rem 0.65rem 0.85rem; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 0.9rem; cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.5rem center; min-width: 160px; transition: all 0.3s; }
+.filter-select:focus { outline: none; border-color: var(--primary); }
+.filter-select option { background: var(--bg-card); color: var(--text); }
+
+.results-count { display: flex; align-items: center; gap: 0.35rem; padding: 0.5rem 1rem; background: rgba(99, 102, 241, 0.1); border-radius: 8px; font-size: 0.9rem; color: var(--text-muted); }
+.results-count .count { font-weight: 700; color: var(--primary); }
+
+.clear-all-btn { display: flex; align-items: center; gap: 0.4rem; padding: 0.65rem 1rem; background: transparent; border: 1px solid var(--border); border-radius: 8px; color: var(--text-muted); font-size: 0.85rem; cursor: pointer; transition: all 0.3s; }
+.clear-all-btn:hover { border-color: var(--danger); color: var(--danger); background: rgba(239, 68, 68, 0.1); }
+
+/* === MAIN CONTENT === */
+.main-content { position: relative; z-index: 1; padding-bottom: 3rem; }
+
+/* === CART MODAL === */
+.cart-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 200; display: flex; justify-content: flex-end; animation: fadeIn 0.3s; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.cart-modal { width: 100%; max-width: 420px; height: 100%; background: var(--bg-dark); border-left: 1px solid var(--border); display: flex; flex-direction: column; animation: slideIn 0.3s ease; }
+@keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+
+.cart-header { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem; border-bottom: 1px solid var(--border); }
+.cart-header h3 { display: flex; align-items: center; gap: 0.75rem; margin: 0; font-size: 1.25rem; font-weight: 600; color: var(--text); }
+.close-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 0.5rem; border-radius: 8px; transition: all 0.2s; }
+.close-btn:hover { background: rgba(255,255,255,0.1); color: var(--text); }
+
+.cart-body { flex: 1; overflow-y: auto; padding: 1rem; }
+.cart-items { display: flex; flex-direction: column; gap: 0.75rem; }
+.cart-item { display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; transition: all 0.2s; }
+.cart-item:hover { border-color: rgba(99, 102, 241, 0.3); transform: translateX(-4px); }
+.item-details { display: flex; flex-direction: column; gap: 0.2rem; }
+.item-name { font-weight: 600; color: var(--text); font-size: 0.95rem; }
+.item-cat { font-size: 0.8rem; color: var(--text-muted); }
+.item-price-action { display: flex; align-items: center; gap: 1rem; }
+.item-price { font-weight: 700; color: var(--accent); font-size: 1.05rem; }
+.remove-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 0.4rem; border-radius: 6px; transition: all 0.2s; }
+.remove-btn:hover { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+
+.empty-cart { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4rem 2rem; text-align: center; }
+.empty-cart p { margin: 1rem 0 0.25rem; font-weight: 600; color: var(--text); }
+.empty-cart span { font-size: 0.9rem; color: var(--text-muted); }
+
+.cart-footer { padding: 1.5rem; border-top: 1px solid var(--border); background: rgba(0,0,0,0.2); }
+.cart-total { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; font-size: 1.1rem; }
+.cart-total span:first-child { color: var(--text-muted); }
+.total-price { font-size: 1.5rem; font-weight: 700; color: var(--text); }
+.checkout-btn { width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 1rem; background: linear-gradient(135deg, var(--primary), var(--accent)); border: none; border-radius: 12px; color: white; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+.checkout-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4); }
+
+/* === PARTICLES === */
+.particles-bg { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+.particle { position: absolute; width: 3px; height: 3px; background: rgba(99, 102, 241, 0.4); border-radius: 50%; animation: rise 20s infinite ease-in-out; }
+@keyframes rise { 0%, 100% { transform: translateY(100vh) scale(0); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { transform: translateY(-10vh) scale(1); opacity: 0; } }
+
+/* === RESPONSIVE === */
+@media (max-width: 900px) {
+  .filters-bar { flex-direction: column; align-items: stretch; }
+  .search-wrapper { max-width: 100%; }
+  .filter-group { width: 100%; }
+  .filter-select { width: 100%; }
+  .results-count { justify-content: center; }
 }
 
-.item-precio {
-  font-weight: 700;
-  color: #00f5ff;
-  font-size: 1.1rem;
-}
-
-.delete-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 1.2rem;
-  padding: 0.25rem;
-  transition: transform 0.2s;
-}
-
-.delete-btn:hover {
-  transform: scale(1.2);
-}
-
-.carrito-vacio {
-  text-align: center;
-  padding: 3rem 1rem;
-}
-
-.vacio-icon {
-  font-size: 4rem;
-  opacity: 0.3;
-  margin-bottom: 1rem;
-}
-
-.carrito-vacio p {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: white;
-  margin: 0.5rem 0;
-}
-
-.carrito-vacio small {
-  color: rgba(255, 255, 255, 0.5);
-}
-
-.modal-footer {
-  border-top: 2px solid rgba(102, 126, 234, 0.2);
-  padding-top: 1rem;
-  margin-top: 1rem;
-}
-
-.total {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-  font-size: 1.2rem;
-}
-
-.total span:first-child {
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.total-amount {
-  font-weight: 700;
-  color: white;
-  font-size: 1.5rem;
-}
-
-.btn-comprar {
-  width: 100%;
-  padding: 1rem;
-  border: none;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #667eea 0%, #00f5ff 100%);
-  color: white;
-  font-size: 1.1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-  position: relative;
-  overflow: hidden;
-}
-
-.btn-comprar::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-  transition: left 0.5s;
-}
-
-.btn-comprar:hover::before {
-  left: 100%;
-}
-
-.btn-comprar:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 25px rgba(102, 126, 234, 0.6);
-}
-
-.btn-comprar:active {
-  transform: translateY(0);
-}
-
-/* RESPONSIVE */
-  @media (max-width: 768px) {
-  .navbar {
-    padding: 1rem;
-  }
-
-  .app-title {
-    font-size: 1.3rem;
-  }
-
-  .carousel-wrapper {
-    height: 350px;
-  }
-
-  .slide-content {
-    flex-direction: column;
-    padding: 2rem 1.5rem;
-    text-align: center;
-  }
-
-  .slide-title {
-    font-size: 2rem;
-  }
-
-  .slide-description {
-    font-size: 1rem;
-  }
-
-  .slide-image img {
-    max-height: 200px;
-  }
-
-  .carousel-btn {
-    width: 40px;
-    height: 40px;
-    font-size: 1.2rem;
-  }
-
-  .carousel-btn.prev { left: 10px; }
-  .carousel-btn.next { right: 10px; }
-
-  .filtros-container {
-    padding: 1rem;
-  }
-
-  .filtros-content {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-
-  .resultados-info {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .modal-carrito {
-    width: 95%;
-    max-height: 90vh;
-  }
+@media (max-width: 768px) {
+  .navbar { padding: 0.75rem 1rem; }
+  .app-subtitle { display: none; }
+  .hero-carousel { margin: 1rem auto; }
+  .carousel-slide { height: 300px; }
+  .slide-content { flex-direction: column; padding: 1.5rem; text-align: center; }
+  .slide-title { font-size: 1.75rem; }
+  .slide-desc { font-size: 0.95rem; }
+  .slide-visual img { max-height: 150px; }
+  .nav-btn { width: 36px; height: 36px; }
+  .cart-modal { max-width: 100%; }
 }
   `]
 })
@@ -992,71 +451,27 @@ export class DashboardComponent {
   // Filtros
   searchTerm: string = '';
   tipoSeleccionado: string = '';
+  ordenSeleccionado: string = ''; // NUEVO: para ordenación
   productosFiltrados: any[] = [];
 
-  // Tipos disponibles basados en tu data.sql
   tiposDisponibles: string[] = [
-    'Auriculares',
-    'Teclado',
-    'Ratón',
-    'Monitor',
-    'Tarjeta Gráfica',
-    'Placa Base',
-    'RAM',
-    'SSD',
-    'Fuente',
-    'Refrigeración',
-    'Caja PC',
-    'Kit Periféricos',
-    'Webcam',
-    'Micrófono',
-    'Altavoces',
-    'Silla',
-    'Tarjeta de Sonido',
-    'Disco Externo'
+    'Auriculares', 'Teclado', 'Ratón', 'Monitor', 'Tarjeta Gráfica', 'Placa Base',
+    'RAM', 'SSD', 'Fuente', 'Refrigeración', 'Caja PC', 'Kit Periféricos',
+    'Webcam', 'Micrófono', 'Altavoces', 'Silla', 'Tarjeta de Sonido', 'Disco Externo'
   ];
 
-  // CARRUSEL
+  // Carrusel
   currentSlide = 0;
   carouselInterval: any;
 
   carouselSlides = [
-    {
-      title: 'Gaming de Alta Gama',
-      description: 'Las últimas tarjetas gráficas RTX y componentes premium para gaming extremo',
-      badge: '🎮 Ofertas Especiales',
-      image: 'https://images.unsplash.com/photo-1591488320449-011701bb6704?w=600&h=400&fit=crop',
-      gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-    },
-    {
-      title: 'Periféricos Pro',
-      description: 'Teclados mecánicos, ratones gaming y auriculares con audio 7.1',
-      badge: '⚡ Nuevo Stock',
-      image: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=600&h=400&fit=crop',
-      gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
-    },
-    {
-      title: 'Monitores 4K',
-      description: 'Pantallas de alto rendimiento con 144Hz y tecnología HDR',
-      badge: '🖥️ Lo Más Vendido',
-      image: 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=600&h=400&fit=crop',
-      gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'
-    },
-    {
-      title: 'Setup Completo',
-      description: 'Todo lo que necesitas para tu estación de trabajo perfecta',
-      badge: '💼 Para Profesionales',
-      image: 'https://images.unsplash.com/photo-1587202372634-32705e3bf49c?w=600&h=400&fit=crop',
-      gradient: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)'
-    }
+    { title: 'Gaming de Alta Gama', description: 'Las últimas tarjetas gráficas RTX y componentes premium', badge: '🎮 Ofertas Gaming', image: 'https://images.unsplash.com/photo-1591488320449-011701bb6704?w=600&h=400&fit=crop', gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
+    { title: 'Periféricos Pro', description: 'Teclados mecánicos, ratones y auriculares premium', badge: '⚡ Nuevo Stock', image: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=600&h=400&fit=crop', gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' },
+    { title: 'Monitores 4K 144Hz', description: 'Pantallas de alto rendimiento con tecnología HDR', badge: '🖥️ Top Ventas', image: 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=600&h=400&fit=crop', gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)' },
+    { title: 'Setup Completo', description: 'Todo para tu estación de trabajo perfecta', badge: '💼 Profesional', image: 'https://images.unsplash.com/photo-1587202372634-32705e3bf49c?w=600&h=400&fit=crop', gradient: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)' }
   ];
 
-  // Partículas animadas
-  particles = Array.from({ length: 50 }, (_, i) => ({
-    x: Math.random() * 100,
-    delay: `${Math.random() * 20}s`,
-    duration: `${15 + Math.random() * 10}s`
-  }));
+  particles = Array.from({ length: 40 }, () => ({ x: Math.random() * 100, delay: `${Math.random() * 20}s`, duration: `${15 + Math.random() * 10}s` }));
 
   constructor(
     private router: Router,
@@ -1075,180 +490,45 @@ export class DashboardComponent {
   ngOnInit() {
     this.isLoggedIn = this.authService.isLoggedIn();
     this.isAdmin = this.roleService.isAdmin();
-    console.log('isAdmin en ngOnInit:', this.isAdmin);
     this.isCliente = this.roleService.isCliente();
     this.isTrabajador = this.roleService.isTrabajador();
     this.notificationService.notification$.subscribe((msg: string) => this.showNotification(msg));
-    
-    // Iniciar carrusel automático
     this.startCarousel();
   }
 
-  ngOnDestroy() {
-    if (this.carouselInterval) {
-      clearInterval(this.carouselInterval);
-    }
-  }
+  ngOnDestroy() { if (this.carouselInterval) clearInterval(this.carouselInterval); }
 
-  // MÉTODOS DEL CARRUSEL
-  startCarousel() {
-    this.carouselInterval = setInterval(() => {
-      this.nextSlide();
-    }, 5000);
-  }
-
-  nextSlide() {
-    this.currentSlide = (this.currentSlide + 1) % this.carouselSlides.length;
-  }
-
-  prevSlide() {
-    this.currentSlide = this.currentSlide === 0 
-      ? this.carouselSlides.length - 1 
-      : this.currentSlide - 1;
-  }
-
-  goToSlide(index: number) {
-    this.currentSlide = index;
-    // Reiniciar el auto-play
-    if (this.carouselInterval) {
-      clearInterval(this.carouselInterval);
-      this.startCarousel();
-    }
-  }
-
-  // --- PAGINACIÓN ---
-  currentPage: number = 1;
-  pageSize: number = 16; // 4x4 grid
-  productosPaginados: any[] = [];
-
-  totalPages(): number {
-    return Math.ceil(this.productosFiltrados.length / this.pageSize);
-  }
-
-  goToPage(page: number) {
-    if (page < 1 || page > this.totalPages()) return;
-    this.currentPage = page;
-    this.updatePaginacion();
-    this.animatePageTurn();
-  }
-
-  updatePaginacion() {
-    const start = (this.currentPage - 1) * this.pageSize;
-    const end = start + this.pageSize;
-    this.productosPaginados = this.productosFiltrados.slice(start, end);
-  }
-
-  animatePageTurn() {
-    const cards = document.querySelectorAll('.producto-card');
-    cards.forEach(card => {
-      card.classList.add('paginating');
-      setTimeout(() => card.classList.remove('paginating'), 600);
-    });
-  }
+  startCarousel() { this.carouselInterval = setInterval(() => this.nextSlide(), 5000); }
+  nextSlide() { this.currentSlide = (this.currentSlide + 1) % this.carouselSlides.length; }
+  prevSlide() { this.currentSlide = this.currentSlide === 0 ? this.carouselSlides.length - 1 : this.currentSlide - 1; }
+  goToSlide(i: number) { this.currentSlide = i; if (this.carouselInterval) { clearInterval(this.carouselInterval); this.startCarousel(); } }
 
   toggleMenu() { this.menuOpen = !this.menuOpen; }
   toggleCarrito() { this.carritoOpen = !this.carritoOpen; }
 
-  showNotification(message: string) {
-    this.snackBar.open(message, 'Cerrar', {
-      duration: 3000,
-      horizontalPosition: 'right',
-      verticalPosition: 'top',
-      panelClass: ['snackbar-grande']
-    });
-  }
+  showNotification(message: string) { this.snackBar.open(message, 'Cerrar', { duration: 3000, horizontalPosition: 'right', verticalPosition: 'top' }); }
 
-  loadCarrito() {
-    this.carrito = this.isLoggedIn ? JSON.parse(localStorage.getItem('carrito') || '[]') : [];
-  }
+  loadCarrito() { this.carrito = this.isLoggedIn ? JSON.parse(localStorage.getItem('carrito') || '[]') : []; }
+  clearSearch() { this.searchTerm = ''; this.applyFilters(); }
+  clearAllFilters() { this.searchTerm = ''; this.tipoSeleccionado = ''; this.ordenSeleccionado = ''; this.applyFilters(); }
+  applyFilters() { /* Se comunica con el hijo */ }
+  onProductosFiltered(productos: any[]) { this.productosFiltrados = productos; }
 
-  // Métodos de filtrado
-  selectTipo(tipo: string) {
-    this.tipoSeleccionado = tipo;
-    this.applyFilters();
-  }
-
-  clearSearch() {
-    this.searchTerm = '';
-    this.applyFilters();
-  }
-
-  clearAllFilters() {
-    this.searchTerm = '';
-    this.tipoSeleccionado = '';
-    this.applyFilters();
-  }
-
-  applyFilters() {
-    // Este método se comunica con el componente hijo
-    // Los filtros se aplicarán en productos-list.component
-  }
-
-  onProductosFiltered(productos: any[]) {
-    this.productosFiltrados = productos;
-  }
-
-  carritoTotal() {
-    return this.carrito.reduce((sum, item) => sum + item.precio, 0);
-  }
-
-  eliminarDelCarrito(index: number) {
-    this.carrito.splice(index, 1);
-    this.updateCarrito();
-  }
-
-  updateCarrito() {
-    if (this.isLoggedIn) localStorage.setItem('carrito', JSON.stringify(this.carrito));
-  }
+  carritoTotal() { return this.carrito.reduce((sum, item) => sum + item.precio, 0); }
+  eliminarDelCarrito(i: number) { this.carrito.splice(i, 1); this.updateCarrito(); }
+  updateCarrito() { if (this.isLoggedIn) localStorage.setItem('carrito', JSON.stringify(this.carrito)); }
 
   comprar() {
-    if (!this.carrito.length) {
-      this.showNotification('El carrito está vacío 🛒');
-      return;
-    }
-
+    if (!this.carrito.length) { this.showNotification('El carrito está vacío 🛒'); return; }
     const token = localStorage.getItem('token');
-    if (!token) {
-      this.showNotification('Debes iniciar sesión 🔐');
-      return;
-    }
-
+    if (!token) { this.showNotification('Debes iniciar sesión 🔐'); return; }
     const clienteId = 5;
-    const pedidoBody = {
-      clienteId,
-      lineasVenta: this.carrito.map(item => ({
-        productoId: item.id,
-        cantidad: item.cantidad || 1
-      }))
-    };
-
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    });
-
-    const snackRef = this.snackBar.open('⏳ Procesando tu pedido...', undefined, {
-      horizontalPosition: 'center',
-      verticalPosition: 'top',
-      panelClass: ['snackbar-grande'],
-      duration: undefined
-    });
-
+    const pedidoBody = { clienteId, lineasVenta: this.carrito.map(item => ({ productoId: item.id, cantidad: item.cantidad || 1 })) };
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` });
+    const snackRef = this.snackBar.open('⏳ Procesando...', undefined, { horizontalPosition: 'center', verticalPosition: 'top' });
     this.http.post('http://localhost:8080/api/pedidos', pedidoBody, { headers }).subscribe({
-      next: (res: any) => {
-        snackRef.dismiss();
-        this.carrito = [];
-        localStorage.removeItem('carrito');
-        this.carritoOpen = false;
-        this.showNotification('✅ Pedido realizado correctamente');
-        this.router.navigate(['/dashboard']);
-        if (res.url) window.location.href = res.url;
-      },
-      error: err => {
-        snackRef.dismiss();
-        console.error('Error al realizar pedido', err);
-        this.showNotification('❌ Hubo un error al realizar el pedido. Intenta de nuevo.');
-      }
+      next: (res: any) => { snackRef.dismiss(); this.carrito = []; localStorage.removeItem('carrito'); this.carritoOpen = false; this.showNotification('✅ Pedido realizado'); this.router.navigate(['/dashboard']); if (res.url) window.location.href = res.url; },
+      error: () => { snackRef.dismiss(); this.showNotification('❌ Error al realizar el pedido'); }
     });
   }
 
@@ -1256,19 +536,6 @@ export class DashboardComponent {
   goToRegister() { this.menuOpen = false; this.router.navigate(['/register']); }
   goToProfile() { this.menuOpen = false; this.router.navigate(['/perfil']); }
   goToMisPedidos() { this.menuOpen = false; this.router.navigate(['/mispedidos']); }
-
-  goToGestion(path: string): void {
-    console.log('Navegando a:', path);
-    this.router.navigateByUrl(`/admin/${path}`);
-  }
-
-  logout() {
-    this.menuOpen = false;
-    this.authService.logout();
-    this.isLoggedIn = false;
-    this.isAdmin = false;
-    this.carrito = [];
-    localStorage.removeItem('carrito');
-    this.router.navigate(['/']);
-  }
+  goToGestion(path: string) { this.router.navigateByUrl(`/admin/${path}`); }
+  logout() { this.menuOpen = false; this.authService.logout(); this.isLoggedIn = false; this.isAdmin = false; this.carrito = []; localStorage.removeItem('carrito'); this.router.navigate(['/']); }
 }

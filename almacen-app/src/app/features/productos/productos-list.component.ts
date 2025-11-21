@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
-import { HttpClient, HttpClientModule, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { AuthService } from '@core/services/auth.service';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 
@@ -11,419 +11,252 @@ import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
   template: `
     <div class="productos-container">
       <div *ngIf="productosFiltrados.length === 0" class="no-resultados">
-        <div class="no-resultados-icon">🔍</div>
+        <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity="0.3">
+          <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+        </svg>
         <h3>No se encontraron productos</h3>
         <p>Intenta ajustar los filtros de búsqueda</p>
       </div>
 
       <div class="productos-grid">
         <div *ngFor="let producto of productosPaginados" class="producto-card">
-          <div class="producto-imagen">
+          <div class="card-img-wrapper">
             <img [src]="'assets/img/productos/' + producto.imagen" 
                  [alt]="producto.nombre"
                  (error)="onImageError($event)">
-            <span class="producto-tipo-badge">{{ producto.tipo }}</span>
+            <div class="card-overlay">
+              <button *ngIf="!isAdmin && producto.stock > 0" 
+                      (click)="agregarAlCarrito(producto)" 
+                      class="quick-add-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+                  <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                </svg>
+                Añadir
+              </button>
+            </div>
+            <span class="tipo-tag">{{ producto.tipo }}</span>
+            <span *ngIf="producto.stock === 0" class="out-of-stock-tag">Agotado</span>
           </div>
           
-          <div class="producto-info">
-            <h3 class="producto-nombre">{{ producto.nombre }}</h3>
-            <p class="producto-descripcion">{{ producto.descripcion }}</p>
+          <div class="card-body">
+            <h4 class="card-title">{{ producto.nombre }}</h4>
+            <p class="card-desc">{{ producto.descripcion }}</p>
             
-            <div class="producto-footer">
-              <div class="precio-stock">
-                <span class="producto-precio">{{ producto.precio|currency:'EUR':'symbol':'1.2-2' }}</span>
-              </div>
-              
-              <button 
-                *ngIf="!isAdmin && producto.stock > 0" 
-                (click)="agregarAlCarrito(producto)"
-                class="btn-agregar"
-                [disabled]="producto.stock === 0"
-              >
-                🛒 Agregar
-              </button>
-              
-              <!-- Mostrar stock solo a admin o trabajador -->
-              <span *ngIf="isAdmin || isTrabajador" class="producto-stock" [class.sin-stock]="producto.stock === 0">
-                {{ producto.stock > 0 ? producto.stock + ' en stock' : 'Sin stock' }}
+            <div class="card-footer">
+              <span class="card-price">{{ producto.precio | currency:'EUR':'symbol':'1.2-2' }}</span>
+              <span *ngIf="isAdmin || isTrabajador" class="stock-info" [class.low]="producto.stock === 0">
+                {{ producto.stock > 0 ? producto.stock + ' uds' : 'Sin stock' }}
               </span>
-
-              <!-- Para clientes normales, solo mostrar “Agotado” si no hay stock -->
-              <span *ngIf="!(isAdmin || isTrabajador) && producto.stock === 0" class="agotado-badge">
-                ⚠️ Agotado
-              </span>
-
             </div>
           </div>
         </div>
       </div>
 
-      <div class="paginacion-container" *ngIf="totalPages() > 1">
-        <button (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">⬅</button>
-
-        <button *ngFor="let page of [].constructor(totalPages()); let i = index"
-                (click)="goToPage(i + 1)"
-                [class.active]="currentPage === i + 1">
-          {{ i + 1 }}
+      <!-- Paginación moderna -->
+      <div class="pagination" *ngIf="totalPages() > 1">
+        <button class="page-btn nav" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
         </button>
 
-        <button (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages()">➡</button>
-      </div>
+        <ng-container *ngFor="let page of getVisiblePages()">
+          <span *ngIf="page === '...'" class="page-ellipsis">...</span>
+          <button *ngIf="page !== '...'" 
+                  class="page-btn" 
+                  [class.active]="currentPage === page"
+                  (click)="goToPage(+page)">
+            {{ page }}
+          </button>
+        </ng-container>
 
+        <button class="page-btn nav" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+      </div>
     </div>
   `,
   styles: [`
-    .productos-container {
-      padding: 2rem 0;
-    }
+    :host { --primary: #6366f1; --accent: #06b6d4; --bg-card: #1e293b; --text: #f8fafc; --text-muted: #94a3b8; --border: rgba(255,255,255,0.1); --danger: #ef4444; --success: #10b981; }
 
-    .no-resultados {
-      text-align: center;
-      padding: 4rem 2rem;
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-    }
+    .productos-container { max-width: 1300px; margin: 0 auto; padding: 0 1.5rem 2rem; }
 
-    .no-resultados-icon {
-      font-size: 5rem;
-      opacity: 0.3;
-      margin-bottom: 1rem;
-    }
+    .no-resultados { text-align: center; padding: 4rem 2rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; }
+    .no-resultados h3 { color: var(--text); font-size: 1.3rem; margin: 1rem 0 0.5rem; }
+    .no-resultados p { color: var(--text-muted); font-size: 0.95rem; margin: 0; }
 
-    .no-resultados h3 {
-      color: #4b5563;
-      font-size: 1.5rem;
-      margin: 0.5rem 0;
-    }
+    /* Grid compacto */
+    .productos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1.25rem; }
 
-    .no-resultados p {
-      color: #9ca3af;
-      font-size: 1rem;
-    }
+    /* Tarjeta compacta y moderna */
+    .producto-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: all 0.3s ease; display: flex; flex-direction: column; }
+    .producto-card:hover { transform: translateY(-6px); border-color: rgba(99, 102, 241, 0.4); box-shadow: 0 20px 40px rgba(0,0,0,0.3), 0 0 0 1px rgba(99, 102, 241, 0.2); }
 
-    .productos-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 1.5rem;
-    }
+    /* Imagen más pequeña */
+    .card-img-wrapper { position: relative; height: 160px; overflow: hidden; background: linear-gradient(135deg, #1e293b 0%, #334155 100%); }
+    .card-img-wrapper img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease, opacity 0.3s; }
+    .producto-card:hover .card-img-wrapper img { transform: scale(1.08); opacity: 0.7; }
 
-    .producto-card {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-      transition: all 0.3s ease;
-      display: flex;
-      flex-direction: column;
-    }
+    /* Overlay con botón */
+    .card-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; }
+    .producto-card:hover .card-overlay { opacity: 1; }
 
-    .paginacion-container {
-        margin-top: 1.5rem;
-        display: flex;
-        justify-content: center;
-        gap: 0.5rem;
-      }
+    .quick-add-btn { display: flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1.2rem; background: var(--primary); border: none; border-radius: 10px; color: white; font-size: 0.85rem; font-weight: 600; cursor: pointer; transform: translateY(10px); transition: all 0.3s; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.5); }
+    .producto-card:hover .quick-add-btn { transform: translateY(0); }
+    .quick-add-btn:hover { background: #4f46e5; transform: translateY(-2px) !important; }
 
-      .paginacion-container button {
-        padding: 0.5rem 0.8rem;
-        border: 1px solid #667eea;
-        border-radius: 8px;
-        background: white;
-        cursor: pointer;
-        transition: all 0.2s;
-      }
+    /* Tags */
+    .tipo-tag { position: absolute; top: 10px; left: 10px; padding: 0.3rem 0.7rem; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); border-radius: 6px; font-size: 0.7rem; font-weight: 600; color: var(--text); text-transform: uppercase; letter-spacing: 0.5px; }
+    .out-of-stock-tag { position: absolute; top: 10px; right: 10px; padding: 0.3rem 0.7rem; background: var(--danger); border-radius: 6px; font-size: 0.7rem; font-weight: 700; color: white; }
 
-      .paginacion-container button.active {
-        background: #667eea;
-        color: white;
-      }
+    /* Body compacto */
+    .card-body { padding: 1rem; display: flex; flex-direction: column; flex: 1; }
+    .card-title { font-size: 0.95rem; font-weight: 600; color: var(--text); margin: 0 0 0.4rem; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.4em; }
+    .card-desc { font-size: 0.8rem; color: var(--text-muted); margin: 0 0 0.75rem; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; flex: 1; }
 
-      .paginacion-container button:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-      }
+    .card-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 0.75rem; border-top: 1px solid var(--border); margin-top: auto; }
+    .card-price { font-size: 1.15rem; font-weight: 700; background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .stock-info { font-size: 0.75rem; color: var(--success); font-weight: 600; padding: 0.2rem 0.5rem; background: rgba(16, 185, 129, 0.15); border-radius: 4px; }
+    .stock-info.low { color: var(--danger); background: rgba(239, 68, 68, 0.15); }
 
+    /* Paginación moderna */
+    .pagination { display: flex; justify-content: center; align-items: center; gap: 0.5rem; margin-top: 2rem; }
+    .page-btn { min-width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; color: var(--text-muted); font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+    .page-btn:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); background: rgba(99, 102, 241, 0.1); }
+    .page-btn.active { background: var(--primary); border-color: var(--primary); color: white; }
+    .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .page-btn.nav { background: transparent; }
+    .page-ellipsis { color: var(--text-muted); padding: 0 0.25rem; }
 
-    .producto-card:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 12px 40px rgba(102, 126, 234, 0.2);
-    }
-
-    .producto-imagen {
-      position: relative;
-      width: 100%;
-      height: 240px;
-      overflow: hidden;
-      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-    }
-
-    .producto-imagen img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.3s ease;
-    }
-
-    .producto-card:hover .producto-imagen img {
-      transform: scale(1.1);
-    }
-
-    .producto-tipo-badge {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      background: rgba(102, 126, 234, 0.9);
-      backdrop-filter: blur(5px);
-      color: white;
-      padding: 0.4rem 0.8rem;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    }
-
-    .producto-info {
-      padding: 1.5rem;
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-    }
-
-    .producto-nombre {
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: #1f2937;
-      margin: 0 0 0.75rem 0;
-      line-height: 1.4;
-      min-height: 2.8rem;
-    }
-
-    .producto-descripcion {
-      font-size: 0.9rem;
-      color: #6b7280;
-      margin: 0 0 1rem 0;
-      line-height: 1.5;
-      flex: 1;
-      display: -webkit-box;
-      -webkit-line-clamp: 3;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-
-    .producto-footer {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      margin-top: auto;
-    }
-
-    .precio-stock {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .producto-precio {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: #667eea;
-    }
-
-    .producto-stock {
-      font-size: 0.85rem;
-      color: #10b981;
-      font-weight: 600;
-      padding: 0.25rem 0.75rem;
-      background: #d1fae5;
-      border-radius: 12px;
-    }
-
-    .producto-stock.sin-stock {
-      color: #ef4444;
-      background: #fee2e2;
-    }
-
-    .btn-agregar {
-      width: 100%;
-      padding: 0.9rem;
-      border: none;
-      border-radius: 12px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-    }
-
-    .btn-agregar:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-    }
-
-    .btn-agregar:active:not(:disabled) {
-      transform: translateY(0);
-    }
-
-    .btn-agregar:disabled {
-      background: #d1d5db;
-      cursor: not-allowed;
-      box-shadow: none;
-    }
-
-    .agotado-badge {
-      display: block;
-      text-align: center;
-      padding: 0.9rem;
-      background: #fee2e2;
-      color: #ef4444;
-      border-radius: 12px;
-      font-weight: 600;
-      font-size: 1rem;
-    }
-
-    @media (max-width: 768px) {
-      .productos-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .producto-card {
-        max-width: 100%;
-      }
-    }
-
-    @media (min-width: 769px) and (max-width: 1024px) {
-      .productos-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
+    @media (max-width: 640px) { 
+      .productos-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; } 
+      .card-img-wrapper { height: 130px; }
+      .card-body { padding: 0.75rem; }
+      .card-title { font-size: 0.85rem; }
+      .card-price { font-size: 1rem; }
     }
   `]
 })
 export class ProductosListComponent implements OnInit, OnChanges {
   @Input() searchTerm: string = '';
   @Input() tipoSeleccionado: string = '';
+  @Input() ordenSeleccionado: string = ''; // NUEVO
   @Output() productosFiltered = new EventEmitter<any[]>();
-    isAdmin = false;
+
+  isAdmin = false;
   isCliente = false;
   isTrabajador = false;
 
   productos: any[] = [];
   productosFiltrados: any[] = [];
-
   currentPage: number = 1;
-  pageSize: number = 16;
+  pageSize: number = 10; // Más productos por página con cards más pequeñas
   productosPaginados: any[] = [];
 
-
-  constructor(
-    private http: HttpClient,
-    private authService: AuthService,
-    private snackBar: MatSnackBar
-  ) {
+  constructor(private http: HttpClient, private authService: AuthService, private snackBar: MatSnackBar) {
     this.isAdmin = this.authService.isAdmin();
   }
 
-  ngOnInit() {
-    this.loadProductos();
-  }
+  ngOnInit() { this.loadProductos(); }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes['searchTerm'] || changes['tipoSeleccionado']) {
+    if (changes['searchTerm'] || changes['tipoSeleccionado'] || changes['ordenSeleccionado']) {
       this.filtrarProductos();
     }
   }
 
   loadProductos() {
     this.http.get<any[]>('http://localhost:8080/api/productos').subscribe({
-      next: (data) => {
-        this.productos = data;
-        this.filtrarProductos();
-      },
-      error: (err) => {
-        console.error('Error al cargar productos', err);
-        this.showNotification('❌ Error al cargar los productos');
-      }
+      next: (data) => { this.productos = data; this.filtrarProductos(); },
+      error: () => this.showNotification('❌ Error al cargar los productos')
     });
   }
 
   filtrarProductos() {
     let filtrados = [...this.productos];
 
+    // Filtrar por búsqueda
     if (this.searchTerm?.trim()) {
-      const termino = this.searchTerm.toLowerCase().trim();
+      const term = this.searchTerm.toLowerCase().trim();
       filtrados = filtrados.filter(p => 
-        p.nombre.toLowerCase().includes(termino) ||
-        p.descripcion.toLowerCase().includes(termino)
+        p.nombre.toLowerCase().includes(term) || 
+        p.descripcion?.toLowerCase().includes(term)
       );
     }
 
+    // Filtrar por tipo
     if (this.tipoSeleccionado) {
       filtrados = filtrados.filter(p => p.tipo === this.tipoSeleccionado);
     }
 
+    // NUEVO: Ordenar
+    if (this.ordenSeleccionado) {
+      switch (this.ordenSeleccionado) {
+        case 'precio-asc':
+          filtrados.sort((a, b) => a.precio - b.precio);
+          break;
+        case 'precio-desc':
+          filtrados.sort((a, b) => b.precio - a.precio);
+          break;
+        case 'nombre-asc':
+          filtrados.sort((a, b) => a.nombre.localeCompare(b.nombre));
+          break;
+        case 'nombre-desc':
+          filtrados.sort((a, b) => b.nombre.localeCompare(a.nombre));
+          break;
+      }
+    }
+
     this.productosFiltrados = filtrados;
+    this.currentPage = 1;
     this.actualizarPaginacion();
     this.productosFiltered.emit(this.productosFiltrados);
   }
 
   actualizarPaginacion() {
     const start = (this.currentPage - 1) * this.pageSize;
-    const end = start + this.pageSize;
-    this.productosPaginados = this.productosFiltrados.slice(start, end);
+    this.productosPaginados = this.productosFiltrados.slice(start, start + this.pageSize);
   }
 
-
-  agregarAlCarrito(producto: any) {
-    if (!this.authService.isLoggedIn()) {
-      this.showNotification('⚠️ Debes iniciar sesión para agregar productos');
-      return;
-    }
-
-    if (producto.stock === 0) {
-      this.showNotification('⚠️ Producto sin stock disponible');
-      return;
-    }
-
-    const carrito = JSON.parse(localStorage.getItem('carrito') || '[]');
-    carrito.push({
-      id: producto.id,
-      nombre: producto.nombre,
-      tipo: producto.tipo,
-      precio: producto.precio,
-      cantidad: 1
-    });
-    localStorage.setItem('carrito', JSON.stringify(carrito));
-    
-    // Emitir evento para actualizar el contador del carrito
-    window.dispatchEvent(new Event('carritoActualizado'));
-    
-    this.showNotification(`✅ ${producto.nombre} agregado al carrito`);
-  }
-
-  onImageError(event: any) {
-    event.target.src = 'https://via.placeholder.com/300x240/667eea/ffffff?text=Sin+Imagen';
-  }
-
-  totalPages(): number {
-    return Math.ceil(this.productosFiltrados.length / this.pageSize);
-  }
+  totalPages(): number { return Math.ceil(this.productosFiltrados.length / this.pageSize); }
 
   goToPage(page: number) {
     if (page < 1 || page > this.totalPages()) return;
     this.currentPage = page;
     this.actualizarPaginacion();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
+  getVisiblePages(): (number | string)[] {
+    const total = this.totalPages();
+    const current = this.currentPage;
+    const pages: (number | string)[] = [];
+    
+    if (total <= 7) {
+      for (let i = 1; i <= total; i++) pages.push(i);
+    } else {
+      pages.push(1);
+      if (current > 3) pages.push('...');
+      for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) pages.push(i);
+      if (current < total - 2) pages.push('...');
+      pages.push(total);
+    }
+    return pages;
+  }
 
-  showNotification(message: string) {
-    this.snackBar.open(message, 'Cerrar', {
-      duration: 3000,
-      horizontalPosition: 'right',
-      verticalPosition: 'top',
-      panelClass: ['snackbar-grande']
-    });
+  agregarAlCarrito(producto: any) {
+    if (!this.authService.isLoggedIn()) { this.showNotification('⚠️ Debes iniciar sesión'); return; }
+    if (producto.stock === 0) { this.showNotification('⚠️ Producto sin stock'); return; }
+
+    const carrito = JSON.parse(localStorage.getItem('carrito') || '[]');
+    carrito.push({ id: producto.id, nombre: producto.nombre, tipo: producto.tipo, precio: producto.precio, cantidad: 1 });
+    localStorage.setItem('carrito', JSON.stringify(carrito));
+    window.dispatchEvent(new Event('carritoActualizado'));
+    this.showNotification(`✅ ${producto.nombre} añadido`);
+  }
+
+  onImageError(e: any) { e.target.src = 'https://via.placeholder.com/300x200/1e293b/6366f1?text=Sin+Imagen'; }
+
+  showNotification(msg: string) {
+    this.snackBar.open(msg, 'Cerrar', { duration: 3000, horizontalPosition: 'right', verticalPosition: 'top' });
   }
 }
