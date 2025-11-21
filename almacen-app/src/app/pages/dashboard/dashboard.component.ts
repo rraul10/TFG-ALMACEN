@@ -41,7 +41,7 @@ import { NotificationService } from '@core/services/notification.service';
 
             <!-- Opciones de administración -->
             <div *ngIf="isAdmin" class="menu-separator"></div>
-            <div *ngIf="isAdmin" class="menu-item" (click)="goToGestion('clientes')">👥 Gestión de Clientes</div>
+            <div *ngIf="isAdmin" class="menu-item" (click)="goToGestion('clientes')">👥 Gestión de Usuarios</div>
             <div *ngIf="isAdmin  || isTrabajador" class="menu-item" (click)="goToGestion('productos')">📦 Gestión de Productos</div>
             <div *ngIf="isAdmin || isTrabajador" class="menu-item" (click)="goToGestion('pedidos')">🧾 Gestión de Pedidos</div>
 
@@ -95,7 +95,7 @@ import { NotificationService } from '@core/services/notification.service';
     <!-- SECCIÓN DE FILTROS Y BÚSQUEDA -->
     <div *ngIf="isCliente" class="filtros-container">
       <div class="filtros-header">
-        <h2>🔍 Buscar y Filtrar Productos</h2>
+        <h2>Buscar y Filtrar Productos🔍 </h2>
       </div>
 
       <div class="filtros-content">
@@ -105,7 +105,7 @@ import { NotificationService } from '@core/services/notification.service';
             type="text"
             [(ngModel)]="searchTerm"
             (ngModelChange)="applyFilters()"
-            placeholder="🔎 Buscar por nombre..."
+            placeholder="Buscar por nombre..."
             class="search-input"
           />
           <button *ngIf="searchTerm" (click)="clearSearch()" class="clear-btn">✖</button>
@@ -137,7 +137,7 @@ import { NotificationService } from '@core/services/notification.service';
             (click)="clearAllFilters()"
             class="reset-filters-btn"
           >
-            🔄 Limpiar filtros
+            Limpiar filtros🔄 
           </button>
         </div>
       </div>
@@ -155,7 +155,7 @@ import { NotificationService } from '@core/services/notification.service';
   <div *ngIf="carritoOpen && isLoggedIn && isCliente" class="modal-overlay" (click)="toggleCarrito()">
     <div class="modal-carrito" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <h3>🛒 Tu Carrito</h3>
+        <h3>Tu Carrito🛒 </h3>
         <button class="close-icon" (click)="toggleCarrito()">✖</button>
       </div>
 
@@ -178,7 +178,7 @@ import { NotificationService } from '@core/services/notification.service';
               <span class="total-amount">{{ carritoTotal() | currency:'EUR' }}</span>
             </div>
             <button class="btn-comprar" (click)="comprar()">
-              <span>🛒 Realizar Pedido</span>
+              <span>Realizar Pedido🛒</span>
             </button>
           </div>
         </div>
@@ -1138,7 +1138,6 @@ export class DashboardComponent {
     this.productosPaginados = this.productosFiltrados.slice(start, end);
   }
 
-  // Opcional: animación de "hojas girando"
   animatePageTurn() {
     const cards = document.querySelectorAll('.producto-card');
     cards.forEach(card => {

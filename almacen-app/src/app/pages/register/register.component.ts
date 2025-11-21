@@ -13,9 +13,9 @@ import { AuthService } from '@core/services/auth.service';
       <!-- Partículas de fondo -->
       <div class="particles">
         <div class="particle" *ngFor="let p of particles" 
-            [style.left.%]="p.x" 
-            [style.animation-delay]="p.delay"
-            [style.animation-duration]="p.duration">
+             [style.left.%]="p.x" 
+             [style.animation-delay]="p.delay"
+             [style.animation-duration]="p.duration">
         </div>
       </div>
 
@@ -32,40 +32,40 @@ import { AuthService } from '@core/services/auth.service';
             </div>
 
             <div class="hero-text">
-              <h2>Únete a nuestra comunidad</h2>
-              <p>Crea tu cuenta y disfruta de beneficios exclusivos</p>
+              <h2>Únete a nuestra comunidad tecnológica</h2>
+              <p>Crea tu cuenta y accede a ofertas exclusivas, seguimiento de pedidos y mucho más</p>
             </div>
             
             <div class="benefits-list">
               <div class="benefit-item">
                 <div class="benefit-icon">🎁</div>
                 <div class="benefit-text">
-                  <strong>Bienvenida especial</strong>
-                  <span>10% de descuento en tu primera compra</span>
+                  <strong>10% de descuento</strong>
+                  <span>en tu primera compra al registrarte</span>
                 </div>
               </div>
               
-              <div class="benefit-item">
-                <div class="benefit-icon">🚀</div>
-                <div class="benefit-text">
-                  <strong>Acceso prioritario</strong>
-                  <span>a ofertas y lanzamientos exclusivos</span>
-                </div>
-              </div>
-              
-              <div class="benefit-item">
-                <div class="benefit-icon">💳</div>
-                <div class="benefit-text">
-                  <strong>Programa de puntos</strong>
-                  <span>acumula recompensas con cada compra</span>
-                </div>
-              </div>
-
               <div class="benefit-item">
                 <div class="benefit-icon">📦</div>
                 <div class="benefit-text">
                   <strong>Seguimiento en tiempo real</strong>
                   <span>de todos tus pedidos</span>
+                </div>
+              </div>
+              
+              <div class="benefit-item">
+                <div class="benefit-icon">⭐</div>
+                <div class="benefit-text">
+                  <strong>Programa de puntos</strong>
+                  <span>acumula y canjea por descuentos</span>
+                </div>
+              </div>
+
+              <div class="benefit-item">
+                <div class="benefit-icon">🔔</div>
+                <div class="benefit-text">
+                  <strong>Alertas de ofertas</strong>
+                  <span>sé el primero en enterarte</span>
                 </div>
               </div>
             </div>
@@ -76,12 +76,12 @@ import { AuthService } from '@core/services/auth.service';
                 <div class="badge-label">Clientes satisfechos</div>
               </div>
               <div class="badge-item">
-                <div class="badge-number">100%</div>
-                <div class="badge-label">Seguro</div>
+                <div class="badge-number">4.8★</div>
+                <div class="badge-label">Valoración media</div>
               </div>
               <div class="badge-item">
-                <div class="badge-number">24/7</div>
-                <div class="badge-label">Soporte</div>
+                <div class="badge-number">8 años</div>
+                <div class="badge-label">En el mercado</div>
               </div>
             </div>
           </div>
@@ -93,53 +93,54 @@ import { AuthService } from '@core/services/auth.service';
           
           <div class="card-header">
             <h2>Crear Cuenta</h2>
-            <p class="subtitle">Completa el formulario para registrarte</p>
+            <p class="subtitle">Completa tus datos para registrarte</p>
           </div>
 
-          <form (ngSubmit)="onSubmit()" #registerForm="ngForm" class="register-form">
-            <!-- Nombre -->
-            <div class="form-group">
-              <label for="nombre">Nombre completo</label>
-              <div class="input-wrapper">
-                <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                </svg>
-                <input 
-                  id="nombre"
-                  type="text" 
-                  name="nombre" 
-                  [(ngModel)]="nombre" 
-                  placeholder="Raul"
-                  required
-                  pattern="^[a-zA-ZÁÉÍÓÚáéíóúÑñ ]+$"
-                  autocomplete="given-name">
+          <form (ngSubmit)="onSubmit()" #registerForm="ngForm" novalidate class="register-form">
+            <!-- Nombre y Apellidos en fila -->
+            <div class="form-row">
+              <div class="form-group">
+                <label for="nombre">Nombre</label>
+                <div class="input-wrapper">
+                  <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                  </svg>
+                  <input 
+                    id="nombre"
+                    type="text" 
+                    name="nombre" 
+                    [(ngModel)]="nombre" 
+                    placeholder="Raul"
+                    required
+                    pattern="^[a-zA-ZÁÉÍÓÚáéíóúÑñ ]+$"
+                    autocomplete="given-name">
+                </div>
+                <div class="error" *ngIf="registerForm.submitted && (!nombre || !registerForm.controls['nombre']?.valid)">
+                  Solo letras permitidas
+                </div>
               </div>
-              <div class="error" *ngIf="registerForm.submitted && (!nombre || !registerForm.controls['nombre']?.valid)">
-                El nombre solo puede contener letras
-              </div>
-            </div>
 
-            <!-- Apellidos -->
-            <div class="form-group">
-              <label for="apellidos">Apellidos</label>
-              <div class="input-wrapper">
-                <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-                </svg>
-                <input 
-                  id="apellidos"
-                  type="text" 
-                  name="apellidos" 
-                  [(ngModel)]="apellidos" 
-                  placeholder="Fernández Delgado"
-                  required
-                  pattern="^[a-zA-ZÁÉÍÓÚáéíóúÑñ ]+$"
-                  autocomplete="family-name">
-              </div>
-              <div class="error" *ngIf="registerForm.submitted && (!apellidos || !registerForm.controls['apellidos']?.valid)">
-                Los apellidos solo pueden contener letras
+              <div class="form-group">
+                <label for="apellidos">Apellidos</label>
+                <div class="input-wrapper">
+                  <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                  </svg>
+                  <input 
+                    id="apellidos"
+                    type="text" 
+                    name="apellidos" 
+                    [(ngModel)]="apellidos" 
+                    placeholder="Fernandez Delgado"
+                    required
+                    pattern="^[a-zA-ZÁÉÍÓÚáéíóúÑñ ]+$"
+                    autocomplete="family-name">
+                </div>
+                <div class="error" *ngIf="registerForm.submitted && (!apellidos || !registerForm.controls['apellidos']?.valid)">
+                  Solo letras permitidas
+                </div>
               </div>
             </div>
 
@@ -158,58 +159,59 @@ import { AuthService } from '@core/services/auth.service';
                   [(ngModel)]="correo" 
                   placeholder="raul@ejemplo.com"
                   required
-                  pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.com$"
+                  pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.com$"
                   autocomplete="email">
               </div>
               <div class="error" *ngIf="registerForm.submitted && (!correo || !registerForm.controls['correo']?.valid)">
-                Ingresa un correo válido que termine en .com
+                Ingresa un correo válido terminado en .com
               </div>
             </div>
 
-            <!-- Teléfono -->
-            <div class="form-group">
-              <label for="telefono">Teléfono</label>
-              <div class="input-wrapper">
-                <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                        d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
-                </svg>
-                <input 
-                  id="telefono"
-                  type="tel" 
-                  name="telefono" 
-                  [(ngModel)]="telefono" 
-                  placeholder="123456789"
-                  required
-                  pattern="^[0-9]{9}$"
-                  autocomplete="tel">
+            <!-- Teléfono y Ciudad en fila -->
+            <div class="form-row">
+              <div class="form-group">
+                <label for="telefono">Teléfono</label>
+                <div class="input-wrapper">
+                  <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                  </svg>
+                  <input 
+                    id="telefono"
+                    type="tel" 
+                    name="telefono" 
+                    [(ngModel)]="telefono" 
+                    placeholder="612345678"
+                    required
+                    pattern="^[0-9]{9}$"
+                    autocomplete="tel">
+                </div>
+                <div class="error" *ngIf="registerForm.submitted && (!telefono || !registerForm.controls['telefono']?.valid)">
+                  9 dígitos requeridos
+                </div>
               </div>
-              <div class="error" *ngIf="registerForm.submitted && (!telefono || !registerForm.controls['telefono']?.valid)">
-                Ingresa un teléfono válido de 9 dígitos
-              </div>
-            </div>
 
-            <!-- Ciudad -->
-            <div class="form-group">
-              <label for="ciudad">Ciudad</label>
-              <div class="input-wrapper">
-                <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                </svg>
-                <input 
-                  id="ciudad"
-                  type="text" 
-                  name="ciudad" 
-                  [(ngModel)]="ciudad" 
-                  placeholder="Madrid"
-                  required
-                  autocomplete="address-level2">
-              </div>
-              <div class="error" *ngIf="registerForm.submitted && !ciudad">
-                La ciudad es obligatoria
+              <div class="form-group">
+                <label for="ciudad">Ciudad</label>
+                <div class="input-wrapper">
+                  <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  </svg>
+                  <input 
+                    id="ciudad"
+                    type="text" 
+                    name="ciudad" 
+                    [(ngModel)]="ciudad" 
+                    placeholder="Madrid"
+                    required
+                    autocomplete="address-level2">
+                </div>
+                <div class="error" *ngIf="registerForm.submitted && !ciudad">
+                  Ciudad requerida
+                </div>
               </div>
             </div>
 
@@ -232,13 +234,22 @@ import { AuthService } from '@core/services/auth.service';
                   autocomplete="new-password">
               </div>
               <div class="error" *ngIf="registerForm.submitted && (!password || password.length < 6)">
-                La contraseña debe tener al menos 6 caracteres
+                Mínimo 6 caracteres
               </div>
             </div>
 
-            <button type="submit" [disabled]="registerForm.invalid" class="submit-btn">
+            <!-- Términos y condiciones -->
+            <div class="terms-checkbox">
+              <label class="checkbox-label">
+                <input type="checkbox" name="terms" [(ngModel)]="acceptTerms" required>
+                <span class="checkmark"></span>
+                <span>Acepto los <a href="#" class="terms-link">términos y condiciones</a> y la <a href="#" class="terms-link">política de privacidad</a></span>
+              </label>
+            </div>
+
+            <button type="submit" [disabled]="registerForm.invalid || !acceptTerms" class="submit-btn">
               <span *ngIf="!message.includes('Intentando')">
-                Crear Cuenta
+                Crear mi cuenta
               </span>
               <span *ngIf="message.includes('Intentando')" class="loading">
                 <span class="spinner"></span>
@@ -247,7 +258,7 @@ import { AuthService } from '@core/services/auth.service';
             </button>
 
             <div *ngIf="message && !message.includes('Intentando')" 
-                [class]="message.includes('Error') || message.includes('error') ? 'message error' : 'message success'">
+                 [class]="message.includes('Error') || message.includes('error') ? 'message error' : 'message success'">
               {{ message }}
             </div>
           </form>
@@ -278,6 +289,10 @@ import { AuthService } from '@core/services/auth.service';
       padding: 0;
       box-sizing: border-box;
     }
+
+      .card-glow {
+    pointer-events: none;
+  }
 
     .register-page {
       min-height: 100vh;
@@ -324,7 +339,7 @@ import { AuthService } from '@core/services/auth.service';
 
     .register-container {
       display: grid;
-      grid-template-columns: 1fr 500px;
+      grid-template-columns: 1fr 520px;
       max-width: 1400px;
       width: 100%;
       gap: 3rem;
@@ -334,14 +349,8 @@ import { AuthService } from '@core/services/auth.service';
     }
 
     @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     /* CARD DE REGISTRO */
@@ -355,38 +364,11 @@ import { AuthService } from '@core/services/auth.service';
       position: relative;
       overflow: hidden;
       animation: slideInRight 0.8s ease-out;
-      max-height: 90vh;
-      overflow-y: auto;
-    }
-
-    /* Scrollbar personalizado */
-    .register-card::-webkit-scrollbar {
-      width: 8px;
-    }
-
-    .register-card::-webkit-scrollbar-track {
-      background: rgba(0, 0, 0, 0.05);
-      border-radius: 10px;
-    }
-
-    .register-card::-webkit-scrollbar-thumb {
-      background: rgba(102, 126, 234, 0.3);
-      border-radius: 10px;
-    }
-
-    .register-card::-webkit-scrollbar-thumb:hover {
-      background: rgba(102, 126, 234, 0.5);
     }
 
     @keyframes slideInRight {
-      from {
-        opacity: 0;
-        transform: translateX(50px);
-      }
-      to {
-        opacity: 1;
-        transform: translateX(0);
-      }
+      from { opacity: 0; transform: translateX(50px); }
+      to { opacity: 1; transform: translateX(0); }
     }
 
     .card-glow {
@@ -406,7 +388,7 @@ import { AuthService } from '@core/services/auth.service';
 
     .card-header {
       text-align: center;
-      margin-bottom: 2rem;
+      margin-bottom: 1.5rem;
       position: relative;
       z-index: 1;
     }
@@ -431,6 +413,12 @@ import { AuthService } from '@core/services/auth.service';
       z-index: 1;
     }
 
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
     .form-group {
       display: flex;
       flex-direction: column;
@@ -438,7 +426,7 @@ import { AuthService } from '@core/services/auth.service';
     }
 
     .form-group label {
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       font-weight: 600;
       color: #334155;
     }
@@ -452,17 +440,17 @@ import { AuthService } from '@core/services/auth.service';
       left: 1rem;
       top: 50%;
       transform: translateY(-50%);
-      width: 20px;
-      height: 20px;
+      width: 18px;
+      height: 18px;
       color: #94a3b8;
       pointer-events: none;
     }
 
     .form-group input {
       width: 100%;
-      padding: 0.85rem 1rem 0.85rem 3rem;
+      padding: 0.85rem 1rem 0.85rem 2.75rem;
       border: 2px solid #e2e8f0;
-      border-radius: 12px;
+      border-radius: 10px;
       font-size: 0.95rem;
       transition: all 0.3s ease;
       background: #f8fafc;
@@ -482,19 +470,45 @@ import { AuthService } from '@core/services/auth.service';
 
     .error {
       color: #ef4444;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       animation: slideIn 0.3s ease-out;
     }
 
     @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateY(-5px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .terms-checkbox {
+      margin-top: 0.5rem;
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      font-size: 0.85rem;
+      color: #64748b;
+      cursor: pointer;
+      line-height: 1.4;
+    }
+
+    .checkbox-label input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      margin-top: 2px;
+      cursor: pointer;
+      accent-color: #667eea;
+    }
+
+    .terms-link {
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .terms-link:hover {
+      text-decoration: underline;
     }
 
     .submit-btn {
@@ -571,18 +585,7 @@ import { AuthService } from '@core/services/auth.service';
       border-radius: 12px;
       font-size: 0.9rem;
       font-weight: 500;
-      animation: slideInMsg 0.3s ease-out;
-    }
-
-    @keyframes slideInMsg {
-      from {
-        opacity: 0;
-        transform: translateY(-10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      animation: slideIn 0.3s ease-out;
     }
 
     .message.error {
@@ -599,7 +602,7 @@ import { AuthService } from '@core/services/auth.service';
 
     .divider {
       text-align: center;
-      margin: 1.5rem 0 1.25rem;
+      margin: 1.5rem 0 1rem;
       position: relative;
     }
 
@@ -629,7 +632,7 @@ import { AuthService } from '@core/services/auth.service';
     .login-section p {
       color: #64748b;
       font-size: 0.95rem;
-      margin-bottom: 1rem;
+      margin-bottom: 0.75rem;
     }
 
     .login-link {
@@ -651,7 +654,7 @@ import { AuthService } from '@core/services/auth.service';
       align-items: center;
       justify-content: center;
       gap: 0.5rem;
-      margin-top: 1.5rem;
+      margin-top: 1.25rem;
       padding: 0.6rem;
       color: #10b981;
       font-size: 0.85rem;
@@ -672,14 +675,8 @@ import { AuthService } from '@core/services/auth.service';
     }
 
     @keyframes slideInLeft {
-      from {
-        opacity: 0;
-        transform: translateX(-50px);
-      }
-      to {
-        opacity: 1;
-        transform: translateX(0);
-      }
+      from { opacity: 0; transform: translateX(-50px); }
+      to { opacity: 1; transform: translateX(0); }
     }
 
     .info-content {
@@ -771,12 +768,11 @@ import { AuthService } from '@core/services/auth.service';
       width: 40px;
       height: 40px;
       background: rgba(255, 255, 255, 0.15);
-      border: 2px solid rgba(255, 255, 255, 0.3);
-      border-radius: 12px;
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.4rem;
+      font-size: 1.3rem;
       flex-shrink: 0;
     }
 
@@ -829,7 +825,7 @@ import { AuthService } from '@core/services/auth.service';
     /* RESPONSIVE */
     @media (max-width: 1200px) {
       .register-container {
-        grid-template-columns: 1fr 450px;
+        grid-template-columns: 1fr 480px;
         gap: 2rem;
       }
 
@@ -853,7 +849,7 @@ import { AuthService } from '@core/services/auth.service';
 
       .register-container {
         grid-template-columns: 1fr;
-        max-width: 500px;
+        max-width: 520px;
       }
 
       .register-card {
@@ -880,24 +876,28 @@ import { AuthService } from '@core/services/auth.service';
         font-size: 1.5rem;
       }
 
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
       .form-group input {
-        padding: 0.8rem 0.9rem 0.8rem 2.75rem;
-        font-size: 0.95rem;
+        padding: 0.8rem 1rem 0.8rem 2.5rem;
+        font-size: 0.9rem;
       }
 
       .input-icon {
-        width: 18px;
-        height: 18px;
+        width: 16px;
+        height: 16px;
         left: 0.85rem;
       }
 
       .submit-btn {
-        padding: 0.95rem;
+        padding: 0.9rem;
         font-size: 0.95rem;
       }
 
-      .register-form {
-        gap: 0.9rem;
+      .checkbox-label {
+        font-size: 0.8rem;
       }
     }
   `]
@@ -909,6 +909,7 @@ export class RegisterComponent {
   telefono = '';
   ciudad = '';
   password = '';
+  acceptTerms = false;
   message = '';
 
   // Partículas animadas
@@ -944,12 +945,12 @@ export class RegisterComponent {
               localStorage.setItem('rol', res.user.roles[0]);
             }
 
-            this.message = '✓ Registro exitoso. Redirigiendo al dashboard...';
-            setTimeout(() => this.router.navigate(['/dashboard']), 1500);
+            this.message = '✓ Registro exitoso. Redirigiendo...';
+            setTimeout(() => this.router.navigate(['/']), 1500);
           },
           error: (err: any) => {
             console.error('Error login automático:', err);
-            this.message = 'Registro correcto, pero error en login automático';
+            this.message = 'Registro correcto. Redirigiendo al login...';
             setTimeout(() => this.router.navigate(['/login']), 2000);
           }
         });

@@ -25,26 +25,43 @@ import { AuthService } from '@core/services/auth.service';
               <img [src]="fotoPerfil" alt="Usuario" />
             </div>
             <div class="menu-dropdown" *ngIf="menuOpen">
-              <ng-container *ngIf="isLoggedIn; else notLogged">
-                <div class="menu-item" (click)="goToProfile()">
-                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                  Mi perfil
-                </div>
-                <div class="menu-item" (click)="goToMisPedidos()">
-                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M16 16L12 12M12 12L8 8M12 12L16 8M12 12L8 16M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                  Mis pedidos
-                </div>
-                <div class="menu-divider"></div>
-                <div class="menu-item logout" (click)="logout()">
-                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9M16 17L21 12M21 12L16 7M21 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                  Cerrar sesión
-                </div>
+  <ng-container *ngIf="isLoggedIn; else notLogged">
+
+    <!-- SOLO CLIENTE -->
+    <div class="menu-item" *ngIf="isCliente" (click)="goToMisPedidos()">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M16 16L12 12M12 12L8 8M12 12L16 8M12 12L8 16M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Mis pedidos
+    </div>
+
+    <!-- SOLO ADMIN o TRABAJADOR -->
+    <ng-container *ngIf="isLoggedIn; else notLogged">
+
+            <!-- PERFIL -->
+            <div class="menu-item" (click)="goToProfile()">👤 Mi perfil</div>
+
+            <!-- CLIENTE: MIS PEDIDOS -->
+            <div *ngIf="isCliente" class="menu-item" (click)="goToMisPedidos()">📦 Mis pedidos</div>
+
+            <!-- OPCIONES DE ADMIN / TRABAJADOR -->
+            <div *ngIf="isAdmin || isTrabajador" class="menu-separator"></div>
+
+            <div *ngIf="isAdmin" class="menu-item" (click)="goToGestionUsuarios()">👥 Gestión de Usuarios</div>
+
+            <div *ngIf="isAdmin || isTrabajador" class="menu-item" (click)="goToGestionProductos()">📦 Gestión de Productos</div>
+
+            <div *ngIf="isAdmin || isTrabajador" class="menu-item" (click)="goToGestionPedidos()">🧾 Gestión de Pedidos</div>
+
+          </ng-container>
+
+    <div class="menu-divider"></div>
+
+    <!-- LOGOUT -->
+    <div class="menu-item logout" (click)="logout()">
+      Cerrar sesión
+    </div>
               </ng-container>
 
               <ng-template #notLogged>
@@ -978,6 +995,9 @@ import { AuthService } from '@core/services/auth.service';
   `]
 })
 export class PerfilComponent implements OnInit {
+    isAdmin = false;
+  isCliente = false;
+  isTrabajador = false;
   user: any = {
     nombre: '',
     apellidos: '',
@@ -1003,26 +1023,29 @@ export class PerfilComponent implements OnInit {
   menuOpen = false;
   isLoggedIn = false;
   esTrabajador = false;
+  esAdmin: boolean = false;
 
   constructor(private authService: AuthService, private router: Router) {}
 
   ngOnInit() {
     const userData = localStorage.getItem('user');
     const token = localStorage.getItem('token');
+
     this.isLoggedIn = !!token;
 
     if (userData && token) {
       this.user = JSON.parse(userData);
-      
-      // Determinar si es trabajador basándose en los roles
-      if (this.user.roles && this.user.roles.length > 0) {
-        this.esTrabajador = this.user.roles.some((rol: string) => 
-          rol.toLowerCase().includes('trabajador') || rol.toLowerCase().includes('admin')
-        );
-      }
 
-      // Cargar datos específicos según el rol desde el backend
-      if (this.esTrabajador) {
+      let roles: string[] = this.user.roles?.map((r: string) => r.toLowerCase()) || [];
+
+      this.isAdmin = roles.includes('admin');
+      this.isTrabajador = roles.includes('trabajador') || this.isAdmin; 
+      this.isCliente = roles.includes('cliente');
+
+      this.esTrabajador = this.isTrabajador;
+      this.esAdmin = this.isAdmin;
+
+      if (this.isTrabajador) {
         this.cargarDatosTrabajador();
       } else {
         this.cargarDatosCliente();
@@ -1031,7 +1054,6 @@ export class PerfilComponent implements OnInit {
   }
 
   cargarDatosCliente() {
-    // Hacer petición GET al backend para obtener datos del cliente
     this.authService.getClienteData(this.user.id).subscribe({
       next: (response: any) => {
         if (response) {
@@ -1046,8 +1068,19 @@ export class PerfilComponent implements OnInit {
     });
   }
 
+  goToGestionPedidos() {
+    this.router.navigate(['/admin/pedidos']);
+  }
+
+  goToGestionProductos() {
+    this.router.navigate(['/admin/productos']);
+  }
+
+  goToGestionUsuarios() {
+    this.router.navigate(['/admin/clientes']);
+  }
+
   cargarDatosTrabajador() {
-    // Hacer petición GET al backend para obtener datos del trabajador
     this.authService.getTrabajadorData(this.user.id).subscribe({
       next: (response: any) => {
         if (response) {
@@ -1064,7 +1097,6 @@ export class PerfilComponent implements OnInit {
     this.errores = {};
     this.message = '';
 
-    // Validaciones básicas
     if (!this.user.nombre.trim()) this.errores.nombre = '❌ El nombre es obligatorio';
     if (!this.user.apellidos.trim()) this.errores.apellidos = '❌ Los apellidos son obligatorios';
     if (!this.user.correo.trim()) this.errores.correo = '❌ El correo es obligatorio';
@@ -1073,7 +1105,6 @@ export class PerfilComponent implements OnInit {
     else if (!this.validarTelefono(this.user.telefono)) this.errores.telefono = '❌ Teléfono inválido (7-15 dígitos)';
     if (!this.user.ciudad.trim()) this.errores.ciudad = '❌ La ciudad es obligatoria';
 
-    // Validaciones específicas según el rol
     if (this.esTrabajador) {
       if (!this.trabajadorData.numero_seguridad_social.trim()) {
         this.errores.nss = '❌ El número de seguridad social es obligatorio';
@@ -1095,7 +1126,6 @@ export class PerfilComponent implements OnInit {
       return;
     }
 
-    // Guardar datos del usuario (nombre, apellidos, correo, teléfono, ciudad)
     const userData = {
       nombre: this.user.nombre,
       apellidos: this.user.apellidos,
@@ -1106,11 +1136,9 @@ export class PerfilComponent implements OnInit {
 
     this.authService.updateUserData(this.user.id, userData).subscribe({
       next: () => {
-        // Actualizar localStorage con los nuevos datos
         const updatedUser = { ...this.user };
         localStorage.setItem('user', JSON.stringify(updatedUser));
 
-        // Guardar datos específicos según el rol
         if (this.esTrabajador) {
           this.guardarDatosTrabajador();
         } else {
@@ -1192,7 +1220,6 @@ export class PerfilComponent implements OnInit {
 
     const reader = new FileReader();
     reader.onload = () => {
-      // En producción, deberías subir esto al backend
       this.clienteData.foto_dni = reader.result as string;
     };
     reader.readAsDataURL(file);
