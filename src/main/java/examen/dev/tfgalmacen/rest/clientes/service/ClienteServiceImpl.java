@@ -101,6 +101,15 @@ public class ClienteServiceImpl implements ClienteService {
         return clienteMapper.toResponse(cliente);
     }
 
+    public Cliente getClienteByEmail(String email) {
+        return clienteRepository.findByUserCorreo(email)
+                .orElseThrow(() -> new ClienteNotFound("Cliente no encontrado"));
+    }
+
+    @Override
+    public void updateClienteEntity(Cliente cliente) {
+        clienteRepository.save(cliente);
+    }
 
 }
 

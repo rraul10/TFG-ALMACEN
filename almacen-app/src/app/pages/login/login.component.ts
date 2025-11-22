@@ -138,7 +138,7 @@
                   <input type="checkbox">
                   <span>Recordar sesión</span>
                 </label>
-                <a href="#" class="forgot-link">¿Olvidaste tu contraseña?</a>
+                <a routerLink="/forgot-password" class="forgot-link">¿Olvidaste tu contraseña?</a>
               </div>
 
               <button type="submit" [disabled]="loginForm.invalid" class="submit-btn">

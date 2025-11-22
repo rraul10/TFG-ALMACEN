@@ -8,6 +8,9 @@ import { MisPedidosComponent } from './features/mispedidos/mis-pedidos.component
 import { ProductosAdminComponent } from './features/productos/productos-admin.component';
 import { PedidosAdminComponent } from './features/pedidos/pedidos-admin.component';
 import { adminTrabajadorGuard } from 'guards/admin-trabajador-guard';
+import { ForgotPasswordComponent } from './auth/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './auth/forgot-password/reset-password.component';
+
 
 const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
@@ -16,6 +19,8 @@ const routes: Routes = [
   { path: 'register', component: RegisterComponent },
   { path: 'perfil', component: PerfilComponent },
   { path: 'mispedidos', component: MisPedidosComponent },
+  { path: 'reset-password', component: ResetPasswordComponent },
+
   
   { 
     path: 'admin/productos', 
@@ -28,6 +33,8 @@ const routes: Routes = [
     component: PedidosAdminComponent,
     canActivate: [adminTrabajadorGuard]
   },
+
+  { path: 'forgot-password', component: ForgotPasswordComponent },
 
   { path: '**', redirectTo: 'dashboard' }
 ];

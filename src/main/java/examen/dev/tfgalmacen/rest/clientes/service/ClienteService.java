@@ -21,6 +21,11 @@ public interface ClienteService {
 
     ClienteResponse getByUserId(Long userId);
 
+    Cliente getClienteByEmail(String email);
+
+    void updateClienteEntity(Cliente cliente);
+
+
 }
 
 

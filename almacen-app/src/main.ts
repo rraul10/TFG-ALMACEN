@@ -18,6 +18,8 @@ import { GestionUsuariosComponent } from './app/features/usuarios/gestion-usuari
 import { ProductosAdminComponent } from './app/features/productos/productos-admin.component';
 import { PedidosAdminComponent } from './app/features/pedidos/pedidos-admin.component';
 import { adminTrabajadorGuard } from 'guards/admin-trabajador-guard';
+import { ForgotPasswordComponent } from './app/auth/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './app/auth/forgot-password/reset-password.component';
 
 registerLocaleData(localeEs);
 
@@ -37,6 +39,7 @@ bootstrapApplication(AppComponent, {
       { path: 'register', component: RegisterComponent },
       { path: 'perfil', component: PerfilComponent },
       { path: 'mispedidos', component: MisPedidosComponent },
+      { path: 'reset-password', component: ResetPasswordComponent },
 
       { 
         path: 'admin/clientes', 
@@ -53,6 +56,8 @@ bootstrapApplication(AppComponent, {
         component: PedidosAdminComponent,
         canActivate: [adminTrabajadorGuard]
       },
+
+      { path: 'forgot-password', component: ForgotPasswordComponent },
 
       { path: '**', redirectTo: 'dashboard' }
     ])
