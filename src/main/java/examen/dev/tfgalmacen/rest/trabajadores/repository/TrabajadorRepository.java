@@ -7,5 +7,8 @@ import java.util.Optional;
 
 public interface TrabajadorRepository extends JpaRepository<Trabajador, Long> {
     Optional<Trabajador> findByUserIdAndDeletedFalse(Long userId);
+
+    Optional<Trabajador> findByUserId(Long userId);
+
 }
 

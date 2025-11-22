@@ -45,7 +45,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/productos/**").permitAll() // opcional, solo lectura abierta
 
                         .requestMatchers("/api/payments/**").permitAll()
-                        .requestMatchers("/api/users/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_TRABAJADOR")
+                        .requestMatchers(HttpMethod.PUT, "/api/users/**").authenticated()
                         .requestMatchers("/api/clientes/create").hasAnyAuthority("ROLE_ADMIN", "ROLE_TRABAJADOR")
                         .requestMatchers("/api/clientes/**").authenticated()
                         .requestMatchers("/api/trabajadores/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_TRABAJADOR")

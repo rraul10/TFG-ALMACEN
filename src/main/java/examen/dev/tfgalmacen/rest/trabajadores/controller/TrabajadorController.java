@@ -19,6 +19,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/trabajadores")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:4200")
 public class TrabajadorController {
 
     private final PedidoService pedidoService;
@@ -70,6 +71,14 @@ public class TrabajadorController {
         PedidoResponse updatedPedido = pedidoService.actualizarEstadoPedido(id, nuevoEstado);
         return ResponseEntity.ok(updatedPedido);
     }
+
+    @GetMapping("/user/{userId}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('TRABAJADOR')")
+    public ResponseEntity<TrabajadorResponse> getTrabajadorByUserId(@PathVariable Long userId) {
+        TrabajadorResponse trabajador = trabajadorService.getByUserId(userId);
+        return ResponseEntity.ok(trabajador);
+    }
+
 
 
 }

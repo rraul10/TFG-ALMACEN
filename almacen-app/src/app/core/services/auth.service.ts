@@ -43,7 +43,7 @@ export class AuthService {
   }
 
   getClienteData(userId: number): Observable<any> {
-    return this.http.get(`${this.apiUrl}/cliente/user/${userId}`);
+    return this.http.get(`${this.apiUrl}/clientes/user/${userId}`);
   }
 
   updateClienteData(userId: number, data: any): Observable<any> {
@@ -51,15 +51,24 @@ export class AuthService {
   }
 
   getTrabajadorData(userId: number): Observable<any> {
-    return this.http.get(`${this.apiUrl}/trabajador/user/${userId}`);
+    const token = localStorage.getItem('token');
+    return this.http.get(`${this.apiUrl}/api/trabajadores/user/${userId}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
   }
 
   updateTrabajadorData(userId: number, data: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/trabajador/user/${userId}`, data);
+    const token = localStorage.getItem('token');
+    return this.http.put(`${this.apiUrl}/api/trabajadores/${userId}`, data, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
   }
 
   updateUserData(userId: number, data: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/user/${userId}`, data);
+    const token = localStorage.getItem('token');
+    return this.http.put(`${this.apiUrl}/api/users/${userId}`, data, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
   }
 
   isLoggedIn(): boolean {

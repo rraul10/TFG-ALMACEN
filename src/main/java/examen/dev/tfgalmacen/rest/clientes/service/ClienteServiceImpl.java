@@ -35,11 +35,15 @@ public class ClienteServiceImpl implements ClienteService {
 
     @Override
     public ClienteResponse getById(Long userId) {
-        Cliente cliente = clienteRepository.findById(userId)
-                .orElseThrow(() -> new ClienteNotFound("Cliente no encontrado"));
+        Cliente cliente = clienteRepository.findByUserId(userId);
+
+        if (cliente == null) {
+            throw new ClienteNotFound("Cliente no encontrado");
+        }
 
         return clienteMapper.toResponse(cliente);
     }
+
 
     @Override
     public ClienteResponse createCliente(ClienteRequest request) {
@@ -87,6 +91,16 @@ public class ClienteServiceImpl implements ClienteService {
         return clienteRepository.findById(id)
                 .orElseThrow(() -> new ClienteNotFound("Cliente no encontrado"));
     }
+
+    @Override
+    public ClienteResponse getByUserId(Long userId) {
+        Cliente cliente = clienteRepository.findByUserId(userId);
+        if (cliente == null) {
+            throw new ClienteNotFound("Cliente no encontrado");
+        }
+        return clienteMapper.toResponse(cliente);
+    }
+
 
 }
 

@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -63,22 +64,23 @@ public class UserServiceImpl implements UserService {
         return userMapper.toDto(user);
     }
 
-
     @Override
-    public UserResponse updateUser(Long id, UserRequest userRequest) {
+    public UserResponse updateUser(Long id, UserRequest request) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFound("Usuario no encontrado"));
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        userMapper.updateUserFromRequest(user, userRequest);
+        user.setNombre(request.getNombre());
+        user.setApellidos(request.getApellidos());
+        user.setCorreo(request.getCorreo());
+        user.setTelefono(request.getTelefono());
+        user.setCiudad(request.getCiudad());
+        user.setFoto(request.getFoto());
 
-        if (userRequest.getPassword() != null && !userRequest.getPassword().isBlank()) {
-            user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
-        }
+        user.setUpdated(LocalDateTime.now());
 
-        user = userRepository.save(user);
-        return userMapper.toDto(user);
+        User saved = userRepository.save(user);
+        return new UserResponse(saved);
     }
-
 
     @Override
     public void deleteUser(Long id) {

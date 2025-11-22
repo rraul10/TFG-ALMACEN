@@ -89,5 +89,13 @@ public class TrabajadorServiceImpl implements TrabajadorService {
                 .numeroSeguridadSocial(t.getNumeroSeguridadSocial())
                 .build();
     }
+
+    @Override
+    public TrabajadorResponse getByUserId(Long userId) {
+        Trabajador trabajador = trabajadorRepository.findByUserId(userId)
+                .orElseThrow(() -> new TrabajadorNotFoundException("Trabajador no encontrado"));
+        return mapToResponse(trabajador);
+    }
+
 }
 

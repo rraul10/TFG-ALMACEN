@@ -121,4 +121,11 @@ public class ClienteController {
         logger.info("Pedidos encontrados para el cliente con ID {}: {}", id, pedidos.size());
         return ResponseEntity.ok(pedidos);
     }
+
+    @GetMapping("/user/{userId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TRABAJADOR') or #userId == principal.id")
+    public ResponseEntity<ClienteResponse> getClienteByUserId(@PathVariable Long userId) {
+        ClienteResponse cliente = clienteService.getByUserId(userId);
+        return ResponseEntity.ok(cliente);
+    }
 }
