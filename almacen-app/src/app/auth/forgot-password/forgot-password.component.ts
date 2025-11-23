@@ -195,7 +195,7 @@ export class ForgotPasswordComponent {
         this.error = '';
       },
       error: () => {
-        this.loading = false;
+        this.loading = true;
         this.error = 'Error al enviar correo. Intenta de nuevo.';
         this.message = '';
       }
