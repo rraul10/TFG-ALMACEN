@@ -60,8 +60,8 @@ import { RoleService } from '@core/services/role.service';
           <div class="stat-card">
             <div class="stat-icon purple">⚡</div>
             <div class="stat-info">
-              <span class="stat-value">{{ contarPorEstado('EN_PROCESO') }}</span>
-              <span class="stat-label">En Proceso</span>
+              <span class="stat-value">{{ contarPorEstado('PREPARACION') }}</span>
+              <span class="stat-label">Preparación</span>
             </div>
           </div>
           <div class="stat-card">
@@ -114,10 +114,10 @@ import { RoleService } from '@core/services/role.service';
               </button>
               <button 
                 class="filter-chip" 
-                [class.active]="filtroEstado === 'EN_PROCESO'"
-                (click)="filtrarPorEstado('EN_PROCESO')"
+                [class.active]="filtroEstado === 'PREPARACION'"
+                (click)="filtrarPorEstado('PREPARACION')"
               >
-                En Proceso
+                Preparacion
               </button>
               <button 
                 class="filter-chip" 
@@ -210,7 +210,7 @@ import { RoleService } from '@core/services/role.service';
                 <label>Cambiar estado:</label>
                 <select [(ngModel)]="pedido.estado" (change)="cambiarEstado(pedido)">
                   <option value="PENDIENTE">Pendiente</option>
-                  <option value="EN_PROCESO">En proceso</option>
+                  <option value="PREPARACION">Preparacion</option>
                   <option value="ENVIADO">Enviado</option>
                   <option value="ENTREGADO">Entregado</option>
                 </select>
@@ -606,7 +606,7 @@ export class PedidosAdminComponent implements OnInit {
     
     const labels: { [key: string]: string } = {
       'PENDIENTE': 'Pendiente',
-      'EN_PROCESO': 'En Proceso',
+      'PREPARACION': 'Preparación',
       'ENVIADO': 'Enviado',
       'ENTREGADO': 'Entregado'
     };

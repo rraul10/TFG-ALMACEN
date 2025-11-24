@@ -105,8 +105,6 @@ export class PedidoService {
     );
   }
 
-
-
   update(id: number, pedido: PedidoRequest): Observable<Pedido> {
     return this.http.put<Pedido>(`${this.apiUrl}/${id}`, pedido);
   }

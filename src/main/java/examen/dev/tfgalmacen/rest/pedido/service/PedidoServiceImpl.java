@@ -251,8 +251,22 @@ public class PedidoServiceImpl implements PedidoService {
     public List<PedidoResponse> getPedidosByClienteId(Long clienteId) {
         return pedidoRepository.findByClienteIdAndDeletedFalse(clienteId)
                 .stream()
-                .map(PedidoMapper::toDto)  // Convierte cada Pedido a PedidoResponse
+                .map(PedidoMapper::toDto)
                 .collect(Collectors.toList());
     }
 
+    @Transactional
+    @Override
+    public PedidoResponse actualizarEstado(Long id, String estado) {
+        Pedido pedido = pedidoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Pedido no encontrado"));
+
+        EstadoPedido nuevoEstado = EstadoPedido.valueOf(estado);
+        pedido.setEstado(nuevoEstado);
+        pedido.setUpdated(LocalDateTime.now());
+
+        pedidoRepository.save(pedido);
+
+        return PedidoMapper.toDto(pedido);
+    }
 }

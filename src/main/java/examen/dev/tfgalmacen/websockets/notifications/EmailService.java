@@ -28,16 +28,20 @@ public class EmailService {
     }
 
     public void notificarCambioEstadoPedido(Pedido pedido, String mensaje) {
-        SimpleMailMessage mensajeCorreo = new SimpleMailMessage();
+        if (pedido.getCliente() == null || pedido.getCliente().getUser() == null || pedido.getCliente().getUser().getCorreo() == null) {
+            throw new RuntimeException("No se puede enviar correo: el pedido no tiene un cliente o correo válido");
+        }
 
         String destinatario = pedido.getCliente().getUser().getCorreo();
 
+        SimpleMailMessage mensajeCorreo = new SimpleMailMessage();
         mensajeCorreo.setTo(destinatario);
         mensajeCorreo.setSubject("Cambio de Estado de Pedido: " + pedido.getId());
         mensajeCorreo.setText(mensaje);
 
         mailSender.send(mensajeCorreo);
     }
+
 
     public void notificarRegistroExitoso(String destinatario, String nombre) {
         SimpleMailMessage mensaje = new SimpleMailMessage();
