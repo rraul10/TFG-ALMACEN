@@ -86,6 +86,4 @@ public class EmailService {
         mensaje.setText("Haz clic aquí para restablecer tu contraseña: " + url);
         mailSender.send(mensaje);
     }
-
-
 }

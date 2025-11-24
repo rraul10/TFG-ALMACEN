@@ -52,7 +52,6 @@ public class UserServiceImpl implements UserService {
     public UserResponse createUser(UserRequest userRequest) {
         User user = userMapper.toEntity(userRequest);
 
-        // ✅ Cifrar antes de guardar
         if (user.getPassword() != null && !user.getPassword().isBlank()) {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
         }

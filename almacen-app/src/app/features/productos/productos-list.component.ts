@@ -139,7 +139,7 @@ import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 export class ProductosListComponent implements OnInit, OnChanges {
   @Input() searchTerm: string = '';
   @Input() tipoSeleccionado: string = '';
-  @Input() ordenSeleccionado: string = ''; // NUEVO
+  @Input() ordenSeleccionado: string = ''; 
   @Output() productosFiltered = new EventEmitter<any[]>();
 
   isAdmin = false;
@@ -149,7 +149,7 @@ export class ProductosListComponent implements OnInit, OnChanges {
   productos: any[] = [];
   productosFiltrados: any[] = [];
   currentPage: number = 1;
-  pageSize: number = 10; // Más productos por página con cards más pequeñas
+  pageSize: number = 15;
   productosPaginados: any[] = [];
 
   constructor(private http: HttpClient, private authService: AuthService, private snackBar: MatSnackBar) {
@@ -174,7 +174,6 @@ export class ProductosListComponent implements OnInit, OnChanges {
   filtrarProductos() {
     let filtrados = [...this.productos];
 
-    // Filtrar por búsqueda
     if (this.searchTerm?.trim()) {
       const term = this.searchTerm.toLowerCase().trim();
       filtrados = filtrados.filter(p => 
@@ -183,12 +182,10 @@ export class ProductosListComponent implements OnInit, OnChanges {
       );
     }
 
-    // Filtrar por tipo
     if (this.tipoSeleccionado) {
       filtrados = filtrados.filter(p => p.tipo === this.tipoSeleccionado);
     }
 
-    // NUEVO: Ordenar
     if (this.ordenSeleccionado) {
       switch (this.ordenSeleccionado) {
         case 'precio-asc':

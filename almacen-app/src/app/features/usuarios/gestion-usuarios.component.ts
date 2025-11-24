@@ -56,15 +56,43 @@ import { Router } from '@angular/router';
           <div class="stat-card">
             <div class="stat-icon green">✅</div>
             <div class="stat-info">
-              <span class="stat-value">{{ usuarios.length }}</span>
+              <span class="stat-value">{{ usuariosFiltrados.length }}</span>
               <span class="stat-label">Activos</span>
             </div>
           </div>
         </div>
 
+        <!-- Buscador -->
+        <div class="search-filter-section">
+          <div class="search-box">
+            <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+            <input 
+              type="text" 
+              [(ngModel)]="searchTerm" 
+              (input)="aplicarFiltros()"
+              placeholder="Buscar usuarios por nombre, apellidos o correo..."
+            />
+            <button class="clear-btn" *ngIf="searchTerm" (click)="limpiarBusqueda()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6L18 18"/></svg>
+            </button>
+          </div>
+
+          <div class="results-info" *ngIf="searchTerm">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>
+            </svg>
+            Mostrando {{ usuariosFiltrados.length }} de {{ usuarios.length }} usuarios
+            <button class="btn-reset-filters" (click)="limpiarFiltros()">
+              Limpiar búsqueda
+            </button>
+          </div>
+        </div>
+
         <!-- Grid de usuarios -->
-        <div class="usuarios-grid" *ngIf="usuarios.length > 0">
-          <div class="usuario-card" *ngFor="let u of usuarios">
+        <div class="usuarios-grid" *ngIf="usuariosFiltrados.length > 0">
+          <div class="usuario-card" *ngFor="let u of usuariosFiltrados">
             <div class="card-header-user">
               <img [src]="'http://localhost:8080/files/' + u.foto" [alt]="u.nombre" class="usuario-avatar" />
               <span class="badge-activo">✓ Activo</span>
@@ -100,13 +128,23 @@ import { Router } from '@angular/router';
         </div>
 
         <!-- Empty State -->
-        <div class="empty-state" *ngIf="usuarios.length === 0">
+        <div class="empty-state" *ngIf="usuariosFiltrados.length === 0 && usuarios.length === 0">
           <div class="empty-icon">👥</div>
           <h3>No hay usuarios</h3>
           <p>Añade el primer usuario al sistema</p>
           <button class="btn-primary" (click)="nuevoUsuario()">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
             Crear Usuario
+          </button>
+        </div>
+
+        <!-- Sin resultados -->
+        <div class="empty-state" *ngIf="usuariosFiltrados.length === 0 && usuarios.length > 0">
+          <div class="empty-icon">🔍</div>
+          <h3>No se encontraron usuarios</h3>
+          <p>No hay usuarios que coincidan con tu búsqueda</p>
+          <button class="btn-primary" (click)="limpiarFiltros()">
+            Limpiar búsqueda
           </button>
         </div>
       </main>
@@ -215,6 +253,22 @@ import { Router } from '@angular/router';
 .stat-value { font-size: 1.75rem; font-weight: 700; }
 .stat-label { font-size: 0.8rem; color: var(--text-muted); }
 
+/* Search and Filters */
+.search-filter-section { background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(10px); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem; }
+.search-box { position: relative; margin-bottom: 0; }
+.search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; }
+.search-box input { width: 100%; padding: 0.85rem 3rem 0.85rem 3rem; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 0.95rem; transition: all 0.3s; box-sizing: border-box; }
+.search-box input::placeholder { color: rgba(148, 163, 184, 0.5); }
+.search-box input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15); }
+.clear-btn { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; border: none; background: rgba(100, 116, 139, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; }
+.clear-btn:hover { background: rgba(100, 116, 139, 0.3); }
+.clear-btn svg { color: var(--text-muted); }
+
+.results-info { display: flex; align-items: center; gap: 8px; padding: 0.75rem 1rem; background: rgba(100, 116, 139, 0.15); border-radius: 10px; color: var(--text-muted); font-size: 0.85rem; font-weight: 500; margin-top: 1rem; }
+.results-info svg { color: var(--primary); flex-shrink: 0; }
+.btn-reset-filters { margin-left: auto; padding: 0.4rem 0.85rem; background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 8px; font-size: 0.8rem; font-weight: 600; color: var(--primary); cursor: pointer; transition: all 0.2s; }
+.btn-reset-filters:hover { background: var(--primary); color: white; border-color: var(--primary); }
+
 /* Grid Usuarios */
 .usuarios-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; }
 .usuario-card { background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(10px); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: all 0.3s; }
@@ -222,7 +276,7 @@ import { Router } from '@angular/router';
 
 .card-header-user { background: linear-gradient(135deg, var(--primary), #764ba2); padding: 1.5rem; display: flex; align-items: center; gap: 1rem; position: relative; }
 .usuario-avatar { width: 70px; height: 70px; border-radius: 50%; border: 3px solid white; object-fit: cover; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-.badge-activo { position: absolute; top: 1rem; right: 1rem; background: rgba(16, 185, 129, 0.2); color: var(--success); padding: 0.3rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+.badge-activo { position: absolute; top: 1rem; right: 1rem; background: rgba(16, 185, 129, 0.95); color: white; padding: 0.3rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; backdrop-filter: blur(10px); }
 
 .card-body-user { padding: 1.25rem; }
 .card-body-user h3 { font-size: 1.1rem; font-weight: 700; margin: 0 0 1rem; color: var(--text); }
@@ -294,18 +348,43 @@ export class GestionUsuariosComponent implements OnInit {
   usuarios: User[] = [];
   usuarioSeleccionado: User | null = null;
   selectedFile: File | null = null;
+  searchTerm: string = '';
+  usuariosFiltrados: User[] = [];
 
   particles = Array.from({ length: 30 }, () => ({ x: Math.random() * 100, delay: `${Math.random() * 20}s`, duration: `${15 + Math.random() * 10}s` }));
 
   constructor(private userService: UserService, private snackBar: MatSnackBar, private router: Router) {}
 
-  ngOnInit(): void { this.cargarUsuarios(); }
+  ngOnInit(): void {
+    this.cargarUsuarios();
+  }
 
   cargarUsuarios() {
     this.userService.getAll().subscribe({
-      next: (data: User[]) => this.usuarios = data,
+      next: (data: User[]) => {
+        this.usuarios = data;
+        this.usuariosFiltrados = [...this.usuarios]; 
+      },
       error: (err: any) => console.error('Error cargando usuarios', err)
     });
+  }
+
+  aplicarFiltros() {
+    const termino = this.searchTerm.trim().toLowerCase();
+
+    this.usuariosFiltrados = this.usuarios.filter(u =>
+      u.nombre.toLowerCase().includes(termino)
+    );
+  }
+
+  limpiarBusqueda() {
+    this.searchTerm = '';
+    this.aplicarFiltros();
+  }
+
+  limpiarFiltros() {
+    this.searchTerm = '';
+    this.aplicarFiltros();
   }
 
   nuevoUsuario() {
@@ -322,18 +401,47 @@ export class GestionUsuariosComponent implements OnInit {
 
   guardarUsuario() {
     if (!this.usuarioSeleccionado) return;
+
     const userToSend: Partial<User> = { ...this.usuarioSeleccionado };
     if (userToSend.id === 0) delete userToSend.id;
+
     const formData = new FormData();
     formData.append('user', JSON.stringify(userToSend));
     if (this.selectedFile) formData.append('foto', this.selectedFile);
 
-    const req = this.usuarioSeleccionado.id ? this.userService.updateWithFile(this.usuarioSeleccionado.id, formData) : this.userService.createWithFile(formData);
+    const req = this.usuarioSeleccionado.id
+      ? this.userService.updateWithFile(this.usuarioSeleccionado.id, formData)
+      : this.userService.createWithFile(formData);
+
     req.subscribe({
-      next: () => { this.snackBar.open(this.usuarioSeleccionado!.id ? '✅ Usuario actualizado' : '✅ Usuario creado', 'Cerrar', { duration: 3000 }); this.cargarUsuarios(); this.cancelarEdicion(); },
-      error: () => this.snackBar.open('❌ Error al guardar', 'Cerrar', { duration: 3000 })
+      next: () => {
+        this.snackBar.open(
+          this.usuarioSeleccionado!.id ? '✅ Usuario actualizado' : '✅ Usuario creado',
+          'Cerrar',
+          { duration: 3000 }
+        );
+        this.cargarUsuarios();
+        this.cancelarEdicion();
+      },
+      error: (err) => {
+        console.error('Error en guardarUsuario:', err);
+
+        if (!err.status || err.status < 200 || err.status >= 300) {
+          this.snackBar.open('❌ Error al guardar', 'Cerrar', { duration: 3000 });
+        } else {
+          this.snackBar.open(
+            this.usuarioSeleccionado!.id ? '✅ Usuario actualizado (advertencia)' : '✅ Usuario creado (advertencia)',
+            'Cerrar',
+            { duration: 3000 }
+          );
+          this.cargarUsuarios();
+          this.cancelarEdicion();
+        }
+      }
     });
   }
+
+
 
   eliminarUsuario(id: number) {
     if (!confirm('¿Eliminar este usuario?')) return;

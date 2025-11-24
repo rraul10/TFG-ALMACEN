@@ -335,7 +335,7 @@ import { NotificationService } from '@core/services/notification.service';
 .filters-bar {
   display: flex;
   align-items: center; /* alinea todo verticalmente centrado */
-  gap: 1rem; /* espacio entre cada elemento */
+  gap: 10rem; /* espacio entre cada elemento */
   flex-wrap: wrap; /* opcional: si no cabe todo, baja los elementos */
 }
 
@@ -448,10 +448,9 @@ export class DashboardComponent {
   isTrabajador = false;
   carrito: any[] = [];
 
-  // Filtros
   searchTerm: string = '';
   tipoSeleccionado: string = '';
-  ordenSeleccionado: string = ''; // NUEVO: para ordenación
+  ordenSeleccionado: string = ''; 
   productosFiltrados: any[] = [];
 
   tiposDisponibles: string[] = [
@@ -511,7 +510,7 @@ export class DashboardComponent {
   loadCarrito() { this.carrito = this.isLoggedIn ? JSON.parse(localStorage.getItem('carrito') || '[]') : []; }
   clearSearch() { this.searchTerm = ''; this.applyFilters(); }
   clearAllFilters() { this.searchTerm = ''; this.tipoSeleccionado = ''; this.ordenSeleccionado = ''; this.applyFilters(); }
-  applyFilters() { /* Se comunica con el hijo */ }
+  applyFilters() { }
   onProductosFiltered(productos: any[]) { this.productosFiltrados = productos; }
 
   carritoTotal() { return this.carrito.reduce((sum, item) => sum + item.precio, 0); }
