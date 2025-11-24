@@ -67,8 +67,7 @@ public class TrabajadorController {
     public ResponseEntity<PedidoResponse> actualizarEstadoPedido(
             @PathVariable Long id,
             @RequestParam EstadoPedido nuevoEstado) {
-
-        PedidoResponse updatedPedido = pedidoService.actualizarEstadoPedido(id, nuevoEstado);
+        PedidoResponse updatedPedido = pedidoService.actualizarEstado(id, nuevoEstado.name());
         return ResponseEntity.ok(updatedPedido);
     }
 
@@ -78,8 +77,5 @@ public class TrabajadorController {
         TrabajadorResponse trabajador = trabajadorService.getByUserId(userId);
         return ResponseEntity.ok(trabajador);
     }
-
-
-
 }
 

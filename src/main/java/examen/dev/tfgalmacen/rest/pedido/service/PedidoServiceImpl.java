@@ -226,28 +226,6 @@ public class PedidoServiceImpl implements PedidoService {
     }
 
     @Override
-    public PedidoResponse actualizarEstadoPedido(Long id, EstadoPedido nuevoEstado) {
-        Pedido pedido = pedidoRepository.findById(id)
-                .orElseThrow(() -> new PedidoNotFoundException("Pedido no encontrado con id: " + id));
-
-        if (pedido.getEstado() == EstadoPedido.ENTREGADO) {
-            throw new PedidoNotFoundException("No se puede cambiar el estado de un pedido entregado.");
-        }
-
-        EstadoPedido estadoAnterior = pedido.getEstado();
-
-        pedido.setEstado(nuevoEstado);
-        Pedido savedPedido = pedidoRepository.save(pedido);
-
-        if (!estadoAnterior.equals(nuevoEstado)) {
-            String mensaje = "El estado de su pedido ha cambiado a: " + nuevoEstado;
-            emailService.notificarCambioEstadoPedido(pedido, mensaje);
-        }
-
-        return PedidoMapper.toDto(savedPedido);
-    }
-
-    @Override
     public List<PedidoResponse> getPedidosByClienteId(Long clienteId) {
         return pedidoRepository.findByClienteIdAndDeletedFalse(clienteId)
                 .stream()
@@ -267,6 +245,10 @@ public class PedidoServiceImpl implements PedidoService {
 
         pedidoRepository.save(pedido);
 
+        String mensaje = "El estado de su pedido #" + pedido.getId() + " ha sido actualizado a: " + nuevoEstado;
+        emailService.notificarCambioEstadoPedido(pedido, mensaje);
+
         return PedidoMapper.toDto(pedido);
     }
+
 }
