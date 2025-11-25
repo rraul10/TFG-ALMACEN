@@ -106,8 +106,8 @@ INSERT INTO productos (nombre, tipo, imagen, descripcion, precio, stock, created
 
 -- PEDIDOS DE EJEMPLO (clientes 1 a 10)
 INSERT INTO pedido (id, cliente_id, estado, fecha, created, updated, deleted) VALUES
-  (4, 2, 'PENDIENTE', NOW(), NOW(), NOW(), false),
-  (5, 2, 'PREPARACION', NOW(), NOW(), NOW(), false),
+  (4, 1, 'PENDIENTE', NOW(), NOW(), NOW(), false),
+  (5, 1, 'PREPARACION', NOW(), NOW(), NOW(), false),
   (6, 3, 'ENVIADO', NOW(), NOW(), NOW(), false),
   (7, 3, 'ENTREGADO', NOW(), NOW(), NOW(), false),
   (8, 4, 'PENDIENTE', NOW(), NOW(), NOW(), false),
