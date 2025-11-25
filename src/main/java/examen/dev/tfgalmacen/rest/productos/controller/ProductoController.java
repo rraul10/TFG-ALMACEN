@@ -36,22 +36,29 @@ public class ProductoController {
 
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAnyRole('ADMIN', 'TRABAJADOR')")
-    public ResponseEntity<ProductoResponse> create(
+    public ResponseEntity<?> create(
             @RequestPart("producto") String productoJson,
-            @RequestPart(value = "imagen", required = false) MultipartFile imagen) throws JsonProcessingException {
+            @RequestPart(value = "imagen", required = false) MultipartFile imagen) {
 
-        ObjectMapper mapper = new ObjectMapper();
-        ProductoRequest request = mapper.readValue(productoJson, ProductoRequest.class);
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            ProductoRequest request = mapper.readValue(productoJson, ProductoRequest.class);
 
-        String nombreImagen = (imagen != null && !imagen.isEmpty())
-                ? storageService.store(imagen)
-                : "default.jpg";
+            String nombreImagen = (imagen != null && !imagen.isEmpty())
+                    ? storageService.store(imagen)
+                    : "default.jpg";
 
-        request.setImagen(nombreImagen);
+            request.setImagen(nombreImagen);
 
-        ProductoResponse response = productoService.create(request);
+            ProductoResponse response = productoService.create(request);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body("Producto creado, pero hubo un aviso: " + e.getMessage());
+        }
     }
 
 

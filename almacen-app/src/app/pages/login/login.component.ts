@@ -679,6 +679,11 @@
         transition: all 0.3s ease;
       }
 
+      .card-glow {
+  pointer-events: none;
+}
+
+
       .benefit-item:hover {
         background: rgba(255, 255, 255, 0.15);
         transform: translateX(8px);
