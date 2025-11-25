@@ -97,171 +97,220 @@ import { AuthService } from '@core/services/auth.service';
           </div>
 
           <form (ngSubmit)="onSubmit()" #registerForm="ngForm" novalidate class="register-form">
-            <!-- Nombre y Apellidos en fila -->
-            <div class="form-row">
-              <div class="form-group">
-                <label for="nombre">Nombre</label>
-                <div class="input-wrapper">
-                  <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                  </svg>
-                  <input 
-                    id="nombre"
-                    type="text" 
-                    name="nombre" 
-                    [(ngModel)]="nombre" 
-                    placeholder="Raul"
-                    required
-                    pattern="^[a-zA-ZÁÉÍÓÚáéíóúÑñ ]+$"
-                    autocomplete="given-name">
-                </div>
-                <div class="error" *ngIf="registerForm.submitted && (!nombre || !registerForm.controls['nombre']?.valid)">
-                  Solo letras permitidas
-                </div>
-              </div>
 
-              <div class="form-group">
-                <label for="apellidos">Apellidos</label>
-                <div class="input-wrapper">
-                  <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                  </svg>
-                  <input 
-                    id="apellidos"
-                    type="text" 
-                    name="apellidos" 
-                    [(ngModel)]="apellidos" 
-                    placeholder="Fernandez Delgado"
-                    required
-                    pattern="^[a-zA-ZÁÉÍÓÚáéíóúÑñ ]+$"
-                    autocomplete="family-name">
-                </div>
-                <div class="error" *ngIf="registerForm.submitted && (!apellidos || !registerForm.controls['apellidos']?.valid)">
-                  Solo letras permitidas
-                </div>
-              </div>
-            </div>
-
-            <!-- Correo -->
+          <!-- Nombre y Apellidos en fila -->
+          <div class="form-row">
             <div class="form-group">
-              <label for="correo">Correo Electrónico</label>
+              <label for="nombre">Nombre</label>
               <div class="input-wrapper">
                 <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                        d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                 </svg>
                 <input 
-                  id="correo"
-                  type="email" 
-                  name="correo" 
-                  [(ngModel)]="correo" 
-                  placeholder="raul@ejemplo.com"
+                  id="nombre"
+                  type="text"
+                  name="nombre"
+                  [(ngModel)]="nombre"
+                  placeholder="Raul"
                   required
-                  pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.com$"
-                  autocomplete="email">
+                  pattern="^[a-zA-ZÁÉÍÓÚáéíóúÑñ ]+$"
+                  autocomplete="given-name">
               </div>
-              <div class="error" *ngIf="registerForm.submitted && (!correo || !registerForm.controls['correo']?.valid)">
-                Ingresa un correo válido terminado en .com
-              </div>
-            </div>
-
-            <!-- Teléfono y Ciudad en fila -->
-            <div class="form-row">
-              <div class="form-group">
-                <label for="telefono">Teléfono</label>
-                <div class="input-wrapper">
-                  <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                          d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
-                  </svg>
-                  <input 
-                    id="telefono"
-                    type="tel" 
-                    name="telefono" 
-                    [(ngModel)]="telefono" 
-                    placeholder="612345678"
-                    required
-                    pattern="^[0-9]{9}$"
-                    autocomplete="tel">
-                </div>
-                <div class="error" *ngIf="registerForm.submitted && (!telefono || !registerForm.controls['telefono']?.valid)">
-                  9 dígitos requeridos
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label for="ciudad">Ciudad</label>
-                <div class="input-wrapper">
-                  <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                  </svg>
-                  <input 
-                    id="ciudad"
-                    type="text" 
-                    name="ciudad" 
-                    [(ngModel)]="ciudad" 
-                    placeholder="Madrid"
-                    required
-                    autocomplete="address-level2">
-                </div>
-                <div class="error" *ngIf="registerForm.submitted && !ciudad">
-                  Ciudad requerida
-                </div>
+              <div class="error" *ngIf="registerForm.submitted && (!nombre || !registerForm.controls['nombre']?.valid)">
+                Solo letras permitidas
               </div>
             </div>
 
-            <!-- Contraseña -->
             <div class="form-group">
-              <label for="password">Contraseña</label>
+              <label for="apellidos">Apellidos</label>
               <div class="input-wrapper">
                 <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                 </svg>
                 <input 
-                  id="password"
-                  type="password" 
-                  name="password" 
-                  [(ngModel)]="password" 
-                  placeholder="Mínimo 6 caracteres"
+                  id="apellidos"
+                  type="text"
+                  name="apellidos"
+                  [(ngModel)]="apellidos"
+                  placeholder="Fernandez Delgado"
                   required
-                  minlength="6"
-                  autocomplete="new-password">
+                  pattern="^[a-zA-ZÁÉÍÓÚáéíóúÑñ ]+$"
+                  autocomplete="family-name">
               </div>
-              <div class="error" *ngIf="registerForm.submitted && (!password || password.length < 6)">
-                Mínimo 6 caracteres
+              <div class="error" *ngIf="registerForm.submitted && (!apellidos || !registerForm.controls['apellidos']?.valid)">
+                Solo letras permitidas
+              </div>
+            </div>
+          </div>
+
+          <!-- Correo -->
+          <div class="form-group">
+            <label for="correo">Correo Electrónico</label>
+            <div class="input-wrapper">
+              <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"/>
+              </svg>
+              <input 
+                id="correo"
+                type="email"
+                name="correo"
+                [(ngModel)]="correo"
+                placeholder="raul@ejemplo.com"
+                required
+                pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.com$"
+                autocomplete="email">
+            </div>
+            <div class="error" *ngIf="registerForm.submitted && (!correo || !registerForm.controls['correo']?.valid)">
+              Ingresa un correo válido terminado en .com
+            </div>
+          </div>
+
+          <!-- Teléfono y Ciudad en fila -->
+          <div class="form-row">
+            <div class="form-group">
+              <label for="telefono">Teléfono</label>
+              <div class="input-wrapper">
+                <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                </svg>
+                <input 
+                  id="telefono"
+                  type="tel"
+                  name="telefono"
+                  [(ngModel)]="telefono"
+                  placeholder="612345678"
+                  required
+                  pattern="^[0-9]{9}$"
+                  autocomplete="tel">
+              </div>
+              <div class="error" *ngIf="registerForm.submitted && (!telefono || !registerForm.controls['telefono']?.valid)">
+                9 dígitos requeridos
               </div>
             </div>
 
-            <!-- Términos y condiciones -->
-            <div class="terms-checkbox">
-              <label class="checkbox-label">
-                <input type="checkbox" name="terms" [(ngModel)]="acceptTerms" required>
-                <span class="checkmark"></span>
-                <span>Acepto los <a href="#" class="terms-link">términos y condiciones</a> y la <a href="#" class="terms-link">política de privacidad</a></span>
-              </label>
+            <div class="form-group">
+              <label for="ciudad">Ciudad</label>
+              <div class="input-wrapper">
+                <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                <input 
+                  id="ciudad"
+                  type="text"
+                  name="ciudad"
+                  [(ngModel)]="ciudad"
+                  placeholder="Madrid"
+                  required
+                  autocomplete="address-level2">
+              </div>
+              <div class="error" *ngIf="registerForm.submitted && !ciudad">
+                Ciudad requerida
+              </div>
+            </div>
+          </div>
+
+          <!-- ➕ DNI y Dirección (NUEVO BLOQUE) -->
+          <div class="form-row">
+            
+            <!-- DNI -->
+            <div class="form-group">
+              <label for="dni">DNI</label>
+              <div class="input-wrapper">
+                <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 11c1.657 0 3-1.343 3-3S13.657 5 12 5s-3 1.343-3 3 1.343 3 3 3zm0 2c-2.667 0-8 1.333-8 4v2h16v-2c0-2.667-5.333-4-8-4z"/>
+                </svg>
+                <input 
+                  id="dni"
+                  type="text"
+                  name="dni"
+                  [(ngModel)]="dni"
+                  placeholder="12345678A"
+                  required
+                  pattern="^[0-9]{8}[A-Za-z]$">
+              </div>
+              <div class="error" *ngIf="registerForm.submitted && (!dni || !registerForm.controls['dni']?.valid)">
+                DNI inválido (8 números + una letra)
+              </div>
             </div>
 
-            <button type="submit" [disabled]="registerForm.invalid || !acceptTerms" class="submit-btn">
-              <span *ngIf="!message.includes('Intentando')">
-                Crear mi cuenta
-              </span>
-              <span *ngIf="message.includes('Intentando')" class="loading">
-                <span class="spinner"></span>
-                Registrando...
-              </span>
-            </button>
-
-            <div *ngIf="message && !message.includes('Intentando')" 
-                 [class]="message.includes('Error') || message.includes('error') ? 'message error' : 'message success'">
-              {{ message }}
+            <!-- Dirección -->
+            <div class="form-group">
+              <label for="direccionEnvio">Dirección de Envío</label>
+              <div class="input-wrapper">
+                <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 7l9-4 9 4-9 4-9-4zm0 6l9 4 9-4"/>
+                </svg>
+                <input 
+                  id="direccionEnvio"
+                  type="text"
+                  name="direccionEnvio"
+                  [(ngModel)]="direccionEnvio"
+                  placeholder="Calle Ejemplo 123"
+                  required>
+              </div>
+              <div class="error" *ngIf="registerForm.submitted && !direccionEnvio">
+                Dirección requerida
+              </div>
             </div>
-          </form>
+
+          </div>
+
+          <!-- Contraseña -->
+          <div class="form-group">
+            <label for="password">Contraseña</label>
+            <div class="input-wrapper">
+              <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+              </svg>
+              <input 
+                id="password"
+                type="password"
+                name="password"
+                [(ngModel)]="password"
+                placeholder="Mínimo 6 caracteres"
+                required
+                minlength="6"
+                autocomplete="new-password">
+            </div>
+            <div class="error" *ngIf="registerForm.submitted && (!password || password.length < 6)">
+              Mínimo 6 caracteres
+            </div>
+          </div>
+
+          <!-- Términos -->
+          <div class="terms-checkbox">
+            <label class="checkbox-label">
+              <input type="checkbox" name="terms" [(ngModel)]="acceptTerms" required>
+              <span class="checkmark"></span>
+              <span>Acepto los <a href="#" class="terms-link">términos y condiciones</a> y la 
+                <a href="#" class="terms-link">política de privacidad</a></span>
+            </label>
+          </div>
+
+          <button type="submit" [disabled]="registerForm.invalid || !acceptTerms" class="submit-btn">
+            <span *ngIf="!message.includes('Intentando')">Crear mi cuenta</span>
+            <span *ngIf="message.includes('Intentando')" class="loading">
+              <span class="spinner"></span> Registrando...
+            </span>
+          </button>
+
+          <div *ngIf="message && !message.includes('Intentando')" 
+              [class]="message.includes('Error') || message.includes('error') ? 'message error' : 'message success'">
+            {{ message }}
+          </div>
+
+        </form>
+
 
           <div class="divider">
             <span>o</span>
@@ -911,6 +960,10 @@ export class RegisterComponent {
   password = '';
   acceptTerms = false;
   message = '';
+  dni: string = "";
+  direccionEnvio: string = "";
+  fotoDni: File | null = null;
+
 
   // Partículas animadas
   particles = Array.from({ length: 50 }, (_, i) => ({
@@ -921,6 +974,14 @@ export class RegisterComponent {
 
   constructor(private authService: AuthService, private router: Router) {}
 
+  onFileSelected(event: any) {
+  const file = event.target.files[0];
+  if (file) {
+    this.fotoDni = file;
+  }
+}
+
+
   onSubmit() {
     this.message = 'Intentando registro...';
 
@@ -930,10 +991,13 @@ export class RegisterComponent {
       correo: this.correo,
       telefono: this.telefono,
       ciudad: this.ciudad,
-      password: this.password
+      password: this.password,
+      dni: this.dni,
+      direccionEnvio: this.direccionEnvio,
+      fotoDni: null
     };
 
-    this.authService.register(data).subscribe({
+    this.authService.registerCliente(data).subscribe({
       next: () => {
         // Login automático tras registrarse
         this.authService.login({ correo: this.correo, password: this.password }).subscribe({

@@ -38,8 +38,8 @@ export class AuthService {
     return this.http.post(`${this.apiUrl}/auth/register`, data);
   }
 
-  registerCliente(data: { idUsuario: number; dni: string; direccion: string }): Observable<any> {
-    return this.http.post(`${this.apiUrl}/auth/register/cliente`, data);
+  registerCliente(data: any) {
+    return this.http.post('http://localhost:8080/auth/register/cliente', data);
   }
 
   getClienteData(userId: number): Observable<any> {
