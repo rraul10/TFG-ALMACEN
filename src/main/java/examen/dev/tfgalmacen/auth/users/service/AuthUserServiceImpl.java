@@ -50,18 +50,21 @@ public class AuthUserServiceImpl implements AuthUserService {
 
     @Transactional
     public JwtAuthResponse registerCliente(RegisterClienteRequest request) {
+
         User usuario = new User();
         usuario.setNombre(request.getNombre());
         usuario.setCorreo(request.getCorreo());
         usuario.setPassword(passwordEncoder.encode(request.getPassword()));
         usuario.setRoles(Set.of(UserRole.CLIENTE));
-        userRepository.save(usuario);
+
+        usuario = userRepository.save(usuario);
 
         Cliente cliente = new Cliente();
         cliente.setUser(usuario);
         cliente.setDni(request.getDni());
         cliente.setFotoDni(request.getFotoDni());
         cliente.setDireccionEnvio(request.getDireccionEnvio());
+
         clienteRepository.save(cliente);
 
         String token = jwtService.generateToken(usuario);
@@ -77,8 +80,5 @@ public class AuthUserServiceImpl implements AuthUserService {
 
         return new JwtAuthResponse(token, profile);
     }
-
-
-
 }
 

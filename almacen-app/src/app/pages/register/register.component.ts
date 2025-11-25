@@ -216,7 +216,7 @@ import { AuthService } from '@core/services/auth.service';
             </div>
           </div>
 
-          <!-- ➕ DNI y Dirección (NUEVO BLOQUE) -->
+          <!-- DNI y Dirección -->
           <div class="form-row">
             
             <!-- DNI -->
@@ -225,7 +225,7 @@ import { AuthService } from '@core/services/auth.service';
               <div class="input-wrapper">
                 <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 11c1.657 0 3-1.343 3-3S13.657 5 12 5s-3 1.343-3 3 1.343 3 3 3zm0 2c-2.667 0-8 1.333-8 4v2h16v-2c0-2.667-5.333-4-8-4z"/>
+                        d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
                 </svg>
                 <input 
                   id="dni"
@@ -234,10 +234,11 @@ import { AuthService } from '@core/services/auth.service';
                   [(ngModel)]="dni"
                   placeholder="12345678A"
                   required
-                  pattern="^[0-9]{8}[A-Za-z]$">
+                  pattern="^[0-9]{8}[A-Za-z]$"
+                  maxlength="9">
               </div>
               <div class="error" *ngIf="registerForm.submitted && (!dni || !registerForm.controls['dni']?.valid)">
-                DNI inválido (8 números + una letra)
+                DNI inválido (8 números + 1 letra)
               </div>
             </div>
 
@@ -247,7 +248,7 @@ import { AuthService } from '@core/services/auth.service';
               <div class="input-wrapper">
                 <svg class="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M3 7l9-4 9 4-9 4-9-4zm0 6l9 4 9-4"/>
+                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
                 </svg>
                 <input 
                   id="direccionEnvio"
@@ -295,9 +296,12 @@ import { AuthService } from '@core/services/auth.service';
               <span>Acepto los <a href="#" class="terms-link">términos y condiciones</a> y la 
                 <a href="#" class="terms-link">política de privacidad</a></span>
             </label>
+            <div class="error" *ngIf="registerForm.submitted && !acceptTerms">
+              Debes aceptar los términos y condiciones
+            </div>
           </div>
 
-          <button type="submit" [disabled]="registerForm.invalid || !acceptTerms" class="submit-btn">
+          <button type="submit" [disabled]="!isFormValid()" class="submit-btn">
             <span *ngIf="!message.includes('Intentando')">Crear mi cuenta</span>
             <span *ngIf="message.includes('Intentando')" class="loading">
               <span class="spinner"></span> Registrando...
@@ -339,9 +343,9 @@ import { AuthService } from '@core/services/auth.service';
       box-sizing: border-box;
     }
 
-      .card-glow {
-    pointer-events: none;
-  }
+    .card-glow {
+      pointer-events: none;
+    }
 
     .register-page {
       min-height: 100vh;
@@ -521,6 +525,7 @@ import { AuthService } from '@core/services/auth.service';
       color: #ef4444;
       font-size: 0.75rem;
       animation: slideIn 0.3s ease-out;
+      margin-top: 0.25rem;
     }
 
     @keyframes slideIn {
@@ -1026,3 +1031,5 @@ export class RegisterComponent {
     });
   }
 }
+
+

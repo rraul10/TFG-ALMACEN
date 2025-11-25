@@ -15,7 +15,12 @@ export interface User {
   updated: string;
   deleted: boolean;
   rol: string;
+
+  dni?: string;
+  fotoDni?: string;
+  direccionEnvio?: string;
 }
+
 
 @Injectable({
   providedIn: 'root'

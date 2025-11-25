@@ -1,6 +1,7 @@
 package examen.dev.tfgalmacen.rest.users.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import examen.dev.tfgalmacen.rest.clientes.models.Cliente;
 import examen.dev.tfgalmacen.rest.users.UserRole;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -29,6 +30,9 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @OneToOne(mappedBy = "user", fetch = FetchType.EAGER)
+    private Cliente cliente;
 
     @NotBlank(message = "El nombre no puede estar vacío")
     private String nombre;

@@ -10,6 +10,26 @@ import java.time.LocalDateTime;
 @Component
 public class UserMapper {
 
+    public UserResponse toDto(User user) {
+        UserResponse dto = new UserResponse();
+        dto.setId(user.getId());
+        dto.setNombre(user.getNombre());
+        dto.setApellidos(user.getApellidos());
+        dto.setCorreo(user.getCorreo());
+        dto.setTelefono(user.getTelefono());
+        dto.setCiudad(user.getCiudad());
+        dto.setFoto(user.getFoto());
+        dto.setRoles(user.getRoles());
+
+        if (user.getCliente() != null) {
+            dto.setDni(user.getCliente().getDni());
+            dto.setFotoDni(user.getCliente().getFotoDni());
+            dto.setDireccionEnvio(user.getCliente().getDireccionEnvio());
+        }
+
+        return dto;
+    }
+
     public User toEntity(UserRequest userRequest) {
         return User.builder()
                 .nombre(userRequest.getNombre())
@@ -24,19 +44,6 @@ public class UserMapper {
                 .updated(LocalDateTime.now())
                 .deleted(false)
                 .build();
-    }
-
-    public UserResponse toDto(User user) {
-        return new UserResponse(
-                user.getId(),
-                user.getNombre(),
-                user.getApellidos(),
-                user.getCorreo(),
-                user.getTelefono(),
-                user.getCiudad(),
-                user.getFoto(),
-                user.getRoles()
-        );
     }
 
     public void updateUserFromRequest(User user, UserRequest userRequest) {

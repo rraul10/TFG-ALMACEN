@@ -134,7 +134,7 @@ import { NgForm } from '@angular/forms';
           <div class="empty-icon">👥</div>
           <h3>No hay usuarios</h3>
           <p>Añade el primer usuario al sistema</p>
-          <button class="btn-primary" (click)="nuevoUsuario(usuarioForm)">
+          <button class="btn-primary" (click)="nuevoUsuario()">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M12 5v14M5 12h14"/>
             </svg>
@@ -493,12 +493,14 @@ export class GestionUsuariosComponent implements OnInit {
   cargarUsuarios() {
     this.userService.getAll().subscribe({
       next: (data: User[]) => {
+        console.log('Usuarios desde API:', data);
         this.usuarios = data;
-        this.usuariosFiltrados = [...this.usuarios]; 
+        this.usuariosFiltrados = [...this.usuarios];
       },
       error: (err: any) => console.error('Error cargando usuarios', err)
     });
   }
+
 
   aplicarFiltros() {
     const termino = this.searchTerm.trim().toLowerCase();
