@@ -39,24 +39,32 @@ public class UserController {
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<UserResponse> createUser(
+    public ResponseEntity<?> createUser(
             @RequestPart("user") String userJson,
             @RequestPart(value = "foto", required = false) MultipartFile foto
     ) throws JsonProcessingException {
 
-        ObjectMapper mapper = new ObjectMapper();
-        UserRequest userRequest = mapper.readValue(userJson, UserRequest.class);
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            UserRequest userRequest = mapper.readValue(userJson, UserRequest.class);
 
-        if (foto != null && !foto.isEmpty()) {
-            String nombreFoto = storageService.store(foto);
-            userRequest.setFoto(nombreFoto);
-        } else {
-            userRequest.setFoto("default.jpg");
+            if (foto != null && !foto.isEmpty()) {
+                String nombreFoto = storageService.store(foto);
+                userRequest.setFoto(nombreFoto);
+            } else {
+                userRequest.setFoto("default.jpg");
+            }
+
+            UserResponse userResponse = userService.createUser(userRequest);
+            return ResponseEntity.status(HttpStatus.CREATED).body(userResponse);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body("Usuario creado, pero hubo un aviso: " + e.getMessage());
         }
-
-        UserResponse userResponse = userService.createUser(userRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(userResponse);
     }
+
 
 
     @PutMapping("/{id}")

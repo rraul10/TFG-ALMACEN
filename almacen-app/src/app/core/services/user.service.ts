@@ -14,7 +14,7 @@ export interface User {
   created: string;
   updated: string;
   deleted: boolean;
-   rol: string; 
+  rol: string;
 }
 
 @Injectable({
@@ -26,7 +26,7 @@ export class UserService {
   constructor(private http: HttpClient) {}
 
   private getHeaders(): HttpHeaders {
-    const token = localStorage.getItem('token'); 
+    const token = localStorage.getItem('token') || '';
     return new HttpHeaders({
       Authorization: `Bearer ${token}`
     });
@@ -48,18 +48,13 @@ export class UserService {
     return this.http.delete(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
   }
 
-  createWithFile(formData: FormData): Observable<User> {
-    const token = localStorage.getItem('token') || '';
-    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
-    return this.http.post<User>(this.apiUrl, formData, { headers });
+  createWithFile(formData: FormData): Observable<string> {
+    const headers = this.getHeaders();
+    return this.http.post(this.apiUrl, formData, { headers, responseType: 'text' });
   }
 
-  updateWithFile(id: number, formData: FormData): Observable<User> {
-    const token = localStorage.getItem('token') || '';
-    console.log(atob(token!.split('.')[1])); 
-
-    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
-    return this.http.put<User>(`${this.apiUrl}/${id}`, formData, { headers });
+  updateWithFile(id: number, formData: FormData): Observable<string> {
+    const headers = this.getHeaders();
+    return this.http.put(`${this.apiUrl}/${id}`, formData, { headers, responseType: 'text' });
   }
-
 }

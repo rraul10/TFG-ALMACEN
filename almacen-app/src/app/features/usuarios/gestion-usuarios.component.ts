@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { UserService, User } from '@core/services/user.service';
 import { Router } from '@angular/router';
+import { NgForm } from '@angular/forms';
+
 
 @Component({
   selector: 'app-gestion-usuarios',
@@ -132,8 +134,10 @@ import { Router } from '@angular/router';
           <div class="empty-icon">👥</div>
           <h3>No hay usuarios</h3>
           <p>Añade el primer usuario al sistema</p>
-          <button class="btn-primary" (click)="nuevoUsuario()">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          <button class="btn-primary" (click)="nuevoUsuario(usuarioForm)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 5v14M5 12h14"/>
+            </svg>
             Crear Usuario
           </button>
         </div>
@@ -151,60 +155,100 @@ import { Router } from '@angular/router';
 
       <!-- MODAL -->
       <div class="modal-overlay" *ngIf="usuarioSeleccionado" (click)="cancelarEdicion()">
-        <div class="modal-content" (click)="$event.stopPropagation()">
-          <div class="modal-header">
-            <h2>{{ usuarioSeleccionado.id ? '✏️ Editar Usuario' : '➕ Nuevo Usuario' }}</h2>
-            <button class="btn-close" (click)="cancelarEdicion()">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
-            </button>
-          </div>
-          <div class="modal-body">
-            <div class="form-grid">
-              <div class="form-group">
-                <label>Nombre</label>
-                <input type="text" [(ngModel)]="usuarioSeleccionado.nombre" placeholder="Nombre"/>
-              </div>
-              <div class="form-group">
-                <label>Apellidos</label>
-                <input type="text" [(ngModel)]="usuarioSeleccionado.apellidos" placeholder="Apellidos"/>
-              </div>
-              <div class="form-group full-width">
-                <label>Correo Electrónico</label>
-                <input type="email" [(ngModel)]="usuarioSeleccionado.correo" placeholder="correo@ejemplo.com"/>
-              </div>
-              <div class="form-group full-width">
-                <label>Contraseña</label>
-                <input type="password" [(ngModel)]="usuarioSeleccionado.password" placeholder="••••••••"/>
-              </div>
-              <div class="form-group">
-                <label>Teléfono</label>
-                <input type="tel" [(ngModel)]="usuarioSeleccionado.telefono" placeholder="+34 600 000 000"/>
-              </div>
-              <div class="form-group">
-                <label>Ciudad</label>
-                <input type="text" [(ngModel)]="usuarioSeleccionado.ciudad" placeholder="Madrid"/>
-              </div>
-              <div class="form-group full-width">
-                <label>Foto de Perfil</label>
-                <div class="file-upload">
-                  <input type="file" id="foto-input" (change)="onFileSelected($event)" accept="image/*"/>
-                  <label for="foto-input" class="file-label">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                    {{ selectedFile ? selectedFile.name : 'Seleccionar archivo' }}
-                  </label>
-                </div>
-              </div>
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ usuarioSeleccionado.id ? '✏️ Editar Usuario' : '➕ Nuevo Usuario' }}</h2>
+      <button class="btn-close" (click)="cancelarEdicion()">&times;</button>
+    </div>
+
+    <form #usuarioForm="ngForm" (ngSubmit)="guardarUsuario(usuarioForm)">
+      <div class="modal-body">
+        <div class="form-grid">
+          <!-- Nombre -->
+          <div class="form-group">
+            <label>Nombre</label>
+            <input type="text" name="nombre" [(ngModel)]="usuarioSeleccionado.nombre"
+                   required #nombre="ngModel" placeholder="Nombre">
+            <div class="error-msg" *ngIf="(nombre.invalid && (nombre.touched || mostrarErrores))">
+              El nombre es obligatorio
             </div>
           </div>
-          <div class="modal-footer">
-            <button class="btn-secondary" (click)="cancelarEdicion()">Cancelar</button>
-            <button class="btn-primary" (click)="guardarUsuario()">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-              Guardar
-            </button>
+
+          <!-- Apellidos -->
+          <div class="form-group">
+            <label>Apellidos</label>
+            <input type="text" name="apellidos" [(ngModel)]="usuarioSeleccionado.apellidos"
+                   required #apellidos="ngModel" placeholder="Apellidos">
+            <div class="error-msg" *ngIf="(apellidos.invalid && (apellidos.touched || mostrarErrores))">
+              Los apellidos son obligatorios
+            </div>
           </div>
+
+          <!-- Correo -->
+          <div class="form-group full-width">
+            <label>Correo Electrónico</label>
+            <input type="email" name="correo" [(ngModel)]="usuarioSeleccionado.correo"
+                   required email #correo="ngModel" placeholder="correo@ejemplo.com">
+            <div class="error-msg" *ngIf="(correo.invalid && (correo.touched || mostrarErrores))">
+              Ingresa un correo válido
+            </div>
+          </div>
+
+          <!-- Contraseña -->
+          <div class="form-group full-width">
+            <label>Contraseña</label>
+            <input type="password" name="password" [(ngModel)]="usuarioSeleccionado.password"
+                   required minlength="6" #password="ngModel" placeholder="••••••••">
+            <div class="error-msg" *ngIf="(password.invalid && (password.touched || mostrarErrores))">
+              La contraseña debe tener al menos 6 caracteres
+            </div>
+          </div>
+
+          <!-- Teléfono -->
+          <div class="form-group">
+            <label>Teléfono</label>
+            <input type="tel" name="telefono" [(ngModel)]="usuarioSeleccionado.telefono"
+                   required pattern="^\+?\d{9,15}$" #telefono="ngModel" placeholder="+34 600 000 000">
+            <div class="error-msg" *ngIf="(telefono.invalid && (telefono.touched || mostrarErrores))">
+              Ingresa un teléfono válido (9-15 dígitos, opcional +)
+            </div>
+          </div>
+
+          <!-- Ciudad -->
+          <div class="form-group">
+            <label>Ciudad</label>
+            <input type="text" name="ciudad" [(ngModel)]="usuarioSeleccionado.ciudad"
+                   required #ciudad="ngModel" placeholder="Madrid">
+            <div class="error-msg" *ngIf="(ciudad.invalid && (ciudad.touched || mostrarErrores))">
+              La ciudad es obligatoria
+            </div>
+          </div>
+
+          <!-- Foto de Perfil -->
+          <div class="form-group full-width">
+            <label>Foto de Perfil</label>
+            <div class="file-upload">
+              <input type="file" id="foto-input" (change)="onFileSelected($event)" accept="image/*">
+              <label for="foto-input" class="file-label">
+                {{ selectedFile ? selectedFile.name : 'Seleccionar archivo' }}
+              </label>
+            </div>
+          </div>
+
         </div>
       </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" type="button" (click)="cancelarEdicion()">Cancelar</button>
+        <button class="btn-primary" type="submit">
+          Guardar
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
 
       <!-- Particles -->
       <div class="particles-bg">
@@ -231,6 +275,92 @@ import { Router } from '@angular/router';
 
 /* MAIN */
 .main-content { position: relative; z-index: 1; max-width: 1300px; margin: 0 auto; padding: 2rem; }
+.modal-content {
+  background: var(--bg-dark);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh; /* altura máxima de la ventana */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+  animation: slideUp 0.3s ease;
+}
+
+.modal-body {
+  padding: 1.5rem;
+  overflow-y: auto;  /* scroll interno si se desborda */
+  flex: 1;
+}
+
+.modal-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  flex-shrink: 0; /* evita que se comprima */
+}
+
+
+.modal-header {
+  padding: 1.25rem 1.5rem;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.file-upload {
+  width: 100%;
+}
+
+.file-label {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem 1rem;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+
+/* Para móviles */
+@media (max-width: 768px) {
+  .modal-body {
+    padding: 1rem;
+  }
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  .modal-footer {
+    flex-direction: column-reverse;
+  }
+  .modal-footer button {
+    width: 100%;
+    justify-content: center;
+  }
+}
 
 /* Page Header */
 .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; }
@@ -350,6 +480,7 @@ export class GestionUsuariosComponent implements OnInit {
   selectedFile: File | null = null;
   searchTerm: string = '';
   usuariosFiltrados: User[] = [];
+  mostrarErrores = false;
 
   particles = Array.from({ length: 30 }, () => ({ x: Math.random() * 100, delay: `${Math.random() * 20}s`, duration: `${15 + Math.random() * 10}s` }));
 
@@ -387,8 +518,11 @@ export class GestionUsuariosComponent implements OnInit {
     this.aplicarFiltros();
   }
 
-  nuevoUsuario() {
+  nuevoUsuario(form?: NgForm) {
+    if(form) form.resetForm();
     this.usuarioSeleccionado = { id: 0, nombre: '', apellidos: '', correo: '', password: '', telefono: '', ciudad: '', foto: '', created: new Date().toISOString(), updated: new Date().toISOString(), deleted: false, rol: '' };
+    this.selectedFile  = null;
+    this.mostrarErrores = false;
   }
 
   editarUsuario(u: User) { this.usuarioSeleccionado = { ...u }; this.selectedFile = null; }
@@ -399,8 +533,14 @@ export class GestionUsuariosComponent implements OnInit {
     if (input.files && input.files.length > 0) this.selectedFile = input.files[0];
   }
 
-  guardarUsuario() {
+
+  guardarUsuario(form: NgForm) {
     if (!this.usuarioSeleccionado) return;
+
+    this.mostrarErrores = true;
+    Object.values(form.controls).forEach(control => control?.markAsTouched());
+
+    if (!form.valid) return;
 
     const userToSend: Partial<User> = { ...this.usuarioSeleccionado };
     if (userToSend.id === 0) delete userToSend.id;
@@ -425,22 +565,10 @@ export class GestionUsuariosComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error en guardarUsuario:', err);
-
-        if (!err.status || err.status < 200 || err.status >= 300) {
-          this.snackBar.open('❌ Error al guardar', 'Cerrar', { duration: 3000 });
-        } else {
-          this.snackBar.open(
-            this.usuarioSeleccionado!.id ? '✅ Usuario actualizado (advertencia)' : '✅ Usuario creado (advertencia)',
-            'Cerrar',
-            { duration: 3000 }
-          );
-          this.cargarUsuarios();
-          this.cancelarEdicion();
-        }
+        this.snackBar.open('❌ Error al guardar', 'Cerrar', { duration: 3000 });
       }
     });
   }
-
 
 
   eliminarUsuario(id: number) {
