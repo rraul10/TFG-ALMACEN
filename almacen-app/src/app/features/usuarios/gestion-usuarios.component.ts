@@ -229,8 +229,6 @@ import { NgForm } from '@angular/forms';
             </div>
           </div>
 
-<<<<<<< Updated upstream
-=======
           <div class="usuarios-grid" *ngIf="usuariosFiltrados.length > 0">
             <div class="usuario-card" *ngFor="let u of usuariosFiltrados">
               <div class="card-header-user">
@@ -266,9 +264,6 @@ import { NgForm } from '@angular/forms';
             </div>
           </div>
 
-
-
->>>>>>> Stashed changes
         </div>
       </div>
 
