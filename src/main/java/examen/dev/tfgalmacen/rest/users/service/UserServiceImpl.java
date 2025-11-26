@@ -4,7 +4,6 @@ package examen.dev.tfgalmacen.rest.users.service;
 import examen.dev.tfgalmacen.auth.dto.UserProfileResponse;
 import examen.dev.tfgalmacen.auth.exceptions.UserNotFound;
 import examen.dev.tfgalmacen.rest.clientes.repository.ClienteRepository;
-import examen.dev.tfgalmacen.rest.trabajadores.repository.TrabajadorRepository;
 import examen.dev.tfgalmacen.rest.users.dto.UserRequest;
 import examen.dev.tfgalmacen.rest.users.dto.UserResponse;
 import examen.dev.tfgalmacen.rest.users.mapper.UserMapper;
@@ -27,46 +26,42 @@ public class UserServiceImpl implements UserService {
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
     private final ClienteRepository clienteRepository;
-    private final TrabajadorRepository trabajadorRepository;
 
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, UserMapper userMapper, EmailService emailService, PasswordEncoder passwordEncoder, ClienteRepository clienteRepository, TrabajadorRepository trabajadorRepository) {
+    public UserServiceImpl(UserRepository userRepository, UserMapper userMapper, EmailService emailService, PasswordEncoder passwordEncoder, ClienteRepository clienteRepository) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.emailService = emailService;
         this.passwordEncoder = passwordEncoder;
         this.clienteRepository = clienteRepository;
-        this.trabajadorRepository = trabajadorRepository;
     }
 
     @Override
     public List<UserResponse> getAllUsers() {
-        return userRepository.findAll().stream().map(user -> {
+        List<User> users = userRepository.findAll();
 
-            UserResponse dto = new UserResponse(user);
+        return users.stream().map(user -> {
+            UserResponse dto = new UserResponse();
+            dto.setId(user.getId());
+            dto.setNombre(user.getNombre());
+            dto.setCorreo(user.getCorreo());
+            dto.setRoles(user.getRoles());
+            dto.setApellidos(user.getApellidos());
+            dto.setTelefono(user.getTelefono());
+            dto.setCiudad(user.getCiudad());
+            dto.setFoto(user.getFoto());
+            dto.setRol(user.getRoles().stream().findFirst().map(Enum::name).orElse(null));
 
             clienteRepository.findByUser(user).ifPresent(cliente -> {
                 dto.setDni(cliente.getDni());
                 dto.setFotoDni(cliente.getFotoDni());
                 dto.setDireccionEnvio(cliente.getDireccionEnvio());
-                dto.setRol("cliente");
             });
-
-            trabajadorRepository.findByUser(user).ifPresent(trabajador -> {
-                dto.setNumeroSeguridadSocial(trabajador.getNumeroSeguridadSocial());
-                dto.setRol("trabajador");
-            });
-
-            if (dto.getRol() == null) {
-                dto.setRol("admin");
-            }
 
             return dto;
         }).collect(Collectors.toList());
     }
-
-
 
 
 
