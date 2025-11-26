@@ -1,138 +1,181 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { PedidoService, Pedido } from '@core/services/pedido.service';
 import { RouterModule, Router } from '@angular/router';
+import { AuthService } from '@core/services/auth.service';
 
 @Component({
   selector: 'app-mis-pedidos',
   standalone: true,
-  imports: [CommonModule, CurrencyPipe, RouterModule],
+  imports: [CommonModule, CurrencyPipe, RouterModule, FormsModule],
   template: `
-    <div class="mis-pedidos-layout">
-      <div class="background-pattern"></div>
+    <div class="gestion-layout">
+      <!-- Particles Background -->
+      <div class="particles-bg">
+        <div class="particle" *ngFor="let p of [1,2,3,4,5,6,7,8,9,10]" 
+             [style.left.%]="p * 10" 
+             [style.animation-delay.s]="p * 0.5"></div>
+      </div>
 
-      <!-- HEADER -->
-      <header class="page-header">
-        <div class="header-content">
-          <div class="header-title">
-            <div class="title-icon">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                      d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-              </svg>
-            </div>
-            <div>
-              <h1>Mis Pedidos</h1>
-              <p class="subtitle">Consulta el estado de tus compras</p>
+      <!-- NAVBAR -->
+      <nav class="navbar">
+        <div class="nav-left">
+          <div class="logo-container">
+            <div class="logo-icon">🛒</div>
+            <div class="logo-text">
+              <h1 class="app-title">Mis Pedidos</h1>
+              <p class="app-subtitle">Consulta tus compras</p>
             </div>
           </div>
-          
-          <div class="header-actions">
-            <button (click)="volverDashboard()" class="btn btn-secondary">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                      d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+        </div>
+        
+        <div class="nav-right">
+          <button class="btn-nav" (click)="goToProfile()">
+            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+            </svg>
+            Mi Perfil
+          </button>
+          <button class="btn-nav" (click)="logout()">
+            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+            </svg>
+            Salir
+          </button>
+        </div>
+      </nav>
+
+      <!-- MAIN CONTENT -->
+      <main class="main-content">
+        
+        <!-- Page Header -->
+        <div class="page-header">
+          <div class="header-info">
+            <h1>📦 Mis Pedidos</h1>
+            <p>Gestiona y consulta el estado de tus compras</p>
+          </div>
+          <button class="btn-primary" (click)="volverDashboard()">
+            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+            </svg>
+            Ir a Comprar
+          </button>
+        </div>
+
+        <!-- STATS -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon blue">🛒</div>
+            <div class="stat-info">
+              <div class="stat-value">{{ pedidos.length }}</div>
+              <div class="stat-label">Total Pedidos</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon orange">⏳</div>
+            <div class="stat-info">
+              <div class="stat-value">{{ contarPorEstado('PENDIENTE') }}</div>
+              <div class="stat-label">Pendientes</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon purple">⚡</div>
+            <div class="stat-info">
+              <div class="stat-value">{{ contarPorEstado('EN_PROCESO') }}</div>
+              <div class="stat-label">En Proceso</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon green">✓</div>
+            <div class="stat-info">
+              <div class="stat-value">{{ contarPorEstado('ENTREGADO') }}</div>
+              <div class="stat-label">Entregados</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Search and Filters Section -->
+        <div class="search-filter-section">
+          <div class="search-box">
+            <svg class="search-icon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <input 
+              type="text" 
+              placeholder="Buscar pedidos por ID, fecha o productos..." 
+              [(ngModel)]="searchTerm"
+              (input)="aplicarFiltros()"
+            />
+            <button class="clear-btn" *ngIf="searchTerm" (click)="limpiarBusqueda()">
+              <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
               </svg>
-              Dashboard
             </button>
-            <div class="user-menu" (click)="toggleMenu()">
-              <img 
-                src="https://cdn-icons-png.flaticon.com/512/847/847969.png" 
-                alt="Usuario" 
-                class="user-icon"
-              />
-              <div class="menu-dropdown" *ngIf="menuOpen">
-                <div class="menu-item" (click)="goToProfile()">
-                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                  </svg>
-                  Mi perfil
-                </div>
-                <div class="menu-item" (click)="goToMisPedidos()">
-                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                          d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-                  </svg>
-                  Mis pedidos
-                </div>
-                <div class="menu-item logout" (click)="logout()">
-                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                          d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-                  </svg>
-                  Cerrar sesión
-                </div>
+          </div>
+
+          <div class="filter-section">
+            <div class="filter-label">
+              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+              </svg>
+              Filtrar por estado:
+            </div>
+            <div class="filter-chips">
+              <div class="filter-chip" 
+                   [class.active]="filtroEstado === ''"
+                   (click)="filtrarPorEstado('')">
+                Todos
+              </div>
+              <div class="filter-chip" 
+                   [class.active]="filtroEstado === 'PENDIENTE'"
+                   (click)="filtrarPorEstado('PENDIENTE')">
+                Pendiente
+              </div>
+              <div class="filter-chip" 
+                   [class.active]="filtroEstado === 'EN_PROCESO'"
+                   (click)="filtrarPorEstado('EN_PROCESO')">
+                En Proceso
+              </div>
+              <div class="filter-chip" 
+                   [class.active]="filtroEstado === 'ENVIADO'"
+                   (click)="filtrarPorEstado('ENVIADO')">
+                Enviado
+              </div>
+              <div class="filter-chip" 
+                   [class.active]="filtroEstado === 'ENTREGADO'"
+                   (click)="filtrarPorEstado('ENTREGADO')">
+                Entregado
               </div>
             </div>
           </div>
-        </div>
-      </header>
 
-      <!-- CONTENT -->
-      <main class="page-content">
-        
-        <!-- STATS -->
-        <div class="stats-container">
-          <div class="stat-card">
-            <div class="stat-icon blue">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                      d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-              </svg>
-            </div>
-            <div class="stat-info">
-              <div class="stat-label">Total Pedidos</div>
-              <div class="stat-value">{{ pedidos.length }}</div>
-            </div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-icon orange">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-              </svg>
-            </div>
-            <div class="stat-info">
-              <div class="stat-label">Pendientes</div>
-              <div class="stat-value">{{ contarPorEstado('PENDIENTE') }}</div>
-            </div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-icon purple">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                      d="M13 10V3L4 14h7v7l9-11h-7z"/>
-              </svg>
-            </div>
-            <div class="stat-info">
-              <div class="stat-label">En Proceso</div>
-              <div class="stat-value">{{ contarPorEstado('EN_PROCESO') }}</div>
-            </div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-icon green">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                      d="M5 13l4 4L19 7"/>
-              </svg>
-            </div>
-            <div class="stat-info">
-              <div class="stat-label">Entregados</div>
-              <div class="stat-value">{{ contarPorEstado('ENTREGADO') }}</div>
-            </div>
+          <div class="results-info" *ngIf="pedidosFiltrados.length !== pedidos.length || searchTerm">
+            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            Mostrando {{ pedidosFiltrados.length }} de {{ pedidos.length }} pedidos
+            <button class="btn-reset-filters" (click)="resetearFiltros()">
+              Limpiar filtros
+            </button>
           </div>
         </div>
 
-        <!-- PEDIDOS LIST -->
-        <div class="pedidos-grid" *ngIf="pedidos.length > 0">
-          <div class="pedido-card" *ngFor="let pedido of pedidos">
+        <!-- PEDIDOS GRID -->
+        <div class="pedidos-grid" *ngIf="pedidosFiltrados.length > 0">
+          <div class="pedido-card" *ngFor="let pedido of pedidosFiltrados">
             <div class="card-header-pedido">
               <div class="pedido-id">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                         d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                 </svg>
@@ -144,17 +187,33 @@ import { RouterModule, Router } from '@angular/router';
             </div>
 
             <div class="card-body-pedido">
-              <div class="pedido-fecha">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                </svg>
-                {{ pedido.fecha | date:'dd/MM/yyyy HH:mm' }}
+              <div class="pedido-info-row">
+                <div class="info-item">
+                  <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                  </svg>
+                  <div>
+                    <div class="info-label">Fecha</div>
+                    <div class="info-value">{{ pedido.fecha | date:'dd/MM/yyyy' }}</div>
+                  </div>
+                </div>
+
+                <div class="info-item">
+                  <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                  <div>
+                    <div class="info-label">Hora</div>
+                    <div class="info-value">{{ pedido.fecha | date:'HH:mm' }}</div>
+                  </div>
+                </div>
               </div>
 
               <div class="pedido-items">
                 <div class="items-header">
-                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                           d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
                   </svg>
@@ -170,14 +229,14 @@ import { RouterModule, Router } from '@angular/router';
               </div>
 
               <div class="pedido-total">
-                <span>Total</span>
+                <span>Total del Pedido</span>
                 <span class="total-amount">{{ totalPedido(pedido) | currency:'EUR' }}</span>
               </div>
             </div>
 
-            <div class="card-footer">
-              <button class="btn btn-view" (click)="verDetalle(pedido)">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="card-footer-pedido">
+              <button class="btn-edit" (click)="verDetalle(pedido)">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                         d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
@@ -190,19 +249,26 @@ import { RouterModule, Router } from '@angular/router';
         </div>
 
         <!-- EMPTY STATE -->
-        <div class="empty-state" *ngIf="pedidos.length === 0">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                  d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-          </svg>
+        <div class="empty-state" *ngIf="pedidosFiltrados.length === 0 && pedidos.length === 0">
+          <div class="empty-icon">📦</div>
           <h3>No tienes pedidos</h3>
           <p>Aún no has realizado ningún pedido. ¡Empieza a comprar!</p>
-          <button class="btn btn-primary" (click)="volverDashboard()">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <button class="btn-primary" (click)="volverDashboard()">
+            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                     d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
             </svg>
-            Ir a comprar
+            Ir a Comprar
+          </button>
+        </div>
+
+        <!-- NO RESULTS STATE -->
+        <div class="empty-state" *ngIf="pedidosFiltrados.length === 0 && pedidos.length > 0">
+          <div class="empty-icon">🔍</div>
+          <h3>No se encontraron pedidos</h3>
+          <p>No hay pedidos que coincidan con los filtros aplicados.</p>
+          <button class="btn-secondary" (click)="resetearFiltros()">
+            Limpiar Filtros
           </button>
         </div>
 
@@ -213,14 +279,14 @@ import { RouterModule, Router } from '@angular/router';
         <div class="modal-container" (click)="$event.stopPropagation()">
           <div class="modal-header">
             <h2>
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                       d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
               </svg>
               Pedido #{{ pedidoSeleccionado.id }}
             </h2>
             <button class="btn-close" (click)="cerrarModal()">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
               </svg>
             </button>
@@ -228,23 +294,31 @@ import { RouterModule, Router } from '@angular/router';
 
           <div class="modal-body">
             <div class="detalle-section">
-              <h3>Información del Pedido</h3>
+              <h3>📋 Información del Pedido</h3>
               <div class="detalle-grid">
                 <div class="detalle-item">
-                  <span class="detalle-label">Estado:</span>
+                  <span class="detalle-label">Estado</span>
                   <span class="estado-badge-modal" [attr.data-estado]="pedidoSeleccionado.estado">
                     {{ getEstadoLabel(pedidoSeleccionado.estado) }}
                   </span>
                 </div>
                 <div class="detalle-item">
-                  <span class="detalle-label">Fecha:</span>
+                  <span class="detalle-label">Fecha y Hora</span>
                   <span class="detalle-value">{{ pedidoSeleccionado.fecha | date:'dd/MM/yyyy HH:mm' }}</span>
+                </div>
+                <div class="detalle-item">
+                  <span class="detalle-label">ID del Pedido</span>
+                  <span class="detalle-value">#{{ pedidoSeleccionado.id }}</span>
+                </div>
+                <div class="detalle-item">
+                  <span class="detalle-label">Productos</span>
+                  <span class="detalle-value">{{ pedidoSeleccionado.lineasVenta.length }} artículos</span>
                 </div>
               </div>
             </div>
 
             <div class="detalle-section">
-              <h3>Productos</h3>
+              <h3>📦 Productos del Pedido</h3>
               <div class="lineas-venta-list">
                 <div class="linea-item" *ngFor="let lv of pedidoSeleccionado.lineasVenta">
                   <div class="linea-producto">
@@ -266,7 +340,7 @@ import { RouterModule, Router } from '@angular/router';
           </div>
 
           <div class="modal-footer">
-            <button class="btn btn-secondary" (click)="cerrarModal()">Cerrar</button>
+            <button class="btn-secondary" (click)="cerrarModal()">Cerrar</button>
           </div>
         </div>
       </div>
@@ -274,299 +348,458 @@ import { RouterModule, Router } from '@angular/router';
     </div>
   `,
   styles: [`
+    :host {
+      --primary: #6366f1;
+      --accent: #06b6d4;
+      --bg-dark: #0f172a;
+      --bg-card: #1e293b;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: rgba(255,255,255,0.1);
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --purple: #8b5cf6;
+      display: block;
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
 
-    .mis-pedidos-layout {
+    .gestion-layout {
       min-height: 100vh;
-      background: #f8fafc;
-      font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+      color: var(--text);
+      font-family: 'Inter', -apple-system, sans-serif;
+      position: relative;
+      overflow-x: hidden;
     }
 
-    .background-pattern {
+    /* PARTICLES */
+    .particles-bg {
       position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(135deg, rgba(102, 126, 234, 0.03) 0%, rgba(118, 75, 162, 0.03) 100%);
+      inset: 0;
       pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
     }
 
-    /* HEADER */
-    .page-header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
-      position: sticky;
-      top: 0;
-      z-index: 50;
+    .particle {
+      position: absolute;
+      width: 3px;
+      height: 3px;
+      background: rgba(99, 102, 241, 0.4);
+      border-radius: 50%;
+      animation: rise 20s infinite ease-in-out;
     }
 
-    .header-content {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 2rem;
+    @keyframes rise {
+      0%, 100% {
+        transform: translateY(100vh) scale(0);
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      90% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-10vh) scale(1);
+        opacity: 0;
+      }
+    }
+
+    /* NAVBAR */
+    .navbar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 2rem;
-    }
-
-    .header-title {
-      display: flex;
-      align-items: center;
-      gap: 1.5rem;
-      color: white;
-    }
-
-    .title-icon {
-      width: 60px;
-      height: 60px;
-      background: rgba(255, 255, 255, 0.2);
-      padding: 12px;
-      border-radius: 16px;
-      backdrop-filter: blur(10px);
-    }
-
-    .header-title h1 {
-      font-size: 2rem;
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
-
-    .subtitle {
-      font-size: 0.95rem;
-      opacity: 0.9;
-    }
-
-    .header-actions {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-    }
-
-    /* USER MENU */
-    .user-menu {
-      position: relative;
-      cursor: pointer;
-    }
-
-    .user-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      background: white;
-      padding: 4px;
-      transition: all 0.3s ease;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    }
-
-    .user-icon:hover {
-      transform: scale(1.1);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    }
-
-    .menu-dropdown {
-      position: absolute;
-      top: 60px;
-      right: 0;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-      width: 200px;
-      overflow: hidden;
-      animation: fadeIn 0.2s ease;
+      padding: 1rem 2rem;
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
       z-index: 100;
     }
 
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(-10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .menu-item {
-      padding: 12px 16px;
-      font-size: 0.95rem;
-      color: #334155;
-      transition: all 0.2s;
+    .nav-left {
       display: flex;
       align-items: center;
-      gap: 10px;
-      font-weight: 500;
     }
 
-    .menu-item svg {
-      width: 18px;
-      height: 18px;
-      color: #667eea;
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
     }
 
-    .menu-item:hover {
-      background: #f1f5f9;
+    .logo-icon {
+      font-size: 2rem;
     }
 
-    .menu-item.logout {
-      color: #dc2626;
-      border-top: 1px solid #e2e8f0;
+    .logo-text {
+      display: flex;
+      flex-direction: column;
     }
 
-    .menu-item.logout svg {
-      color: #dc2626;
+    .app-title {
+      margin: 0;
+      font-size: 1.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #6366f1, #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .app-subtitle {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .nav-right {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .btn-nav {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 1rem;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-nav:hover {
+      background: rgba(255,255,255,0.15);
+      transform: translateY(-1px);
+    }
+
+    /* MAIN */
+    .main-content {
+      position: relative;
+      z-index: 1;
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    /* PAGE HEADER */
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .header-info h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin: 0 0 0.25rem;
+    }
+
+    .header-info p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin: 0;
     }
 
     /* BUTTONS */
-    .btn {
+    .btn-primary {
       display: flex;
       align-items: center;
-      gap: 8px;
-      padding: 12px 20px;
+      gap: 0.5rem;
+      padding: 0.75rem 1.25rem;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
       border: none;
       border-radius: 10px;
-      font-size: 0.95rem;
+      color: white;
+      font-size: 0.9rem;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .btn svg {
-      width: 18px;
-      height: 18px;
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
     }
 
     .btn-primary:hover {
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
     }
 
     .btn-secondary {
-      background: rgba(255, 255, 255, 0.2);
-      color: white;
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.25rem;
+      background: rgba(100, 116, 139, 0.2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
     }
 
     .btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.3);
+      background: rgba(100, 116, 139, 0.3);
+      color: var(--text);
+      transform: translateY(-1px);
     }
 
-    .btn-view {
-      background: #3b82f6;
-      color: white;
-      width: 100%;
-      justify-content: center;
+    .btn-edit {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 1rem;
+      background: #eef2ff;
+      border: 1px solid #c7d2fe;
+      border-radius: 999px;
+      color: #4f46e5;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
     }
 
-    .btn-view:hover {
-      background: #2563eb;
-      transform: translateY(-2px);
+    .btn-edit:hover {
+      background: #e0e7ff;
+      transform: translateY(-1px);
     }
 
-    /* CONTENT */
-    .page-content {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 2rem;
-      position: relative;
+    .btn-edit svg {
+      width: 16px;
+      height: 16px;
     }
 
     /* STATS */
-    .stats-container {
+    .stats-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1.5rem;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
       margin-bottom: 2rem;
-      position: relative;
-      z-index: 1;
     }
 
     .stat-card {
-      background: white;
+      background: rgba(30, 41, 59, 0.6);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
       border-radius: 16px;
-      padding: 1.5rem;
+      padding: 1.25rem;
       display: flex;
       align-items: center;
       gap: 1rem;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-      transition: all 0.3s ease;
-      animation: fadeInUp 0.5s ease;
-    }
-
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      transition: all 0.3s;
     }
 
     .stat-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+      transform: translateY(-2px);
+      border-color: var(--primary);
     }
 
     .stat-icon {
-      width: 60px;
-      height: 60px;
+      font-size: 2rem;
+      width: 56px;
+      height: 56px;
       border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
-    .stat-icon svg {
-      width: 28px;
-      height: 28px;
-      color: white;
-    }
-
     .stat-icon.blue {
-      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      background: rgba(59, 130, 246, 0.2);
     }
 
     .stat-icon.green {
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      background: rgba(16, 185, 129, 0.2);
     }
 
     .stat-icon.orange {
-      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      background: rgba(245, 158, 11, 0.2);
     }
 
     .stat-icon.purple {
-      background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+      background: rgba(139, 92, 246, 0.2);
     }
 
     .stat-info {
-      flex: 1;
-    }
-
-    .stat-label {
-      font-size: 0.85rem;
-      color: #64748b;
-      font-weight: 500;
-      margin-bottom: 4px;
+      display: flex;
+      flex-direction: column;
     }
 
     .stat-value {
       font-size: 1.75rem;
-      color: #1e293b;
       font-weight: 700;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* SEARCH AND FILTERS */
+    .search-filter-section {
+      background: rgba(30, 41, 59, 0.6);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .search-box {
+      position: relative;
+      margin-bottom: 1.5rem;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 0.85rem 3rem 0.85rem 3rem;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 0.95rem;
+      transition: all 0.3s;
+    }
+
+    .search-box input::placeholder {
+      color: rgba(148, 163, 184, 0.5);
+    }
+
+    .search-box input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    }
+
+    .clear-btn {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: rgba(100, 116, 139, 0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .clear-btn:hover {
+      background: rgba(100, 116, 139, 0.3);
+    }
+
+    .clear-btn svg {
+      color: var(--text-muted);
+    }
+
+    .filter-section {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .filter-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .filter-label svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .filter-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .filter-chip {
+      padding: 0.4rem 0.9rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      font-size: 0.8rem;
+      cursor: pointer;
+      color: var(--text-muted);
+      background: rgba(15, 23, 42, 0.5);
+      transition: all 0.2s ease;
+    }
+
+    .filter-chip.active {
+      background: linear-gradient(135deg, #6366f1, #06b6d4);
+      color: #f9fafb;
+      border-color: transparent;
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+    }
+
+    .filter-chip:hover {
+      border-color: #6366f1;
+    }
+
+    .results-info {
+      margin-top: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      flex-wrap: wrap;
+    }
+
+    .results-info svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .btn-reset-filters {
+      margin-left: auto;
+      padding: 0.35rem 0.8rem;
+      border-radius: 999px;
+      border: none;
+      background: rgba(148, 163, 184, 0.2);
+      color: var(--text);
+      font-size: 0.75rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-reset-filters:hover {
+      background: rgba(148, 163, 184, 0.3);
     }
 
     /* PEDIDOS GRID */
@@ -584,9 +817,9 @@ import { RouterModule, Router } from '@angular/router';
       overflow: hidden;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
       transition: all 0.3s ease;
-      animation: fadeInUp 0.5s ease;
       display: flex;
       flex-direction: column;
+      animation: fadeInUp 0.5s ease;
     }
 
     .pedido-card:hover {
@@ -659,22 +892,37 @@ import { RouterModule, Router } from '@angular/router';
       gap: 1.25rem;
     }
 
-    .pedido-fecha {
+    .pedido-info-row {
       display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px;
-      background: #f8fafc;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      color: #475569;
-      font-weight: 500;
+      gap: 1rem;
+      flex-wrap: wrap;
     }
 
-    .pedido-fecha svg {
+    .info-item {
+      flex: 1 1 160px;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem;
+      background: #f8fafc;
+      border-radius: 8px;
+    }
+
+    .info-item svg {
       width: 18px;
       height: 18px;
-      color: #667eea;
+      color: #6366f1;
+    }
+
+    .info-label {
+      font-size: 0.75rem;
+      color: #94a3b8;
+    }
+
+    .info-value {
+      font-size: 0.95rem;
+      color: #0f172a;
+      font-weight: 600;
     }
 
     .pedido-items {
@@ -766,10 +1014,12 @@ import { RouterModule, Router } from '@angular/router';
       font-weight: 700;
     }
 
-    .card-footer {
+    .card-footer-pedido {
       padding: 1rem 1.5rem;
       background: #f8fafc;
       border-top: 1px solid #e2e8f0;
+      display: flex;
+      justify-content: flex-end;
     }
 
     /* EMPTY STATE */
@@ -783,10 +1033,8 @@ import { RouterModule, Router } from '@angular/router';
       z-index: 1;
     }
 
-    .empty-state svg {
-      width: 80px;
-      height: 80px;
-      color: #cbd5e1;
+    .empty-icon {
+      font-size: 3rem;
       margin-bottom: 1.5rem;
     }
 
@@ -839,6 +1087,15 @@ import { RouterModule, Router } from '@angular/router';
       to {
         opacity: 1;
         transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
       }
     }
 
@@ -1050,56 +1307,39 @@ import { RouterModule, Router } from '@angular/router';
       gap: 1rem;
     }
 
+    /* ANIMATIONS */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
     /* RESPONSIVE */
     @media (max-width: 1024px) {
-      .header-content {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .header-actions {
-        width: 100%;
-        justify-content: space-between;
-      }
-
       .pedidos-grid {
         grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
       }
 
-      .stats-container {
+      .stats-grid {
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       }
     }
 
     @media (max-width: 768px) {
-      .header-content {
-        padding: 1.5rem;
-      }
-
-      .header-title {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
-      }
-
-      .title-icon {
-        width: 50px;
-        height: 50px;
-      }
-
-      .header-title h1 {
-        font-size: 1.5rem;
-      }
-
-      .page-content {
-        padding: 1rem;
+      .main-content {
+        padding: 1.5rem 1rem;
       }
 
       .pedidos-grid {
         grid-template-columns: 1fr;
       }
 
-      .stats-container {
+      .stats-grid {
         grid-template-columns: 1fr;
       }
 
@@ -1113,11 +1353,6 @@ import { RouterModule, Router } from '@angular/router';
 
       .modal-footer {
         flex-direction: column-reverse;
-      }
-
-      .modal-footer .btn {
-        width: 100%;
-        justify-content: center;
       }
 
       .linea-item {
@@ -1135,8 +1370,13 @@ import { RouterModule, Router } from '@angular/router';
     }
 
     @media (max-width: 480px) {
-      .header-title h1 {
-        font-size: 1.25rem;
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .header-info h1 {
+        font-size: 1.4rem;
       }
 
       .pedido-card {
@@ -1159,21 +1399,59 @@ import { RouterModule, Router } from '@angular/router';
 })
 export class MisPedidosComponent implements OnInit {
   pedidos: Pedido[] = [];
+  pedidosFiltrados: Pedido[] = [];
   pedidoSeleccionado: Pedido | null = null;
   menuOpen = false;
 
+  searchTerm = '';
+  filtroEstado: string = '';
+
   constructor(
     private pedidoService: PedidoService, 
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
-    const clienteId = 5;
-    this.pedidoService.getByCliente(clienteId).subscribe({
-      next: (data) => this.pedidos = data,
+    const userStr = localStorage.getItem('user');
+    if (!userStr) {
+      console.error('No hay usuario en localStorage');
+      this.pedidos = [];
+      this.pedidosFiltrados = [];
+      return;
+    }
+
+    const user = JSON.parse(userStr);
+    const userId = user.id;
+
+    this.authService.getClienteData(userId).subscribe({
+      next: (cliente) => {
+        const clienteId = cliente?.id;
+
+        if (!clienteId) {
+          console.error('El usuario no tiene cliente asociado.');
+          this.pedidos = [];
+          this.pedidosFiltrados = [];
+          return;
+        }
+
+        this.pedidoService.getMisPedidos(clienteId).subscribe({
+          next: (data) => {
+            console.log('Pedidos recibidos:', data);
+            this.pedidos = data;
+            this.pedidosFiltrados = [...this.pedidos];
+          },
+          error: (err) => {
+            console.error('Error al obtener los pedidos del cliente', err);
+            this.pedidos = [];
+            this.pedidosFiltrados = [];
+          }
+        });
+      },
       error: (err) => {
-        console.error('Error al obtener los pedidos del cliente', err);
+        console.error('Error al obtener datos de cliente:', err);
         this.pedidos = [];
+        this.pedidosFiltrados = [];
       }
     });
   }
@@ -1228,5 +1506,46 @@ export class MisPedidosComponent implements OnInit {
 
   volverDashboard() {
     this.router.navigate(['/dashboard']);
+  }
+
+  aplicarFiltros() {
+  const term = this.searchTerm?.toLowerCase().trim();
+  this.pedidosFiltrados = this.pedidos.filter(p => {
+    const coincideEstado = this.filtroEstado ? p.estado === this.filtroEstado : true;
+
+    const idMatch = term
+      ? (p.id != null && p.id.toString().includes(term))
+      : true;
+
+    const fechaStr = p.fecha ? new Date(p.fecha).toLocaleDateString('es-ES') : '';
+    const fechaMatch = term ? fechaStr.toLowerCase().includes(term) : true;
+
+    const productosStr = (p.lineasVenta || [])
+      .map(lv => lv.productoNombre || '')
+      .join(' ')
+      .toLowerCase();
+    const productosMatch = term ? productosStr.includes(term) : true;
+
+    const coincideBusqueda = term ? (idMatch || fechaMatch || productosMatch) : true;
+
+    return coincideEstado && coincideBusqueda;
+  });
+}
+
+
+  limpiarBusqueda() {
+    this.searchTerm = '';
+    this.aplicarFiltros();
+  }
+
+  filtrarPorEstado(estado: string) {
+    this.filtroEstado = estado;
+    this.aplicarFiltros();
+  }
+
+  resetearFiltros() {
+    this.filtroEstado = '';
+    this.searchTerm = '';
+    this.pedidosFiltrados = [...this.pedidos];
   }
 }
