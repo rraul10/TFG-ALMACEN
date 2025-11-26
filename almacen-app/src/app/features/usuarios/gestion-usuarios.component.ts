@@ -229,6 +229,43 @@ import { NgForm } from '@angular/forms';
             </div>
           </div>
 
+          <div class="usuarios-grid" *ngIf="usuariosFiltrados.length > 0">
+            <div class="usuario-card" *ngFor="let u of usuariosFiltrados">
+              <div class="card-header-user">
+                <img [src]="'http://localhost:8080/files/' + u.foto" [alt]="u.nombre" class="usuario-avatar" />
+                <span class="badge-activo">✓ Activo</span>
+              </div>
+              <div class="card-body-user">
+                <h3>{{ u.nombre }} {{ u.apellidos }}</h3>
+                <div class="user-details">
+                  <div class="detail-row">
+                    <svg ... ></svg>
+                    <span>{{ u.correo }}</span>
+                  </div>
+                  <div class="detail-row">
+                    <svg ... ></svg>
+                    <span>{{ u.telefono }}</span>
+                  </div>
+                  <div class="detail-row" *ngIf="u.rol === 'cliente'">
+                    <svg ... ></svg>
+                    <span>DNI: {{ u.dni }}</span>
+                  </div>
+                  <div class="detail-row" *ngIf="u.rol === 'cliente'">
+                    <svg ... ></svg>
+                    <span>Dirección de envío: {{ u.direccionEnvio }}</span>
+                  </div>
+                  <div class="detail-row" *ngIf="u.rol === 'trabajador'">
+                    <svg ... ></svg>
+                    <span>CIF: {{ u.numeroSeguridadSocial }}</span>  
+                  </div>
+                </div>
+              </div>
+              <!-- resto del código -->
+            </div>
+          </div>
+
+
+
         </div>
       </div>
 
