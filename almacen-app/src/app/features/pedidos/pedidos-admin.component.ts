@@ -91,50 +91,22 @@ import { RoleService } from '@core/services/role.service';
           </div>
 
           <div class="filter-section">
-            <div class="filter-label">
+            <label for="estadoSelect" class="filter-label">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
               </svg>
               Filtrar por estado:
-            </div>
-            <div class="filter-chips">
-              <button 
-                class="filter-chip" 
-                [class.active]="filtroEstado === null"
-                (click)="filtrarPorEstado(null)"
-              >
-                Todos
-              </button>
-              <button 
-                class="filter-chip" 
-                [class.active]="filtroEstado === 'PENDIENTE'"
-                (click)="filtrarPorEstado('PENDIENTE')"
-              >
-                Pendiente
-              </button>
-              <button 
-                class="filter-chip" 
-                [class.active]="filtroEstado === 'PREPARACION'"
-                (click)="filtrarPorEstado('PREPARACION')"
-              >
-                Preparacion
-              </button>
-              <button 
-                class="filter-chip" 
-                [class.active]="filtroEstado === 'ENVIADO'"
-                (click)="filtrarPorEstado('ENVIADO')"
-              >
-                Enviado
-              </button>
-              <button 
-                class="filter-chip" 
-                [class.active]="filtroEstado === 'ENTREGADO'"
-                (click)="filtrarPorEstado('ENTREGADO')"
-              >
-                Entregado
-              </button>
-            </div>
+            </label>
+            <select id="estadoSelect" [(ngModel)]="filtroEstado" (change)="filtrarPorEstado(filtroEstado)">
+              <option [ngValue]="null">Todos</option>
+              <option value="PENDIENTE">Pendiente</option>
+              <option value="PREPARACION">Preparacion</option>
+              <option value="ENVIADO">Enviado</option>
+              <option value="ENTREGADO">Entregado</option>
+            </select>
           </div>
+
+
 
           <div class="results-info" *ngIf="filtroEstado || clienteIdBusqueda">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -327,6 +299,15 @@ import { RoleService } from '@core/services/role.service';
 .nav-right { display: flex; gap: 0.75rem; }
 .btn-nav { display: flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1rem; background: rgba(255,255,255,0.1); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 0.9rem; cursor: pointer; transition: all 0.3s; }
 .btn-nav:hover { background: rgba(255,255,255,0.15); }
+.filter-section select {
+  margin-top: 0.5rem;
+  padding: 0.6rem 1rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: rgba(15, 23, 42, 0.6);
+  color: var(--text);
+  font-size: 0.95rem;
+}
 
 /* MAIN */
 .main-content { position: relative; z-index: 1; max-width: 1300px; margin: 0 auto; padding: 2rem; }

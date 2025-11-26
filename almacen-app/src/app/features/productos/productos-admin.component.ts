@@ -78,47 +78,57 @@ import { Router } from '@angular/router';
         </div>
 
         <!-- Buscador y Filtros -->
-        <div class="search-filter-section">
-          <div class="search-box">
-            <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-            </svg>
-            <input 
-              type="text" 
-              [(ngModel)]="searchTerm" 
-              (input)="aplicarFiltros()"
-              placeholder="Buscar productos por nombre o descripción..."
-            />
-            <button class="clear-btn" *ngIf="searchTerm" (click)="limpiarBusqueda()">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6L18 18"/></svg>
-            </button>
-          </div>
 
-          <div class="filter-section" *ngIf="getTiposUnicos().length > 0">
-            <div class="filter-label">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+        <section class="filters-section" *ngIf="productos.length > 0">
+          <div class="filters-bar">
+
+            <!-- BUSCADOR IZQUIERDA -->
+            <div class="search-wrapper">
+              <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/>
+                <path d="M21 21l-4.35-4.35"/>
               </svg>
-              Filtrar por tipo:
+
+              <input
+                type="text"
+                [(ngModel)]="searchTerm"
+                (ngModelChange)="aplicarFiltros()"
+                placeholder="Buscar productos..."
+                class="search-input"
+              />
+
+              <button *ngIf="searchTerm" class="clear-search" (click)="limpiarBusqueda()">×</button>
             </div>
-            <div class="filter-chips">
-              <button 
-                class="filter-chip" 
-                [class.active]="filtroTipo === ''"
-                (click)="cambiarFiltroTipo('')"
-              >
-                Todos ({{ productos.length }})
-              </button>
-              <button 
-                *ngFor="let tipo of getTiposUnicos()" 
-                class="filter-chip"
-                [class.active]="filtroTipo === tipo"
-                (click)="cambiarFiltroTipo(tipo)"
-              >
-                {{ tipo }} ({{ contarPorTipo(tipo) }})
-              </button>
+
+            <!-- FILTROS CENTRALES -->
+            <div class="filters-center">
+              <div class="filter-group">
+                <select [(ngModel)]="filtroTipo" (change)="aplicarFiltros()" class="filter-select">
+                  <option value="">Categorías</option>
+                  <option *ngFor="let tipo of getTiposUnicos()" [value]="tipo">{{ tipo }}</option>
+                </select>
+              </div>
+
+              <div class="filter-group">
+                <select [(ngModel)]="ordenSeleccionado" (change)="aplicarFiltros()" class="filter-select">
+                  <option value="">Ordenar por..</option>
+                  <option value="precio-asc">Precio: Menor a Mayor</option>
+                  <option value="precio-desc">Precio: Mayor a Menor</option>
+                  <option value="nombre-asc">Nombre: A - Z</option>
+                  <option value="nombre-desc">Nombre: Z - A</option>
+                </select>
+              </div>
             </div>
+
+            <!-- CONTADOR DERECHA -->
+            <div class="results-count">
+              <span class="count">{{ productosFiltrados.length }}</span> productos
+            </div>
+
           </div>
+        </section>
+
+
 
           <div class="results-info" *ngIf="searchTerm || filtroTipo">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -129,8 +139,7 @@ import { Router } from '@angular/router';
               Limpiar filtros
             </button>
           </div>
-        </div>
-
+       
         <!-- Grid de productos -->
         <div class="productos-grid" *ngIf="productosFiltrados.length > 0">
           <div class="producto-card" *ngFor="let p of productosFiltrados">
@@ -254,6 +263,174 @@ import { Router } from '@angular/router';
   `,
   styles: [`
 :host { --primary: #6366f1; --accent: #06b6d4; --bg-dark: #0f172a; --bg-card: #1e293b; --text: #f8fafc; --text-muted: #94a3b8; --border: rgba(255,255,255,0.1); --success: #10b981; --danger: #ef4444; --warning: #f59e0b; }
+/* === FILTERS (IGUAL QUE EN EL DASHBOARD) === */
+
+.filters-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* izquierda, centro, derecha */
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1rem 0;
+}
+
+/* Contenedor para los filtros del medio */
+.filters-center {
+  display: flex;
+  gap: 1rem;
+  flex: 1; /* ocupa espacio central */
+  justify-content: center; /* centra los filtros */
+}
+
+/* Buscador a la izquierda */
+.search-wrapper {
+  flex: 0 0 auto;
+  min-width: 200px;
+  max-width: 350px;
+}
+
+/* Contador a la derecha */
+.results-count {
+  flex: 0 0 auto;
+}
+
+
+.search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.75rem 2.5rem 0.75rem 3rem;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-size: 0.95rem;
+  transition: all 0.3s;
+}
+
+.search-input::placeholder {
+  color: var(--text-muted);
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.clear-search {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.25rem;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.clear-search:hover {
+  color: var(--danger);
+}
+
+/* --- Filtros --- */
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.filter-select {
+  padding: 0.65rem 2rem 0.65rem 0.85rem;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 0.9rem;
+  cursor: pointer;
+  appearance: none;
+  min-width: 160px;
+
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.filter-select option {
+  background: var(--bg-card);
+  color: var(--text);
+}
+
+/* --- Resultados --- */
+.results-count {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 1rem;
+  background: rgba(99, 102, 241, 0.1);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.results-count .count {
+  font-weight: 700;
+  color: var(--primary);
+}
+
+/* --- Botón Limpiar --- */
+.clear-all-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.65rem 1rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.clear-all-btn:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* --- Responsive --- */
+@media (max-width: 900px) {
+  .filters-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .search-wrapper,
+  .filter-group,
+  .filter-select {
+    width: 100%;
+  }
+
+  .results-count {
+    justify-content: center;
+  }
+}
 
 .gestion-layout { min-height: 100vh; background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%); color: var(--text); font-family: 'Inter', -apple-system, sans-serif; position: relative; overflow-x: hidden; }
 
@@ -411,6 +588,8 @@ export class ProductosAdminComponent implements OnInit {
   searchTerm: string = '';
   filtroTipo: string = '';
   productosFiltrados: Producto[] = [];
+  ordenSeleccionado: string = '';
+
 
   particles = Array.from({ length: 30 }, () => ({ x: Math.random() * 100, delay: `${Math.random() * 20}s`, duration: `${15 + Math.random() * 10}s` }));
 
@@ -456,7 +635,22 @@ export class ProductosAdminComponent implements OnInit {
 
       return coincideBusqueda && coincideTipo;
     });
+
+    // ORDENAR
+    if (this.ordenSeleccionado === 'precio-asc') {
+      this.productosFiltrados.sort((a, b) => a.precio - b.precio);
+    } 
+    else if (this.ordenSeleccionado === 'precio-desc') {
+      this.productosFiltrados.sort((a, b) => b.precio - a.precio);
+    } 
+    else if (this.ordenSeleccionado === 'nombre-asc') {
+      this.productosFiltrados.sort((a, b) => a.nombre.localeCompare(b.nombre));
+    } 
+    else if (this.ordenSeleccionado === 'nombre-desc') {
+      this.productosFiltrados.sort((a, b) => b.nombre.localeCompare(a.nombre));
+    }
   }
+
 
   cambiarFiltroTipo(tipo: string) {
     this.filtroTipo = tipo;

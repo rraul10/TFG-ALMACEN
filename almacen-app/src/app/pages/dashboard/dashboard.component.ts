@@ -246,6 +246,50 @@ import { NotificationService } from '@core/services/notification.service';
   styles: [`
 /* === VARIABLES Y BASE === */
 :host { --primary: #6366f1; --primary-dark: #4f46e5; --accent: #06b6d4; --bg-dark: #0f172a; --bg-card: #1e293b; --text: #f8fafc; --text-muted: #94a3b8; --border: rgba(255,255,255,0.1); --success: #10b981; --danger: #ef4444; }
+.filters-section { max-width: 1300px; margin: 0 auto 2rem; padding: 0 1.5rem; }
+
+.filters-bar {
+  display: flex;
+  align-items: center;
+  gap: 10rem;
+  flex-wrap: wrap;
+}
+
+.search-wrapper { position: relative; flex: 1; min-width: 200px; max-width: 350px; }
+.search-icon { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+.search-input { width: 100%; padding: 0.75rem 2.5rem 0.75rem 3rem; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 10px; color: var(--text); }
+
+.clear-search { position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); font-size: 1.25rem; cursor: pointer; }
+
+.filter-group { display: flex; flex-direction: column; gap: 0.25rem; }
+.filter-group label { font-size: 0.75rem; color: var(--text-muted); font-weight: 500; }
+
+.filter-select {
+  padding: 0.65rem 2rem 0.65rem 0.85rem;
+  background: rgba(0,0,0,0.2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.results-count {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 1rem;
+  background: rgba(99, 102, 241, 0.1);
+  border-radius: 8px;
+}
+
+.clear-all-btn {
+  padding: 0.65rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
 
 .dashboard-layout {
   min-height: 100vh;

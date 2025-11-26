@@ -301,7 +301,7 @@ import { AuthService } from '@core/services/auth.service';
             </div>
           </div>
 
-          <button type="submit" [disabled]="!isFormValid()" class="submit-btn">
+          <button type="submit" [disabled]="!registerForm.form.valid" class="submit-btn">
             <span *ngIf="!message.includes('Intentando')">Crear mi cuenta</span>
             <span *ngIf="message.includes('Intentando')" class="loading">
               <span class="spinner"></span> Registrando...
