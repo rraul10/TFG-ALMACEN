@@ -19,6 +19,7 @@ export interface User {
   dni?: string;
   fotoDni?: string;
   direccionEnvio?: string;
+  numeroSeguridadSocial?: string;
 }
 
 
