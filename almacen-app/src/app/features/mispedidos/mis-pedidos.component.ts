@@ -1409,52 +1409,34 @@ export class MisPedidosComponent implements OnInit {
   constructor(
     private pedidoService: PedidoService, 
     private router: Router,
-    private authService: AuthService
+     private authService: AuthService,
   ) {}
 
   ngOnInit(): void {
-    const userStr = localStorage.getItem('user');
-    if (!userStr) {
-      console.error('No hay usuario en localStorage');
-      this.pedidos = [];
-      this.pedidosFiltrados = [];
-      return;
-    }
-
-    const user = JSON.parse(userStr);
-    const userId = user.id;
-
-    this.authService.getClienteData(userId).subscribe({
-      next: (cliente) => {
-        const clienteId = cliente?.id;
-
-        if (!clienteId) {
-          console.error('El usuario no tiene cliente asociado.');
-          this.pedidos = [];
-          this.pedidosFiltrados = [];
-          return;
-        }
-
-        this.pedidoService.getMisPedidos(clienteId).subscribe({
-          next: (data) => {
-            console.log('Pedidos recibidos:', data);
-            this.pedidos = data;
-            this.pedidosFiltrados = [...this.pedidos];
-          },
-          error: (err) => {
-            console.error('Error al obtener los pedidos del cliente', err);
-            this.pedidos = [];
-            this.pedidosFiltrados = [];
-          }
-        });
+    const clienteId = this.getClienteIdAutenticado();
+    this.pedidoService.getByCliente(clienteId).subscribe({
+      next: (data) => {
+        this.pedidos = data;
+        this.pedidosFiltrados = [...this.pedidos];
       },
       error: (err) => {
-        console.error('Error al obtener datos de cliente:', err);
+        console.error('Error al obtener los pedidos del cliente', err);
         this.pedidos = [];
         this.pedidosFiltrados = [];
       }
     });
   }
+
+  private getClienteIdAutenticado(): number {
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      const user = JSON.parse(userStr);
+      return user?.id || 0;
+    }
+    return 0;
+  }
+
+
 
   totalPedido(pedido: Pedido): number {
     return pedido.lineasVenta.reduce((sum, lv) => sum + lv.cantidad * lv.precio, 0);

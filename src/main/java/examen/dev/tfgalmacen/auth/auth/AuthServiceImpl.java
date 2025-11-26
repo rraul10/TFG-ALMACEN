@@ -133,8 +133,11 @@ public class AuthServiceImpl implements AuthService {
     public JwtAuthResponse registerCliente(RegisterClienteRequest request) {
         User usuario = new User();
         usuario.setNombre(request.getNombre());
+        usuario.setApellidos(request.getApellidos());
         usuario.setCorreo(request.getCorreo());
         usuario.setPassword(passwordEncoder.encode(request.getPassword()));
+        usuario.setTelefono(request.getTelefono());
+        usuario.setCiudad(request.getCiudad());
         usuario.setRoles(Collections.singleton(UserRole.CLIENTE));
         usuario.setCreated(LocalDateTime.now());
         usuario.setUpdated(LocalDateTime.now());
@@ -145,9 +148,8 @@ public class AuthServiceImpl implements AuthService {
         Cliente cliente = new Cliente();
         cliente.setUser(usuario);
         cliente.setDni(request.getDni());
-        cliente.setFotoDni(request.getFotoDni());
         cliente.setDireccionEnvio(request.getDireccionEnvio());
-
+        cliente.setFotoDni(request.getFotoDni());
         clienteRepository.save(cliente);
 
         String token = jwtService.generateToken(usuario);
@@ -157,11 +159,15 @@ public class AuthServiceImpl implements AuthService {
         UserProfileResponse profile = new UserProfileResponse();
         profile.setId(usuario.getId());
         profile.setNombre(usuario.getNombre());
+        profile.setApellidos(usuario.getApellidos());
         profile.setCorreo(usuario.getCorreo());
+        profile.setTelefono(usuario.getTelefono());
+        profile.setCiudad(usuario.getCiudad());
         profile.setRoles(usuario.getRoles());
         profile.setDni(cliente.getDni());
         profile.setFotoDni(cliente.getFotoDni());
         profile.setDireccionEnvio(cliente.getDireccionEnvio());
+
 
         return new JwtAuthResponse(token, profile);
     }

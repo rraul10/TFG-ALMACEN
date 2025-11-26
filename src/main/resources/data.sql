@@ -120,7 +120,9 @@ INSERT INTO pedido (id, cliente_id, estado, fecha, created, updated, deleted) VA
   (15, 8, 'ENTREGADO', NOW(), NOW(), NOW(), false),
   (16, 9, 'PENDIENTE', NOW(), NOW(), NOW(), false),
   (17, 10, 'ENVIADO', NOW(), NOW(), NOW(), false),
-  (18, 10, 'PREPARACION', NOW(), NOW(), NOW(), false);
+  (18, 10, 'PREPARACION', NOW(), NOW(), NOW(), false),
+  (19, 1, 'PREPARACION', NOW(), NOW(), NOW(), false),
+  (20, 1, 'ENVIADO', NOW(), NOW(), NOW(), false);
 
 -- LINEAS DE VENTA DE EJEMPLO
 SELECT setval('pedido_id_seq', (SELECT MAX(id) FROM pedido));
