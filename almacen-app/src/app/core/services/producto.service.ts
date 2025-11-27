@@ -12,6 +12,8 @@ export interface Producto {
   imagen: string;
   cantidadSeleccionada?: number;
   cantidad?: number;
+  created?: string; 
+  updated?: string;
 }
 
 @Injectable({

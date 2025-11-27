@@ -8,6 +8,7 @@ import examen.dev.tfgalmacen.rest.pedido.service.PedidoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -88,12 +89,12 @@ public class PedidoController {
     }
 
     @GetMapping("/cliente/{clienteId}")
+    @PreAuthorize("hasAnyAuthority('ROLE_CLIENTE','ROLE_ADMIN','ROLE_TRABAJADOR')")
     public ResponseEntity<List<PedidoResponse>> getPedidosByClienteId(@PathVariable Long clienteId) {
-        logger.info("Recibiendo solicitud para obtener los pedidos del cliente con ID: {}", clienteId);
         List<PedidoResponse> pedidos = pedidoService.getPedidosByClienteId(clienteId);
-        logger.info("Pedidos encontrados para cliente {}: {}", clienteId, pedidos.size());
         return ResponseEntity.ok(pedidos);
     }
+
 
     @PutMapping("/estado/{id}")
     public ResponseEntity<PedidoResponse> actualizarEstado(

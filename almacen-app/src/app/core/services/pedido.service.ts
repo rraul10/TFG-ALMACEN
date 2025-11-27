@@ -79,12 +79,9 @@ export class PedidoService {
       productoId: lv.productoId,
       cantidad: lv.cantidad,
       precio: lv.precio,
-      productoNombre: '' // <- necesario para cumplir la interfaz
+      productoNombre: '' 
     }));
 
-
-
-    // Construimos el pedido completo local
     const pedidoLocal: Pedido = {
       id: Date.now(),
       clienteId: pedido.clienteId,
@@ -93,7 +90,6 @@ export class PedidoService {
       lineasVenta: lineasConNombre
     };
 
-    // Guardamos en localStorage
     this.guardarLocal(pedidoLocal);
 
     // Mandamos al backend

@@ -30,7 +30,7 @@ import { Router } from '@angular/router';
         <!-- Page Header -->
         <div class="page-header">
           <div class="header-info">
-            <h1>📦 Gestión de Productos</h1>
+            <h1>Gestión de Productos📦</h1>
             <p>Administra el inventario del almacén</p>
           </div>
           <button class="btn-primary" (click)="nuevoProducto()">
@@ -108,8 +108,10 @@ import { Router } from '@angular/router';
                   <option value="">Ordenar por..</option>
                   <option value="precio-asc">Precio: Menor a Mayor</option>
                   <option value="precio-desc">Precio: Mayor a Menor</option>
-                  <option value="nombre-asc">Nombre: A - Z</option>
-                  <option value="nombre-desc">Nombre: Z - A</option>
+                  <option value="nombre-asc">Nombre: A-Z</option>
+                  <option value="nombre-desc">Nombre: Z-A</option>
+                  <option value="stock-asc">Stock: Menor a Mayor</option>
+                  <option value="stock-desc">Stock: Mayor a Menor</option>
                 </select>
               </div>
             </div>
@@ -121,8 +123,6 @@ import { Router } from '@angular/router';
 
           </div>
         </section>
-
-
 
           <div class="results-info" *ngIf="searchTerm || filtroTipo">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -152,9 +152,8 @@ import { Router } from '@angular/router';
               <p class="product-description">{{ p.descripcion || 'Sin descripción' }}</p>
               <div class="product-price">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M12 2v20M17 5H9.5C8.6 5 7.7 5.4 7 6s-1 1.4-1 2.3c0 .9.4 1.8 1 2.4.6.7 1.5 1 2.5 1H14.5c.9 0 1.8.4 2.4 1 .7.7 1 1.5 1 2.5s-.3 1.8-1 2.5c-.6.6-1.5 1-2.4 1H6"/>
                 </svg>
-                <span>{{ p.precio | currency:'EUR' }}</span>
+                {{ p.precio | currency:'EUR':'symbol':'1.2-2':'es-ES' }}
               </div>
             </div>
             <div class="card-footer-product">
@@ -262,11 +261,12 @@ import { Router } from '@angular/router';
 .filters-bar {
   display: flex;
   align-items: center;
-  justify-content: space-between; /* izquierda, centro, derecha */
+  justify-content: flex-start; /* no separa los elementos a los extremos */
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 1.5rem; /* espacio horizontal entre bloques */
   padding: 1rem 0;
 }
+
 
 /* Contenedor para los filtros del medio */
 .filters-center {
@@ -502,12 +502,15 @@ import { Router } from '@angular/router';
 .badge-stock.low-stock { background: rgba(245, 158, 11, 0.95); }
 .badge-stock.out-stock { background: rgba(239, 68, 68, 0.95); }
 
-.card-body-product { padding: 1.25rem; }
+.card-body-product {
+  padding: 1.25rem;
+  text-align: left;
+}
+
 .product-type { display: inline-block; background: rgba(99, 102, 241, 0.15); color: var(--primary); padding: 0.3rem 0.75rem; border-radius: 12px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.75rem; }
 .card-body-product h3 { font-size: 1.1rem; font-weight: 700; margin: 0 0 0.5rem; color: var(--text); line-height: 1.3; }
 .product-description { color: var(--text-muted); font-size: 0.85rem; line-height: 1.5; margin-bottom: 1rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .product-price { display: flex; align-items: center; gap: 0.5rem; font-size: 1.4rem; font-weight: 700; color: var(--primary); }
-.product-price svg { width: 18px; height: 18px; }
 
 .card-footer-product { padding: 1rem 1.25rem; border-top: 1px solid var(--border); display: flex; gap: 0.75rem; }
 .btn-edit, .btn-delete { flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.4rem; padding: 0.65rem; border: none; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.3s; }
@@ -643,6 +646,14 @@ export class ProductosAdminComponent implements OnInit {
     else if (this.ordenSeleccionado === 'nombre-desc') {
       this.productosFiltrados.sort((a, b) => b.nombre.localeCompare(a.nombre));
     }
+
+    else if (this.ordenSeleccionado === 'stock-asc') {
+      this.productosFiltrados.sort((a, b) => a.stock - b.stock);
+    } 
+    else if (this.ordenSeleccionado === 'stock-desc') {
+      this.productosFiltrados.sort((a, b) => b.stock - a.stock);
+    }
+
   }
 
 

@@ -16,12 +16,12 @@ export class AuthService {
     return this.http.post(`${this.apiUrl}/auth/login`, credentials).pipe(
       tap((res: any) => {
         if (res.token) {
-          localStorage.setItem('token', res.token);
+          sessionStorage.setItem('token', res.token);
           const rol = this.decodeRoleFromToken(res.token);
-          localStorage.setItem('rol', rol || 'CLIENTE');
+          sessionStorage.setItem('rol', rol || 'CLIENTE');
         }
         if (res.user) {
-          localStorage.setItem('user', JSON.stringify(res.user));
+          sessionStorage.setItem('user', JSON.stringify(res.user));
         }
       })
     );
@@ -51,21 +51,21 @@ export class AuthService {
   }
 
   getTrabajadorData(userId: number): Observable<any> {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     return this.http.get(`${this.apiUrl}/api/trabajadores/user/${userId}`, {
       headers: { Authorization: `Bearer ${token}` }
     });
   }
 
   updateTrabajadorData(userId: number, data: any): Observable<any> {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     return this.http.put(`${this.apiUrl}/api/trabajadores/${userId}`, data, {
       headers: { Authorization: `Bearer ${token}` }
     });
   }
 
   updateUserData(userId: number, data: any): Observable<any> {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     return this.http.put(`${this.apiUrl}/api/users/${userId}`, data, {
       headers: { Authorization: `Bearer ${token}` }
     });
@@ -73,22 +73,22 @@ export class AuthService {
 
 
   isLoggedIn(): boolean {
-    return !!localStorage.getItem('token');
+    return !!sessionStorage.getItem('token');
   }
 
   isAdmin(): boolean {
-    const rol = localStorage.getItem('rol');
+    const rol = sessionStorage.getItem('rol');
     return rol === 'ADMIN' || rol === 'ROLE_ADMIN';
   }
 
   getRol(): string | null {
-    return localStorage.getItem('rol');
+    return sessionStorage.getItem('rol');
   }
 
   logout(): void {
-    localStorage.removeItem('token');
-    localStorage.removeItem('rol');
-    localStorage.removeItem('user');
+  sessionStorage.removeItem('token');
+  sessionStorage.removeItem('rol');
+  sessionStorage.removeItem('user');
   }
 
   private decodeRoleFromToken(token: string): string | null {

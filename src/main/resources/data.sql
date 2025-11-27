@@ -49,7 +49,8 @@ INSERT INTO cliente (id, user_id, direccion_envio, dni, foto_dni, created, updat
 INSERT INTO trabajador (id, user_id, numero_seguridad_social, created, updated, deleted) VALUES
     (1, 2, 'SS001', NOW(), NOW(), false),
     (2, 3, 'SS002', NOW(), NOW(), false),
-    (3, 4, 'SS003', NOW(), NOW(), false);
+    (3, 4, 'SS003', NOW(), NOW(), false),
+    (4, 1, 'SS004', NOW(), NOW(), false);
 
 INSERT INTO productos (nombre, tipo, imagen, descripcion, precio, stock, created, updated, is_deleted) VALUES
    ('Auriculares Gaming Xtreme 7.1', 'Auriculares', 'auriculares_gaming_7_1.jpg', 'Auriculares para gaming con sonido 7.1 envolvente y micrófono retráctil', 129.99, 50, NOW(), NOW(), false),

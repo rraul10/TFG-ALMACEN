@@ -104,9 +104,6 @@ import { AuthService } from '@core/services/auth.service';
                   <span class="badge" [class.badge-trabajador]="esTrabajador" [class.badge-cliente]="!esTrabajador">
                     {{ esTrabajador ? '👷 Trabajador' : '👤 Cliente' }}
                   </span>
-                  <span class="badge badge-date" *ngIf="user.fechaRegistro">
-                    📅 Miembro desde {{ user.fechaRegistro | date:'MMM yyyy' }}
-                  </span>
                 </div>
               </div>
             </div>
