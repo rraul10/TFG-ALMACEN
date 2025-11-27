@@ -1,11 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { UserService, User } from '@core/services/user.service';
 import { Router } from '@angular/router';
-import { NgForm } from '@angular/forms';
-
 
 @Component({
   selector: 'app-gestion-usuarios',
@@ -35,7 +33,9 @@ import { NgForm } from '@angular/forms';
             <p>Administra los usuarios del sistema</p>
           </div>
           <button class="btn-primary" (click)="nuevoUsuario()">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 5v14M5 12h14"/>
+            </svg>
             Nuevo Usuario
           </button>
         </div>
@@ -57,13 +57,15 @@ import { NgForm } from '@angular/forms';
             </div>
           </div>
         </div>
-
+  
         <!-- Buscador -->
         <div class="search-filter-section">
           <div class="search-box">
             <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-            </svg>
+  <circle cx="11" cy="11" r="8"/>
+  <path d="m21 21-4.35-4.35"/>
+</svg>
+
             <input 
               type="text" 
               [(ngModel)]="searchTerm" 
@@ -71,18 +73,20 @@ import { NgForm } from '@angular/forms';
               placeholder="Buscar usuarios por nombre, apellidos o correo..."
             />
             <button class="clear-btn" *ngIf="searchTerm" (click)="limpiarBusqueda()">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6L18 18"/></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 6L6 18M6 6L18 18"/>
+              </svg>
             </button>
           </div>
 
           <div class="results-info" *ngIf="searchTerm">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>
-            </svg>
+  <circle cx="12" cy="12" r="10"/>
+  <path d="M12 16v-4M12 8h.01"/>
+</svg>
+
             Mostrando {{ usuariosFiltrados.length }} de {{ usuarios.length }} usuarios
-            <button class="btn-reset-filters" (click)="limpiarFiltros()">
-              Limpiar búsqueda
-            </button>
+            <button class="btn-reset-filters" (click)="limpiarFiltros()">Limpiar búsqueda</button>
           </div>
         </div>
 
@@ -97,26 +101,62 @@ import { NgForm } from '@angular/forms';
               <h3>{{ u.nombre }} {{ u.apellidos }}</h3>
               <div class="user-details">
                 <div class="detail-row">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                    <polyline points="22,6 12,13 2,6"/>
+                  </svg>
                   <span>{{ u.correo }}</span>
                 </div>
                 <div class="detail-row">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                  </svg>
                   <span>{{ u.telefono }}</span>
                 </div>
                 <div class="detail-row">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+  <circle cx="12" cy="10" r="3"/>
+</svg>
+
                   <span>{{ u.ciudad }}</span>
+                </div>
+                <div class="detail-row" *ngIf="u.rol === 'cliente' && u.dni">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                  </svg>
+                  <span>DNI: {{ u.dni }}</span>
+                </div>
+                <div class="detail-row" *ngIf="u.rol === 'cliente' && u.direccionEnvio">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3l.71-.71z"/>
+                  </svg>
+                  <span>Dirección de envío: {{ u.direccionEnvio }}</span>
+                </div>
+                <div class="detail-row" *ngIf="u.rol === 'trabajador' && u.numeroSeguridadSocial">
+                  <!-- ✅ CORRECTO -->
+                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+  <circle cx="12" cy="7" r="4"></circle>
+</svg>
+
+                  <span>Número Seguridad Social: {{ u.numeroSeguridadSocial }}</span>
                 </div>
               </div>
             </div>
             <div class="card-footer-user">
               <button class="btn-edit" (click)="editarUsuario(u)">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
                 Editar
               </button>
               <button class="btn-delete" (click)="eliminarUsuario(u.id)">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"/>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                </svg>
                 Eliminar
               </button>
             </div>
@@ -141,143 +181,88 @@ import { NgForm } from '@angular/forms';
           <div class="empty-icon">🔍</div>
           <h3>No se encontraron usuarios</h3>
           <p>No hay usuarios que coincidan con tu búsqueda</p>
-          <button class="btn-primary" (click)="limpiarFiltros()">
-            Limpiar búsqueda
-          </button>
+          <button class="btn-primary" (click)="limpiarFiltros()">Limpiar búsqueda</button>
         </div>
       </main>
 
       <!-- MODAL -->
       <div class="modal-overlay" *ngIf="usuarioSeleccionado" (click)="cancelarEdicion()">
-  <div class="modal-content" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <h2>{{ usuarioSeleccionado.id ? '✏️ Editar Usuario' : '➕ Nuevo Usuario' }}</h2>
-      <button class="btn-close" (click)="cancelarEdicion()">&times;</button>
-    </div>
-
-    <form #usuarioForm="ngForm" (ngSubmit)="guardarUsuario(usuarioForm)">
-      <div class="modal-body">
-        <div class="form-grid">
-          <!-- Nombre -->
-          <div class="form-group">
-            <label>Nombre</label>
-            <input type="text" name="nombre" [(ngModel)]="usuarioSeleccionado.nombre"
-                   required #nombre="ngModel" placeholder="Nombre">
-            <div class="error-msg" *ngIf="(nombre.invalid && (nombre.touched || mostrarErrores))">
-              El nombre es obligatorio
-            </div>
+        <div class="modal-content" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <h2>{{ usuarioSeleccionado.id ? '✏️ Editar Usuario' : '➕ Nuevo Usuario' }}</h2>
+            <button class="btn-close" (click)="cancelarEdicion()">&times;</button>
           </div>
 
-          <!-- Apellidos -->
-          <div class="form-group">
-            <label>Apellidos</label>
-            <input type="text" name="apellidos" [(ngModel)]="usuarioSeleccionado.apellidos"
-                   required #apellidos="ngModel" placeholder="Apellidos">
-            <div class="error-msg" *ngIf="(apellidos.invalid && (apellidos.touched || mostrarErrores))">
-              Los apellidos son obligatorios
-            </div>
-          </div>
-
-          <!-- Correo -->
-          <div class="form-group full-width">
-            <label>Correo Electrónico</label>
-            <input type="email" name="correo" [(ngModel)]="usuarioSeleccionado.correo"
-                   required email #correo="ngModel" placeholder="correo@ejemplo.com">
-            <div class="error-msg" *ngIf="(correo.invalid && (correo.touched || mostrarErrores))">
-              Ingresa un correo válido
-            </div>
-          </div>
-
-          <!-- Contraseña -->
-          <div class="form-group full-width">
-            <label>Contraseña</label>
-            <input type="password" name="password" [(ngModel)]="usuarioSeleccionado.password"
-                   required minlength="6" #password="ngModel" placeholder="••••••••">
-            <div class="error-msg" *ngIf="(password.invalid && (password.touched || mostrarErrores))">
-              La contraseña debe tener al menos 6 caracteres
-            </div>
-          </div>
-
-          <!-- Teléfono -->
-          <div class="form-group">
-            <label>Teléfono</label>
-            <input type="tel" name="telefono" [(ngModel)]="usuarioSeleccionado.telefono"
-                   required pattern="^\+?\d{9,15}$" #telefono="ngModel" placeholder="+34 600 000 000">
-            <div class="error-msg" *ngIf="(telefono.invalid && (telefono.touched || mostrarErrores))">
-              Ingresa un teléfono válido (9-15 dígitos, opcional +)
-            </div>
-          </div>
-
-          <!-- Ciudad -->
-          <div class="form-group">
-            <label>Ciudad</label>
-            <input type="text" name="ciudad" [(ngModel)]="usuarioSeleccionado.ciudad"
-                   required #ciudad="ngModel" placeholder="Madrid">
-            <div class="error-msg" *ngIf="(ciudad.invalid && (ciudad.touched || mostrarErrores))">
-              La ciudad es obligatoria
-            </div>
-          </div>
-
-          <!-- Foto de Perfil -->
-          <div class="form-group full-width">
-            <label>Foto de Perfil</label>
-            <div class="file-upload">
-              <input type="file" id="foto-input" (change)="onFileSelected($event)" accept="image/*">
-              <label for="foto-input" class="file-label">
-                {{ selectedFile ? selectedFile.name : 'Seleccionar archivo' }}
-              </label>
-            </div>
-          </div>
-
-          <div class="usuarios-grid" *ngIf="usuariosFiltrados.length > 0">
-            <div class="usuario-card" *ngFor="let u of usuariosFiltrados">
-              <div class="card-header-user">
-                <img [src]="'http://localhost:8080/files/' + u.foto" [alt]="u.nombre" class="usuario-avatar" />
-                <span class="badge-activo">✓ Activo</span>
-              </div>
-              <div class="card-body-user">
-                <h3>{{ u.nombre }} {{ u.apellidos }}</h3>
-                <div class="user-details">
-                  <div class="detail-row">
-                    <svg ... ></svg>
-                    <span>{{ u.correo }}</span>
+          <form #usuarioForm="ngForm" (ngSubmit)="guardarUsuario(usuarioForm)">
+            <div class="modal-body">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>Nombre</label>
+                  <input type="text" name="nombre" [(ngModel)]="usuarioSeleccionado.nombre" required #nombre="ngModel" placeholder="Nombre"/>
+                  <div class="error-msg" *ngIf="nombre.invalid && (nombre.touched || mostrarErrores)">
+                    El nombre es obligatorio
                   </div>
-                  <div class="detail-row">
-                    <svg ... ></svg>
-                    <span>{{ u.telefono }}</span>
+                </div>
+
+                <div class="form-group">
+                  <label>Apellidos</label>
+                  <input type="text" name="apellidos" [(ngModel)]="usuarioSeleccionado.apellidos" required #apellidos="ngModel" placeholder="Apellidos"/>
+                  <div class="error-msg" *ngIf="apellidos.invalid && (apellidos.touched || mostrarErrores)">
+                    Los apellidos son obligatorios
                   </div>
-                  <div class="detail-row" *ngIf="u.rol === 'cliente'">
-                    <svg ... ></svg>
-                    <span>DNI: {{ u.dni }}</span>
+                </div>
+
+                <div class="form-group full-width">
+                  <label>Correo Electrónico</label>
+                  <input type="email" name="correo" [(ngModel)]="usuarioSeleccionado.correo" required email #correo="ngModel" placeholder="correo@ejemplo.com"/>
+                  <div class="error-msg" *ngIf="correo.invalid && (correo.touched || mostrarErrores)">
+                    Ingresa un correo válido
                   </div>
-                  <div class="detail-row" *ngIf="u.rol === 'cliente'">
-                    <svg ... ></svg>
-                    <span>Dirección de envío: {{ u.direccionEnvio }}</span>
+                </div>
+
+                <div class="form-group full-width">
+                  <label>Contraseña</label>
+                  <input type="password" name="password" [(ngModel)]="usuarioSeleccionado.password" required minlength="6" #password="ngModel" placeholder="••••••••"/>
+                  <div class="error-msg" *ngIf="password.invalid && (password.touched || mostrarErrores)">
+                    La contraseña debe tener al menos 6 caracteres
                   </div>
-                  <div class="detail-row" *ngIf="u.rol === 'trabajador'">
-                    <svg ... ></svg>
-                    <span>CIF: {{ u.numeroSeguridadSocial }}</span> <!-- asegúrate de tener esta propiedad -->
+                </div>
+
+                <div class="form-group">
+                  <label>Teléfono</label>
+                  <input type="tel" name="telefono" [(ngModel)]="usuarioSeleccionado.telefono" required pattern="^\\+?\\d{9,15}$" #telefono="ngModel" placeholder="+34 600 000 000"/>
+                  <div class="error-msg" *ngIf="telefono.invalid && (telefono.touched || mostrarErrores)">
+                    Ingresa un teléfono válido (9-15 dígitos, opcional +)
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>Ciudad</label>
+                  <input type="text" name="ciudad" [(ngModel)]="usuarioSeleccionado.ciudad" required #ciudad="ngModel" placeholder="Madrid"/>
+                  <div class="error-msg" *ngIf="ciudad.invalid && (ciudad.touched || mostrarErrores)">
+                    La ciudad es obligatoria
+                  </div>
+                </div>
+
+                <div class="form-group full-width">
+                  <label>Foto de Perfil</label>
+                  <div class="file-upload">
+                    <input type="file" id="foto-input" (change)="onFileSelected($event)" accept="image/*"/>
+                    <label for="foto-input" class="file-label">
+                      {{ selectedFile ? selectedFile.name : 'Seleccionar archivo' }}
+                    </label>
                   </div>
                 </div>
               </div>
-              <!-- resto del código -->
             </div>
-          </div>
 
+            <div class="modal-footer">
+              <button class="btn-secondary" type="button" (click)="cancelarEdicion()">Cancelar</button>
+              <button class="btn-primary" type="submit">Guardar</button>
+            </div>
+          </form>
         </div>
       </div>
-
-      <div class="modal-footer">
-        <button class="btn-secondary" type="button" (click)="cancelarEdicion()">Cancelar</button>
-        <button class="btn-primary" type="submit">
-          Guardar
-        </button>
-      </div>
-    </form>
-  </div>
-</div>
-
-
 
       <!-- Particles -->
       <div class="particles-bg">
@@ -511,9 +496,17 @@ export class GestionUsuariosComponent implements OnInit {
   usuariosFiltrados: User[] = [];
   mostrarErrores = false;
 
-  particles = Array.from({ length: 30 }, () => ({ x: Math.random() * 100, delay: `${Math.random() * 20}s`, duration: `${15 + Math.random() * 10}s` }));
+  particles = Array.from({ length: 30 }, () => ({
+    x: Math.random() * 100,
+    delay: `${Math.random() * 20}s`,
+    duration: `${15 + Math.random() * 10}s`
+  }));
 
-  constructor(private userService: UserService, private snackBar: MatSnackBar, private router: Router) {}
+  constructor(
+    private userService: UserService,
+    private snackBar: MatSnackBar,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.cargarUsuarios();
@@ -530,12 +523,12 @@ export class GestionUsuariosComponent implements OnInit {
     });
   }
 
-
   aplicarFiltros() {
     const termino = this.searchTerm.trim().toLowerCase();
-
     this.usuariosFiltrados = this.usuarios.filter(u =>
-      u.nombre.toLowerCase().includes(termino)
+      u.nombre.toLowerCase().includes(termino) ||
+      u.apellidos.toLowerCase().includes(termino) ||
+      u.correo.toLowerCase().includes(termino)
     );
   }
 
@@ -551,19 +544,38 @@ export class GestionUsuariosComponent implements OnInit {
 
   nuevoUsuario(form?: NgForm) {
     if(form) form.resetForm();
-    this.usuarioSeleccionado = { id: 0, nombre: '', apellidos: '', correo: '', password: '', telefono: '', ciudad: '', foto: '', created: new Date().toISOString(), updated: new Date().toISOString(), deleted: false, rol: '' };
-    this.selectedFile  = null;
+    this.usuarioSeleccionado = {
+      id: 0,
+      nombre: '',
+      apellidos: '',
+      correo: '',
+      password: '',
+      telefono: '',
+      ciudad: '',
+      foto: '',
+      created: new Date().toISOString(),
+      updated: new Date().toISOString(),
+      deleted: false,
+      rol: ''
+    };
+    this.selectedFile = null;
     this.mostrarErrores = false;
   }
 
-  editarUsuario(u: User) { this.usuarioSeleccionado = { ...u }; this.selectedFile = null; }
-  cancelarEdicion() { this.usuarioSeleccionado = null; this.selectedFile = null; }
+  editarUsuario(u: User) {
+    this.usuarioSeleccionado = { ...u };
+    this.selectedFile = null;
+  }
+
+  cancelarEdicion() {
+    this.usuarioSeleccionado = null;
+    this.selectedFile = null;
+  }
 
   onFileSelected(event: any) {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) this.selectedFile = input.files[0];
   }
-
 
   guardarUsuario(form: NgForm) {
     if (!this.usuarioSeleccionado) return;
@@ -601,14 +613,18 @@ export class GestionUsuariosComponent implements OnInit {
     });
   }
 
-
   eliminarUsuario(id: number) {
     if (!confirm('¿Eliminar este usuario?')) return;
     this.userService.delete(id).subscribe({
-      next: () => { this.snackBar.open('✅ Usuario eliminado', 'Cerrar', { duration: 3000 }); this.cargarUsuarios(); },
+      next: () => {
+        this.snackBar.open('✅ Usuario eliminado', 'Cerrar', { duration: 3000 });
+        this.cargarUsuarios();
+      },
       error: () => this.snackBar.open('❌ Error al eliminar', 'Cerrar', { duration: 3000 })
     });
   }
 
-  volverAlDashboard() { this.router.navigate(['/dashboard']); }
+  volverAlDashboard() {
+    this.router.navigate(['/dashboard']);
+  }
 }

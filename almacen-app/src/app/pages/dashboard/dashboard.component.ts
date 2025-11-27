@@ -244,6 +244,8 @@ import { NotificationService } from '@core/services/notification.service';
 </div>
   `,
   styles: [`
+
+    
 /* === VARIABLES Y BASE === */
 :host { --primary: #6366f1; --primary-dark: #4f46e5; --accent: #06b6d4; --bg-dark: #0f172a; --bg-card: #1e293b; --text: #f8fafc; --text-muted: #94a3b8; --border: rgba(255,255,255,0.1); --success: #10b981; --danger: #ef4444; }
 .filters-section { max-width: 1300px; margin: 0 auto 2rem; padding: 0 1.5rem; }
@@ -337,7 +339,99 @@ import { NotificationService } from '@core/services/notification.service';
 
 .menu-dropdown { position: absolute; top: calc(100% + 8px); right: 0; background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; min-width: 220px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.4); animation: dropIn 0.2s ease; }
 @keyframes dropIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+/* === MEJORAS SOLO PARA EL MENÚ DROPDOWN === */
+.menu-dropdown { 
+  position: absolute; 
+  top: calc(100% + 8px); 
+  right: 0; 
+  background: var(--bg-card); 
+  border: 1px solid var(--border); 
+  border-radius: 16px; 
+  min-width: 220px; 
+  overflow: hidden; 
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4); 
+  animation: dropIn 0.2s ease;
+  backdrop-filter: blur(20px); /* añadido */
+  border: 1px solid rgba(99, 102, 241, 0.3); /* borde con primary */
+}
 
+.menu-user-info { 
+  padding: 1rem; 
+  background: radial-gradient(circle at 0 0, rgba(99, 102, 241, 0.15), rgba(99, 102, 241, 0.05));
+  border-radius: 12px 12px 0 0;
+  margin: -1px; /* para que se pegue al borde */
+  position: relative;
+}
+
+.menu-user-info::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #6366f1, #06b6d4, transparent);
+}
+
+.menu-greeting { 
+  display: block; 
+  font-weight: 700; 
+  color: var(--text); 
+  font-size: 1.05rem;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+.menu-role { 
+  font-size: 0.82rem; 
+  color: rgba(99, 102, 241, 0.9);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.menu-divider { 
+  height: 1px; 
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+  margin: 0.5rem 0;
+}
+
+.menu-item { 
+  display: flex; 
+  align-items: center; 
+  gap: 0.75rem; 
+  padding: 0.85rem 1rem; 
+  color: var(--text-muted); 
+  cursor: pointer; 
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 10px;
+  margin: 0.2rem 0.3rem;
+  position: relative;
+}
+
+.menu-item:hover { 
+  background: radial-gradient(circle at 0% 0%, rgba(99, 102, 241, 0.2), rgba(99, 102, 241, 0.08));
+  color: var(--text); 
+  padding-left: 1.35rem;
+  transform: translateX(4px);
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);
+}
+
+.menu-item.logout { 
+  color: var(--danger); 
+  margin-top: 0.5rem;
+  border-top: 1px solid rgba(239, 68, 68, 0.2);
+  padding-top: 1rem;
+}
+
+.menu-item.logout:hover { 
+  background: radial-gradient(circle at 0% 0%, rgba(239, 68, 68, 0.25), rgba(239, 68, 68, 0.1));
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.25);
+}
+
+.menu-item svg {
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
+  flex-shrink: 0;
+}
 .menu-user-info { padding: 1rem; background: rgba(99, 102, 241, 0.1); }
 .menu-greeting { display: block; font-weight: 600; color: var(--text); }
 .menu-role { font-size: 0.8rem; color: var(--text-muted); }
@@ -346,6 +440,7 @@ import { NotificationService } from '@core/services/notification.service';
 .menu-item:hover { background: rgba(99, 102, 241, 0.1); color: var(--text); padding-left: 1.25rem; }
 .menu-item.logout { color: var(--danger); }
 .menu-item.logout:hover { background: rgba(239, 68, 68, 0.1); }
+
 
 /* === HERO CAROUSEL === */
 .hero-carousel { margin: 2rem auto; max-width: 1300px; padding: 0 1.5rem; }

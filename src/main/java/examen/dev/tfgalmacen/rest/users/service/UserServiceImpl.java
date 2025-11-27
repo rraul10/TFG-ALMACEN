@@ -4,6 +4,7 @@ package examen.dev.tfgalmacen.rest.users.service;
 import examen.dev.tfgalmacen.auth.dto.UserProfileResponse;
 import examen.dev.tfgalmacen.auth.exceptions.UserNotFound;
 import examen.dev.tfgalmacen.rest.clientes.repository.ClienteRepository;
+import examen.dev.tfgalmacen.rest.trabajadores.repository.TrabajadorRepository;
 import examen.dev.tfgalmacen.rest.users.dto.UserRequest;
 import examen.dev.tfgalmacen.rest.users.dto.UserResponse;
 import examen.dev.tfgalmacen.rest.users.mapper.UserMapper;
@@ -26,15 +27,17 @@ public class UserServiceImpl implements UserService {
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
     private final ClienteRepository clienteRepository;
+    private final TrabajadorRepository trabajadorRepository;
 
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, UserMapper userMapper, EmailService emailService, PasswordEncoder passwordEncoder, ClienteRepository clienteRepository) {
+    public UserServiceImpl(UserRepository userRepository, UserMapper userMapper, EmailService emailService, PasswordEncoder passwordEncoder, ClienteRepository clienteRepository, TrabajadorRepository trabajadorRepository) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.emailService = emailService;
         this.passwordEncoder = passwordEncoder;
         this.clienteRepository = clienteRepository;
+        this.trabajadorRepository = trabajadorRepository;
     }
 
     @Override
@@ -59,10 +62,14 @@ public class UserServiceImpl implements UserService {
                 dto.setDireccionEnvio(cliente.getDireccionEnvio());
             });
 
+            trabajadorRepository.findByUser(user).ifPresent(trabajador -> {
+                dto.setNumeroSeguridadSocial(trabajador.getNumeroSeguridadSocial());
+
+            });
+
             return dto;
         }).collect(Collectors.toList());
     }
-
 
 
     @Override

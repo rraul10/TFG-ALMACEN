@@ -204,13 +204,6 @@ import { AuthService } from '@core/services/auth.service';
             <!-- Zona de Peligro Compacta -->
             <div class="danger-zone">
               <div class="danger-content">
-                <div class="danger-info">
-                  <span class="danger-icon">⚠️</span>
-                  <div class="danger-text">
-                    <strong>Cerrar sesión</strong>
-                    <span>Deberás volver a iniciar sesión</span>
-                  </div>
-                </div>
                 <button type="button" class="btn-danger-sm" (click)="logout()">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
                   Salir
@@ -318,7 +311,7 @@ import { AuthService } from '@core/services/auth.service';
 
 /* Danger Zone Compacta */
 .danger-zone { margin-top: 1.5rem; padding: 1rem 1.25rem; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 12px; }
-.danger-content { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.danger-content { display: flex; align-items: right; justify-content: space-between; gap: 1rem; }
 .danger-info { display: flex; align-items: center; gap: 0.75rem; }
 .danger-icon { font-size: 1.25rem; }
 .danger-text { display: flex; flex-direction: column; }

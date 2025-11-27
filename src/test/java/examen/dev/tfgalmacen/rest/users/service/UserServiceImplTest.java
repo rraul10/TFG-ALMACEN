@@ -1,6 +1,7 @@
 package examen.dev.tfgalmacen.rest.users.service;
 
 import examen.dev.tfgalmacen.auth.exceptions.UserNotFound;
+import examen.dev.tfgalmacen.rest.trabajadores.repository.TrabajadorRepository;
 import examen.dev.tfgalmacen.rest.users.dto.UserRequest;
 import examen.dev.tfgalmacen.rest.users.dto.UserResponse;
 import examen.dev.tfgalmacen.rest.users.mapper.UserMapper;
@@ -30,11 +31,14 @@ public class UserServiceImplTest {
     @Mock
     private EmailService emailService;
 
+    @Mock
+    private TrabajadorRepository trabajadorRepository;
+
 
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        userService = new UserServiceImpl(userRepository, userMapper, emailService);
+        userService = new UserServiceImpl(userRepository, userMapper, emailService, trabajadorRepository);
     }
 
     @Test
