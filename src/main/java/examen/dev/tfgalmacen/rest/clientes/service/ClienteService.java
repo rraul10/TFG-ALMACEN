@@ -25,7 +25,7 @@ public interface ClienteService {
 
     void updateClienteEntity(Cliente cliente);
 
-
+    Cliente getClienteEntityByUserId(Long userId);
 }
 
 

@@ -35,15 +35,10 @@ public class ClienteServiceImpl implements ClienteService {
 
     @Override
     public ClienteResponse getById(Long userId) {
-        Cliente cliente = clienteRepository.findByUserId(userId);
-
-        if (cliente == null) {
-            throw new ClienteNotFound("Cliente no encontrado");
-        }
-
+        Cliente cliente = clienteRepository.findByUserId(userId)
+                .orElseThrow(() -> new ClienteNotFound("Cliente no encontrado con userId: " + userId));
         return clienteMapper.toResponse(cliente);
     }
-
 
     @Override
     public ClienteResponse createCliente(ClienteRequest request) {
@@ -92,14 +87,14 @@ public class ClienteServiceImpl implements ClienteService {
                 .orElseThrow(() -> new ClienteNotFound("Cliente no encontrado"));
     }
 
+
     @Override
     public ClienteResponse getByUserId(Long userId) {
-        Cliente cliente = clienteRepository.findByUserId(userId);
-        if (cliente == null) {
-            throw new ClienteNotFound("Cliente no encontrado");
-        }
+        Cliente cliente = clienteRepository.findByUserId(userId)
+                .orElseThrow(() -> new ClienteNotFound("Cliente no encontrado para el userId: " + userId));
         return clienteMapper.toResponse(cliente);
     }
+
 
     public Cliente getClienteByEmail(String email) {
         return clienteRepository.findByUserCorreo(email)
@@ -111,5 +106,11 @@ public class ClienteServiceImpl implements ClienteService {
         clienteRepository.save(cliente);
     }
 
+    @Override
+    public Cliente getClienteEntityByUserId(Long userId) {
+        // Buscar cliente asociado al userId
+        return clienteRepository.findByUserId(userId)
+                .orElseThrow(() -> new ClienteNotFound("Cliente no encontrado para el userId: " + userId));
+    }
 }
 

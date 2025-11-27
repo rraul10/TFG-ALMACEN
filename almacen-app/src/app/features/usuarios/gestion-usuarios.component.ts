@@ -62,10 +62,9 @@ import { Router } from '@angular/router';
         <div class="search-filter-section">
           <div class="search-box">
             <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-  <circle cx="11" cy="11" r="8"/>
-  <path d="m21 21-4.35-4.35"/>
-</svg>
-
+              <circle cx="11" cy="11" r="8"/>
+              <path d="m21 21-4.35-4.35"/>
+            </svg>
             <input 
               type="text" 
               [(ngModel)]="searchTerm" 
@@ -81,10 +80,9 @@ import { Router } from '@angular/router';
 
           <div class="results-info" *ngIf="searchTerm">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-  <circle cx="12" cy="12" r="10"/>
-  <path d="M12 16v-4M12 8h.01"/>
-</svg>
-
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 16v-4M12 8h.01"/>
+            </svg>
             Mostrando {{ usuariosFiltrados.length }} de {{ usuarios.length }} usuarios
             <button class="btn-reset-filters" (click)="limpiarFiltros()">Limpiar búsqueda</button>
           </div>
@@ -96,6 +94,9 @@ import { Router } from '@angular/router';
             <div class="card-header-user">
               <img [src]="'http://localhost:8080/files/' + u.foto" [alt]="u.nombre" class="usuario-avatar" />
               <span class="badge-activo">✓ Activo</span>
+              <span class="badge-rol" [class.cliente]="u.rol === 'CLIENTE'" [class.trabajador]="u.rol === 'TRABAJADOR'">
+                {{ u.rol === 'CLIENTE' ? '🛒 Cliente' : '💼 Trabajador' }}
+              </span>
             </div>
             <div class="card-body-user">
               <h3>{{ u.nombre }} {{ u.apellidos }}</h3>
@@ -115,32 +116,33 @@ import { Router } from '@angular/router';
                 </div>
                 <div class="detail-row">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-  <circle cx="12" cy="10" r="3"/>
-</svg>
-
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                    <circle cx="12" cy="10" r="3"/>
+                  </svg>
                   <span>{{ u.ciudad }}</span>
                 </div>
-                <div class="detail-row" *ngIf="u.rol === 'cliente' && u.dni">
+                <!-- ✅ CORRECTO - compara con MAYÚSCULAS -->
+                <div class="detail-row" *ngIf="u.rol === 'CLIENTE' && u.dni">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                   </svg>
                   <span>DNI: {{ u.dni }}</span>
                 </div>
-                <div class="detail-row" *ngIf="u.rol === 'cliente' && u.direccionEnvio">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3l.71-.71z"/>
-                  </svg>
-                  <span>Dirección de envío: {{ u.direccionEnvio }}</span>
-                </div>
-                <div class="detail-row" *ngIf="u.rol === 'trabajador' && u.numeroSeguridadSocial">
-                  <!-- ✅ CORRECTO -->
-                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-  <circle cx="12" cy="7" r="4"></circle>
-</svg>
 
-                  <span>Número Seguridad Social: {{ u.numeroSeguridadSocial }}</span>
+                <div class="detail-row" *ngIf="u.rol === 'CLIENTE' && u.direccionEnvio">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                  </svg>
+                  <span>{{ u.direccionEnvio }}</span>
+                </div>
+
+                <div class="detail-row" *ngIf="u.rol === 'TRABAJADOR' && u.numeroSeguridadSocial">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                  <span>SS: {{ u.numeroSeguridadSocial }}</span>
                 </div>
               </div>
             </div>
@@ -196,8 +198,38 @@ import { Router } from '@angular/router';
           <form #usuarioForm="ngForm" (ngSubmit)="guardarUsuario(usuarioForm)">
             <div class="modal-body">
               <div class="form-grid">
+                <!-- Selector de Tipo de Usuario -->
+                <div class="form-group full-width" *ngIf="!usuarioSeleccionado.id">
+                  <label>Tipo de Usuario *</label>
+                  <div class="tipo-selector">
+                    <button 
+                      type="button"
+                      class="tipo-btn"
+                      [class.active]="usuarioSeleccionado.rol === 'CLIENTE'"
+                      (click)="seleccionarTipo('CLIENTE')"
+                    >
+                      <div>
+                        <span class="tipo-title">Cliente</span>
+                      </div>
+                    </button>
+                    <button 
+                      type="button"
+                      class="tipo-btn"
+                      [class.active]="usuarioSeleccionado.rol === 'TRABAJADOR'"
+                      (click)="seleccionarTipo('TRABAJADOR')"
+                    >
+                      <div>
+                        <span class="tipo-title">Trabajador</span>
+                      </div>
+                    </button>
+                  </div>
+                  <div class="error-msg" *ngIf="!usuarioSeleccionado.rol && mostrarErrores">
+                    Debes seleccionar un tipo de usuario
+                  </div>
+                </div>
+
                 <div class="form-group">
-                  <label>Nombre</label>
+                  <label>Nombre *</label>
                   <input type="text" name="nombre" [(ngModel)]="usuarioSeleccionado.nombre" required #nombre="ngModel" placeholder="Nombre"/>
                   <div class="error-msg" *ngIf="nombre.invalid && (nombre.touched || mostrarErrores)">
                     El nombre es obligatorio
@@ -205,7 +237,7 @@ import { Router } from '@angular/router';
                 </div>
 
                 <div class="form-group">
-                  <label>Apellidos</label>
+                  <label>Apellidos *</label>
                   <input type="text" name="apellidos" [(ngModel)]="usuarioSeleccionado.apellidos" required #apellidos="ngModel" placeholder="Apellidos"/>
                   <div class="error-msg" *ngIf="apellidos.invalid && (apellidos.touched || mostrarErrores)">
                     Los apellidos son obligatorios
@@ -213,7 +245,7 @@ import { Router } from '@angular/router';
                 </div>
 
                 <div class="form-group full-width">
-                  <label>Correo Electrónico</label>
+                  <label>Correo Electrónico *</label>
                   <input type="email" name="correo" [(ngModel)]="usuarioSeleccionado.correo" required email #correo="ngModel" placeholder="correo@ejemplo.com"/>
                   <div class="error-msg" *ngIf="correo.invalid && (correo.touched || mostrarErrores)">
                     Ingresa un correo válido
@@ -221,7 +253,7 @@ import { Router } from '@angular/router';
                 </div>
 
                 <div class="form-group full-width">
-                  <label>Contraseña</label>
+                  <label>Contraseña *</label>
                   <input type="password" name="password" [(ngModel)]="usuarioSeleccionado.password" required minlength="6" #password="ngModel" placeholder="••••••••"/>
                   <div class="error-msg" *ngIf="password.invalid && (password.touched || mostrarErrores)">
                     La contraseña debe tener al menos 6 caracteres
@@ -229,7 +261,7 @@ import { Router } from '@angular/router';
                 </div>
 
                 <div class="form-group">
-                  <label>Teléfono</label>
+                  <label>Teléfono *</label>
                   <input type="tel" name="telefono" [(ngModel)]="usuarioSeleccionado.telefono" required pattern="^\\+?\\d{9,15}$" #telefono="ngModel" placeholder="+34 600 000 000"/>
                   <div class="error-msg" *ngIf="telefono.invalid && (telefono.touched || mostrarErrores)">
                     Ingresa un teléfono válido (9-15 dígitos, opcional +)
@@ -237,7 +269,7 @@ import { Router } from '@angular/router';
                 </div>
 
                 <div class="form-group">
-                  <label>Ciudad</label>
+                  <label>Ciudad *</label>
                   <input type="text" name="ciudad" [(ngModel)]="usuarioSeleccionado.ciudad" required #ciudad="ngModel" placeholder="Madrid"/>
                   <div class="error-msg" *ngIf="ciudad.invalid && (ciudad.touched || mostrarErrores)">
                     La ciudad es obligatoria
@@ -253,6 +285,41 @@ import { Router } from '@angular/router';
                     </label>
                   </div>
                 </div>
+
+                <!-- Campos específicos para CLIENTE -->
+                <ng-container *ngIf="usuarioSeleccionado.rol === 'CLIENTE'">
+                  <div class="form-group full-width section-divider">
+                    <div class="divider-line"></div>
+                    <span class="divider-text">🛒 Datos de Cliente</span>
+                    <div class="divider-line"></div>
+                  </div>
+
+                  <div class="form-group">
+                    <label>DNI</label>
+                    <input type="text" name="dni" [(ngModel)]="usuarioSeleccionado.dni" placeholder="12345678A" />
+                  </div>
+
+                  <div class="form-group">
+                    <label>Dirección de Envío</label>
+                    <input type="text" name="direccionEnvio" [(ngModel)]="usuarioSeleccionado.direccionEnvio" placeholder="Calle Falsa 123" />
+                  </div>
+                </ng-container>
+                
+                <!-- Campos específicos para TRABAJADOR -->
+                <ng-container *ngIf="usuarioSeleccionado.rol === 'TRABAJADOR'">
+                  <div class="form-group full-width section-divider">
+                    <div class="divider-line"></div>
+                    <span class="divider-text">💼 Datos de Trabajador</span>
+                    <div class="divider-line"></div>
+                  </div>
+
+                  <div class="form-group full-width">
+                    <label>Número de Seguridad Social</label>
+                    <input type="text" name="numeroSeguridadSocial"
+                          [(ngModel)]="usuarioSeleccionado.numeroSeguridadSocial"
+                          placeholder="SS001" />
+                  </div>
+                </ng-container>
               </div>
             </div>
 
@@ -271,220 +338,850 @@ import { Router } from '@angular/router';
     </div>
   `,
   styles: [`
-:host { --primary: #6366f1; --accent: #06b6d4; --bg-dark: #0f172a; --bg-card: #1e293b; --text: #f8fafc; --text-muted: #94a3b8; --border: rgba(255,255,255,0.1); --success: #10b981; --danger: #ef4444; }
+:host { 
+  --primary: #6366f1; 
+  --accent: #06b6d4; 
+  --bg-dark: #0f172a; 
+  --bg-card: #1e293b; 
+  --text: #f8fafc; 
+  --text-muted: #94a3b8; 
+  --border: rgba(255,255,255,0.1); 
+  --success: #10b981; 
+  --danger: #ef4444; 
+}
 
-.gestion-layout { min-height: 100vh; background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%); color: var(--text); font-family: 'Inter', -apple-system, sans-serif; position: relative; overflow-x: hidden; }
+.gestion-layout { 
+  min-height: 100vh; 
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%); 
+  color: var(--text); 
+  font-family: 'Inter', -apple-system, sans-serif; 
+  position: relative; 
+  overflow-x: hidden; 
+}
 
 /* NAVBAR */
-.navbar { display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
-.nav-left { display: flex; align-items: center; }
-.logo-container { display: flex; align-items: center; gap: 0.75rem; }
-.logo-icon { font-size: 2rem; }
-.logo-text { display: flex; flex-direction: column; }
-.app-title { margin: 0; font-size: 1.5rem; font-weight: 700; background: linear-gradient(135deg, #6366f1, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.app-subtitle { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; }
-.nav-right { display: flex; gap: 0.75rem; }
-.btn-nav { display: flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1rem; background: rgba(255,255,255,0.1); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 0.9rem; cursor: pointer; transition: all 0.3s; }
-.btn-nav:hover { background: rgba(255,255,255,0.15); }
-
-/* MAIN */
-.main-content { position: relative; z-index: 1; max-width: 1300px; margin: 0 auto; padding: 2rem; }
-.modal-content {
-  background: var(--bg-dark);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  width: 100%;
-  max-width: 600px;
-  max-height: 90vh; /* altura máxima de la ventana */
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  box-shadow: 0 25px 60px rgba(0,0,0,0.5);
-  animation: slideUp 0.3s ease;
+.navbar { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  padding: 1rem 2rem; 
+  background: rgba(15, 23, 42, 0.8); 
+  backdrop-filter: blur(20px); 
+  border-bottom: 1px solid var(--border); 
+  position: sticky; 
+  top: 0; 
+  z-index: 100; 
 }
 
-.modal-body {
-  padding: 1.5rem;
-  overflow-y: auto;  /* scroll interno si se desborda */
-  flex: 1;
+.nav-left { 
+  display: flex; 
+  align-items: center; 
 }
 
-.modal-footer {
-  padding: 1rem 1.5rem;
-  border-top: 1px solid var(--border);
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  flex-shrink: 0; /* evita que se comprima */
+.logo-container { 
+  display: flex; 
+  align-items: center; 
+  gap: 0.75rem; 
 }
 
-
-.modal-header {
-  padding: 1.25rem 1.5rem;
-  background: linear-gradient(135deg, var(--primary), var(--accent));
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-shrink: 0;
+.logo-icon { 
+  font-size: 2rem; 
 }
-
-.form-grid {
+/* Selector de Tipo de Usuario */
+.tipo-usuario-selector {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 1rem;
+  margin-bottom: 0.5rem;
 }
 
-.form-group.full-width {
-  grid-column: 1 / -1;
-}
-
-.file-upload {
-  width: 100%;
-}
-
-.file-label {
+.tipo-btn {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 0.6rem;
-  padding: 0.75rem 1rem;
+  gap: 0.75rem;
+  padding: 1.5rem;
   background: rgba(15, 23, 42, 0.6);
-  border: 1px dashed var(--border);
-  border-radius: 10px;
+  border: 2px solid var(--border);
+  border-radius: 12px;
   color: var(--text-muted);
-  font-size: 0.9rem;
+  font-size: 0.95rem;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
+}
+
+.tipo-btn:hover {
+  background: rgba(15, 23, 42, 0.8);
+  border-color: rgba(99, 102, 241, 0.5);
+}
+
+.tipo-btn.active {
+  background: rgba(99, 102, 241, 0.2);
+  border-color: var(--primary);
+  color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.tipo-btn svg {
+  width: 32px;
+  height: 32px;
+}
+
+.badge-rol-display {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.25rem;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  width: fit-content;
+}
+
+.badge-rol-display.rol-cliente {
+  background: rgba(59, 130, 246, 0.2);
+  color: #3b82f6;
+  border: 2px solid rgba(59, 130, 246, 0.3);
+}
+
+.badge-rol-display.rol-trabajador {
+  background: rgba(168, 85, 247, 0.2);
+  color: #a855f7;
+  border: 2px solid rgba(168, 85, 247, 0.3);
+}
+.logo-text { 
+  display: flex; 
+  flex-direction: column; 
+}
+
+.app-title { 
+  margin: 0; 
+  font-size: 1.5rem; 
+  font-weight: 700; 
+  background: linear-gradient(135deg, #6366f1, #06b6d4); 
+  -webkit-background-clip: text; 
+  -webkit-text-fill-color: transparent; 
+}
+
+.app-subtitle { 
+  font-size: 0.7rem; 
+  color: var(--text-muted); 
+  text-transform: uppercase; 
+  letter-spacing: 2px; 
+}
+
+/* MAIN */
+.main-content { 
+  position: relative; 
+  z-index: 1; 
+  max-width: 1300px; 
+  margin: 0 auto; 
+  padding: 2rem; 
+}
+
+/* Page Header */
+.page-header { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  margin-bottom: 2rem; 
+  flex-wrap: wrap; 
+  gap: 1rem; 
+}
+
+.header-info h1 { 
+  font-size: 1.75rem; 
+  font-weight: 700; 
+  margin: 0 0 0.25rem; 
+}
+
+.header-info p { 
+  color: var(--text-muted); 
+  font-size: 0.9rem; 
+  margin: 0; 
+}
+
+/* Buttons */
+.btn-primary { 
+  display: flex; 
+  align-items: center; 
+  gap: 0.5rem; 
+  padding: 0.75rem 1.25rem; 
+  background: linear-gradient(135deg, var(--primary), var(--accent)); 
+  border: none; 
+  border-radius: 10px; 
+  color: white; 
+  font-size: 0.9rem; 
+  font-weight: 600; 
+  cursor: pointer; 
+  transition: all 0.3s; 
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4); 
+}
+
+.btn-primary:hover { 
+  transform: translateY(-2px); 
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5); 
+}
+
+.btn-secondary { 
+  display: flex; 
+  align-items: center; 
+  gap: 0.5rem; 
+  padding: 0.75rem 1.25rem; 
+  background: rgba(100, 116, 139, 0.2); 
+  border: 1px solid var(--border); 
+  border-radius: 10px; 
+  color: var(--text-muted); 
+  font-size: 0.9rem; 
+  font-weight: 600; 
+  cursor: pointer; 
+  transition: all 0.3s; 
+}
+
+.btn-secondary:hover { 
+  background: rgba(100, 116, 139, 0.3); 
+  color: var(--text); 
+}
+
+/* Stats */
+.stats-grid { 
+  display: grid; 
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+  gap: 1rem; 
+  margin-bottom: 2rem; 
+}
+
+.stat-card { 
+  background: rgba(30, 41, 59, 0.6); 
+  backdrop-filter: blur(10px); 
+  border: 1px solid var(--border); 
+  border-radius: 16px; 
+  padding: 1.25rem; 
+  display: flex; 
+  align-items: center; 
+  gap: 1rem; 
+}
+
+.stat-icon { 
+  font-size: 2rem; 
+  width: 56px; 
+  height: 56px; 
+  border-radius: 12px; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+}
+
+.stat-icon.blue { 
+  background: rgba(59, 130, 246, 0.2); 
+}
+
+.stat-icon.green { 
+  background: rgba(16, 185, 129, 0.2); 
+}
+
+.stat-info { 
+  display: flex; 
+  flex-direction: column; 
+}
+
+.stat-value { 
+  font-size: 1.75rem; 
+  font-weight: 700; 
+}
+
+.stat-label { 
+  font-size: 0.8rem; 
+  color: var(--text-muted); 
+}
+
+/* Search and Filters */
+.search-filter-section { 
+  background: rgba(30, 41, 59, 0.6); 
+  backdrop-filter: blur(10px); 
+  border: 1px solid var(--border); 
+  border-radius: 16px; 
+  padding: 1.5rem; 
+  margin-bottom: 2rem; 
+}
+
+.search-box { 
+  position: relative; 
+  margin-bottom: 0; 
+}
+
+.search-icon { 
+  position: absolute; 
+  left: 16px; 
+  top: 50%; 
+  transform: translateY(-50%); 
+  color: var(--text-muted); 
+  pointer-events: none; 
+}
+
+.search-box input { 
+  width: 100%; 
+  padding: 0.85rem 3rem 0.85rem 3rem; 
+  background: rgba(15, 23, 42, 0.6); 
+  border: 1px solid var(--border); 
+  border-radius: 10px; 
+  color: var(--text); 
+  font-size: 0.95rem; 
+  transition: all 0.3s; 
+  box-sizing: border-box; 
+}
+
+.search-box input::placeholder { 
+  color: rgba(148, 163, 184, 0.5); 
+}
+
+.search-box input:focus { 
+  outline: none; 
+  border-color: var(--primary); 
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15); 
+}
+
+.clear-btn { 
+  position: absolute; 
+  right: 12px; 
+  top: 50%; 
+  transform: translateY(-50%); 
+  width: 32px; 
+  height: 32px; 
+  border: none; 
+  background: rgba(100, 116, 139, 0.2); 
+  border-radius: 50%; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  cursor: pointer; 
+  transition: all 0.2s; 
+}
+
+.clear-btn:hover { 
+  background: rgba(100, 116, 139, 0.3); 
+}
+
+.clear-btn svg { 
+  color: var(--text-muted); 
+}
+
+.results-info { 
+  display: flex; 
+  align-items: center; 
+  gap: 8px; 
+  padding: 0.75rem 1rem; 
+  background: rgba(100, 116, 139, 0.15); 
+  border-radius: 10px; 
+  color: var(--text-muted); 
+  font-size: 0.85rem; 
+  font-weight: 500; 
+  margin-top: 1rem; 
+}
+
+.results-info svg { 
+  color: var(--primary); 
+  flex-shrink: 0; 
+  display: flex; 
+  align-items: center; 
+  gap: 8px; 
+  padding: 0.75rem 1rem; 
+  background: rgba(100, 116, 139, 0.15); 
+  border-radius: 10px; 
+  color: var(--text-muted); 
+  font-size: 0.85rem; 
+  font-weight: 500; 
+  margin-top: 1rem; 
+}
+
+.results-info svg { 
+  color: var(--primary); 
+  flex-shrink: 0; 
+}
+
+.btn-reset-filters { 
+  margin-left: auto; 
+  padding: 0.4rem 0.85rem; 
+  background: rgba(99, 102, 241, 0.2); 
+  border: 1px solid rgba(99, 102, 241, 0.3); 
+  border-radius: 8px; 
+  font-size: 0.8rem; 
+  font-weight: 600; 
+  color: var(--primary); 
+  cursor: pointer; 
+  transition: all 0.2s; 
+}
+
+.btn-reset-filters:hover { 
+  background: var(--primary); 
+  color: white; 
+  border-color: var(--primary); 
+}
+
+/* Grid Usuarios */
+.usuarios-grid { 
+  display: grid; 
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
+  gap: 1.5rem; 
+}
+
+.usuario-card { 
+  background: rgba(30, 41, 59, 0.6); 
+  backdrop-filter: blur(10px); 
+  border: 1px solid var(--border); 
+  border-radius: 16px; 
+  overflow: hidden; 
+  transition: all 0.3s; 
+}
+
+.usuario-card:hover { 
+  transform: translateY(-4px); 
+  border-color: rgba(99, 102, 241, 0.3); 
+  box-shadow: 0 15px 40px rgba(0,0,0,0.3); 
+}
+
+.card-header-user { 
+  background: linear-gradient(135deg, var(--primary), #764ba2); 
+  padding: 1.5rem; 
+  display: flex; 
+  align-items: center; 
+  gap: 1rem; 
+  position: relative; 
+}
+
+.usuario-avatar { 
+  width: 70px; 
+  height: 70px; 
+  border-radius: 50%; 
+  border: 3px solid white; 
+  object-fit: cover; 
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3); 
+}
+
+.badge-activo { 
+  position: absolute; 
+  top: 1rem; 
+  right: 1rem; 
+  background: rgba(16, 185, 129, 0.95); 
+  color: white; 
+  padding: 0.3rem 0.75rem; 
+  border-radius: 20px; 
+  font-size: 0.75rem; 
+  font-weight: 600; 
+  backdrop-filter: blur(10px); 
+}
+
+.card-body-user { 
+  padding: 1.25rem; 
+}
+
+.card-body-user h3 { 
+  font-size: 1.1rem; 
+  font-weight: 700; 
+  margin: 0 0 1rem; 
+  color: var(--text); 
+}
+
+.user-details { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 0.6rem; 
+}
+
+.detail-row { 
+  display: flex; 
+  align-items: center; 
+  gap: 0.6rem; 
+  font-size: 0.85rem; 
+  color: var(--text-muted); 
+}
+
+.detail-row svg { 
+  color: var(--primary); 
+  flex-shrink: 0; 
+}
+
+.detail-row span { 
+  white-space: nowrap; 
+  overflow: hidden; 
+  text-overflow: ellipsis; 
+}
+
+.card-footer-user { 
+  padding: 1rem 1.25rem; 
+  border-top: 1px solid var(--border); 
+  display: flex; 
+  gap: 0.75rem; 
+}
+
+.btn-edit, .btn-delete { 
+  flex: 1; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  gap: 0.4rem; 
+  padding: 0.65rem; 
+  border: none; 
+  border-radius: 8px; 
+  font-size: 0.85rem; 
+  font-weight: 600; 
+  cursor: pointer; 
+  transition: all 0.3s; 
+}
+
+.btn-edit { 
+  background: rgba(59, 130, 246, 0.2); 
+  color: #3b82f6; 
+}
+
+.btn-edit:hover { 
+  background: rgba(59, 130, 246, 0.3); 
+}
+
+.btn-delete { 
+  background: rgba(239, 68, 68, 0.2); 
+  color: var(--danger); 
+}
+
+.btn-delete:hover { 
+  background: rgba(239, 68, 68, 0.3); 
+}
+
+/* Empty State */
+.empty-state { 
+  text-align: center; 
+  padding: 4rem 2rem; 
+  background: rgba(30, 41, 59, 0.6); 
+  border: 1px solid var(--border); 
+  border-radius: 20px; 
+}
+
+.empty-icon { 
+  font-size: 4rem; 
+  margin-bottom: 1rem; 
+  opacity: 0.5; 
+}
+
+.empty-state h3 { 
+  font-size: 1.5rem; 
+  margin: 0 0 0.5rem; 
+}
+
+.empty-state p { 
+  color: var(--text-muted); 
+  margin: 0 0 1.5rem; 
+}
+
+/* MODAL - SCROLL MEJORADO */
+.modal-overlay { 
+  position: fixed; 
+  inset: 0; 
+  background: rgba(0,0,0,0.7); 
+  backdrop-filter: blur(8px); 
+  z-index: 200; 
+  display: flex; 
+  justify-content: center; 
+  align-items: flex-start;
+  padding: 2rem 1rem; 
+  overflow-y: auto; 
+}
+
+.modal-content { 
+  background: var(--bg-dark); 
+  border: 1px solid var(--border); 
+  border-radius: 20px; 
+  width: 100%; 
+  max-width: 850px; 
+  display: flex; 
+  flex-direction: column; 
+  box-shadow: 0 25px 60px rgba(0,0,0,0.5); 
+  animation: slideUp 0.3s ease; 
+  margin: auto;
+  margin-bottom: 2rem;
+}
+
+@keyframes slideUp { 
+  from { 
+    opacity: 0; 
+    transform: translateY(30px); 
+  } 
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  } 
+}
+
+.modal-header { 
+  padding: 1.5rem 2.5rem; 
+  background: linear-gradient(135deg, var(--primary), var(--accent)); 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  flex-shrink: 0;
+}
+
+.modal-header h2 { 
+  margin: 0; 
+  font-size: 1.4rem; 
+  color: white; 
+  font-weight: 700;
+}
+
+.btn-close { 
+  width: 36px; 
+  height: 36px; 
+  background: rgba(255,255,255,0.2); 
+  border: none; 
+  border-radius: 50%; 
+  color: white; 
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  transition: all 0.2s; 
+}
+
+.btn-close:hover { 
+  background: rgba(255,255,255,0.3); 
+  transform: rotate(90deg);
+}
+
+.modal-body { 
+  padding: 2.5rem; 
+  overflow-y: visible;
+  flex: 1;
+}
+
+/* Scrollbar personalizado para modal-overlay */
+.modal-overlay::-webkit-scrollbar {
+  width: 14px;
+}
+
+.modal-overlay::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.8);
+}
+
+.modal-overlay::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  border-radius: 10px;
+  border: 3px solid rgba(15, 23, 42, 0.8);
+}
+
+.modal-overlay::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #7c3aed, #06b6d4);
+  border: 2px solid rgba(15, 23, 42, 0.8);
+}
+
+.form-grid { 
+  display: grid; 
+  grid-template-columns: repeat(2, 1fr); 
+  gap: 1.75rem;
+  padding-bottom: 0.5rem;
+}
+
+.form-group { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 0.5rem; 
+}
+
+.form-group.full-width { 
+  grid-column: 1 / -1; 
+}
+
+.form-group label { 
+  font-size: 0.85rem; 
+  font-weight: 600; 
+  color: var(--text); 
+  text-transform: uppercase; 
+  letter-spacing: 0.5px; 
+}
+
+.form-group input { 
+  padding: 0.85rem 1.1rem; 
+  background: rgba(15, 23, 42, 0.6); 
+  border: 1px solid var(--border); 
+  border-radius: 10px; 
+  color: var(--text); 
+  font-size: 0.95rem; 
+  transition: all 0.3s; 
   width: 100%;
   box-sizing: border-box;
 }
 
-
-/* Para móviles */
-@media (max-width: 768px) {
-  .modal-body {
-    padding: 1rem;
-  }
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
-  .modal-footer {
-    flex-direction: column-reverse;
-  }
-  .modal-footer button {
-    width: 100%;
-    justify-content: center;
-  }
+.form-group input::placeholder { 
+  color: rgba(148, 163, 184, 0.5); 
 }
 
-/* Page Header */
-.page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; }
-.header-info h1 { font-size: 1.75rem; font-weight: 700; margin: 0 0 0.25rem; }
-.header-info p { color: var(--text-muted); font-size: 0.9rem; margin: 0; }
+.form-group input:focus { 
+  outline: none; 
+  border-color: var(--primary); 
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15); 
+  background: rgba(15, 23, 42, 0.8);
+}
 
-/* Buttons */
-.btn-primary { display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.25rem; background: linear-gradient(135deg, var(--primary), var(--accent)); border: none; border-radius: 10px; color: white; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4); }
-.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5); }
-.btn-secondary { display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.25rem; background: rgba(100, 116, 139, 0.2); border: 1px solid var(--border); border-radius: 10px; color: var(--text-muted); font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.3s; }
-.btn-secondary:hover { background: rgba(100, 116, 139, 0.3); color: var(--text); }
+.error-msg {
+  color: var(--danger);
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
 
-/* Stats */
-.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
-.stat-card { background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(10px); border: 1px solid var(--border); border-radius: 16px; padding: 1.25rem; display: flex; align-items: center; gap: 1rem; }
-.stat-icon { font-size: 2rem; width: 56px; height: 56px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
-.stat-icon.blue { background: rgba(59, 130, 246, 0.2); }
-.stat-icon.green { background: rgba(16, 185, 129, 0.2); }
-.stat-info { display: flex; flex-direction: column; }
-.stat-value { font-size: 1.75rem; font-weight: 700; }
-.stat-label { font-size: 0.8rem; color: var(--text-muted); }
+.file-upload { 
+  position: relative; 
+  width: 100%;
+}
 
-/* Search and Filters */
-.search-filter-section { background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(10px); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem; }
-.search-box { position: relative; margin-bottom: 0; }
-.search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; }
-.search-box input { width: 100%; padding: 0.85rem 3rem 0.85rem 3rem; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 0.95rem; transition: all 0.3s; box-sizing: border-box; }
-.search-box input::placeholder { color: rgba(148, 163, 184, 0.5); }
-.search-box input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15); }
-.clear-btn { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; border: none; background: rgba(100, 116, 139, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; }
-.clear-btn:hover { background: rgba(100, 116, 139, 0.3); }
-.clear-btn svg { color: var(--text-muted); }
+.file-upload input[type="file"] { 
+  position: absolute; 
+  opacity: 0; 
+  width: 0; 
+  height: 0; 
+}
 
-.results-info { display: flex; align-items: center; gap: 8px; padding: 0.75rem 1rem; background: rgba(100, 116, 139, 0.15); border-radius: 10px; color: var(--text-muted); font-size: 0.85rem; font-weight: 500; margin-top: 1rem; }
-.results-info svg { color: var(--primary); flex-shrink: 0; }
-.btn-reset-filters { margin-left: auto; padding: 0.4rem 0.85rem; background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 8px; font-size: 0.8rem; font-weight: 600; color: var(--primary); cursor: pointer; transition: all 0.2s; }
-.btn-reset-filters:hover { background: var(--primary); color: white; border-color: var(--primary); }
+.file-label { 
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+  gap: 0.6rem; 
+  padding: 0.85rem 1.1rem; 
+  background: rgba(15, 23, 42, 0.6); 
+  border: 1px dashed var(--border); 
+  border-radius: 10px; 
+  color: var(--text-muted); 
+  font-size: 0.9rem; 
+  cursor: pointer; 
+  transition: all 0.3s; 
+  width: 100%; 
+  box-sizing: border-box;
+  text-align: center;
+}
 
-/* Grid Usuarios */
-.usuarios-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; }
-.usuario-card { background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(10px); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: all 0.3s; }
-.usuario-card:hover { transform: translateY(-4px); border-color: rgba(99, 102, 241, 0.3); box-shadow: 0 15px 40px rgba(0,0,0,0.3); }
+.file-label:hover { 
+  border-color: var(--primary); 
+  background: rgba(15, 23, 42, 0.8);
+  color: var(--primary); 
+}
 
-.card-header-user { background: linear-gradient(135deg, var(--primary), #764ba2); padding: 1.5rem; display: flex; align-items: center; gap: 1rem; position: relative; }
-.usuario-avatar { width: 70px; height: 70px; border-radius: 50%; border: 3px solid white; object-fit: cover; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-.badge-activo { position: absolute; top: 1rem; right: 1rem; background: rgba(16, 185, 129, 0.95); color: white; padding: 0.3rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; backdrop-filter: blur(10px); }
+.file-label::before {
+  content: "📁";
+  font-size: 1.2rem;
+}
 
-.card-body-user { padding: 1.25rem; }
-.card-body-user h3 { font-size: 1.1rem; font-weight: 700; margin: 0 0 1rem; color: var(--text); }
-.user-details { display: flex; flex-direction: column; gap: 0.6rem; }
-.detail-row { display: flex; align-items: center; gap: 0.6rem; font-size: 0.85rem; color: var(--text-muted); }
-.detail-row svg { color: var(--primary); flex-shrink: 0; }
-.detail-row span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-.card-footer-user { padding: 1rem 1.25rem; border-top: 1px solid var(--border); display: flex; gap: 0.75rem; }
-.btn-edit, .btn-delete { flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.4rem; padding: 0.65rem; border: none; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.3s; }
-.btn-edit { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
-.btn-edit:hover { background: rgba(59, 130, 246, 0.3); }
-.btn-delete { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
-.btn-delete:hover { background: rgba(239, 68, 68, 0.3); }
-
-/* Empty State */
-.empty-state { text-align: center; padding: 4rem 2rem; background: rgba(30, 41, 59, 0.6); border: 1px solid var(--border); border-radius: 20px; }
-.empty-icon { font-size: 4rem; margin-bottom: 1rem; opacity: 0.5; }
-.empty-state h3 { font-size: 1.5rem; margin: 0 0 0.5rem; }
-.empty-state p { color: var(--text-muted); margin: 0 0 1.5rem; }
-
-/* Modal */
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 200; display: flex; justify-content: center; align-items: center; padding: 1rem; }
-.modal-content { background: var(--bg-dark); border: 1px solid var(--border); border-radius: 20px; width: 100%; max-width: 600px; max-height: 90vh; overflow: hidden; box-shadow: 0 25px 60px rgba(0,0,0,0.5); animation: slideUp 0.3s ease; display: flex; flex-direction: column; }
-@keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-
-.modal-header { padding: 1.25rem 1.5rem; background: linear-gradient(135deg, var(--primary), var(--accent)); display: flex; justify-content: space-between; align-items: center; }
-.modal-header h2 { margin: 0; font-size: 1.25rem; color: white; }
-.btn-close { width: 36px; height: 36px; background: rgba(255,255,255,0.2); border: none; border-radius: 50%; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
-.btn-close:hover { background: rgba(255,255,255,0.3); }
-
-.modal-body { padding: 1.5rem; overflow-y: auto; flex: 1; }
-.form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
-.form-group { display: flex; flex-direction: column; gap: 0.4rem; }
-.form-group.full-width { grid-column: 1 / -1; }
-.form-group label { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-.form-group input { padding: 0.75rem 1rem; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 0.95rem; transition: all 0.3s; }
-.form-group input::placeholder { color: rgba(148, 163, 184, 0.5); }
-.form-group input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15); }
-
-.file-upload { position: relative; }
-.file-upload input[type="file"] { position: absolute; opacity: 0; width: 0; height: 0; }
-.file-label { display: flex; align-items: center; gap: 0.6rem; padding: 0.75rem 1rem; background: rgba(15, 23, 42, 0.6); border: 1px dashed var(--border); border-radius: 10px; color: var(--text-muted); font-size: 0.9rem; cursor: pointer; transition: all 0.3s; }
-.file-label:hover { border-color: var(--primary); color: var(--primary); }
-
-.modal-footer { padding: 1rem 1.5rem; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 0.75rem; }
+.modal-footer { 
+  padding: 1.5rem 2.5rem; 
+  border-top: 1px solid var(--border); 
+  display: flex; 
+  justify-content: flex-end; 
+  gap: 1rem; 
+  flex-shrink: 0;
+  background: rgba(15, 23, 42, 0.5);
+}
 
 /* Particles */
-.particles-bg { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
-.particle { position: absolute; width: 3px; height: 3px; background: rgba(99, 102, 241, 0.4); border-radius: 50%; animation: rise 20s infinite ease-in-out; }
-@keyframes rise { 0%, 100% { transform: translateY(100vh) scale(0); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { transform: translateY(-10vh) scale(1); opacity: 0; } }
+.particles-bg { 
+  position: fixed; 
+  inset: 0; 
+  pointer-events: none; 
+  z-index: 0; 
+  overflow: hidden; 
+}
+
+.particle { 
+  position: absolute; 
+  width: 3px; 
+  height: 3px; 
+  background: rgba(99, 102, 241, 0.4); 
+  border-radius: 50%; 
+  animation: rise 20s infinite ease-in-out; 
+}
+
+@keyframes rise { 
+  0%, 100% { 
+    transform: translateY(100vh) scale(0); 
+    opacity: 0; 
+  } 
+  10% { 
+    opacity: 1; 
+  } 
+  90% { 
+    opacity: 1; 
+  } 
+  100% { 
+    transform: translateY(-10vh) scale(1); 
+    opacity: 0; 
+  } 
+}
 
 /* Responsive */
 @media (max-width: 768px) {
-  .navbar { padding: 0.75rem 1rem; }
-  .app-subtitle { display: none; }
-  .main-content { padding: 1rem; }
-  .page-header { flex-direction: column; align-items: flex-start; }
-  .btn-primary { width: 100%; justify-content: center; }
-  .stats-grid { grid-template-columns: 1fr 1fr; }
-  .usuarios-grid { grid-template-columns: 1fr; }
-  .form-grid { grid-template-columns: 1fr; }
-  .modal-footer { flex-direction: column-reverse; }
-  .modal-footer button { width: 100%; justify-content: center; }
+  .navbar { 
+    padding: 0.75rem 1rem; 
+  }
+  
+  .app-subtitle { 
+    display: none; 
+  }
+  
+  .main-content { 
+    padding: 1rem; 
+  }
+  
+  .page-header { 
+    flex-direction: column; 
+    align-items: flex-start; 
+  }
+  
+  .btn-primary { 
+    width: 100%; 
+    justify-content: center; 
+  }
+  
+  .stats-grid { 
+    grid-template-columns: 1fr 1fr; 
+  }
+  
+  .usuarios-grid { 
+    grid-template-columns: 1fr; 
+  }
+  
+  .modal-content {
+    max-width: 100%;
+    margin: 0.5rem;
+    max-height: 95vh;
+  }
+  
+  .modal-header {
+    padding: 1.25rem 1.5rem;
+  }
+  
+  .modal-header h2 {
+    font-size: 1.2rem;
+  }
+  
+  .modal-body {
+    padding: 1.5rem;
+  }
+  
+  .form-grid { 
+    grid-template-columns: 1fr; 
+    gap: 1rem;
+  }
+  
+  .modal-footer { 
+    padding: 1rem 1.5rem;
+    flex-direction: column-reverse; 
+  }
+  
+  .modal-footer button { 
+    width: 100%; 
+    justify-content: center; 
+  }
 }
   `]
 })
@@ -543,7 +1240,7 @@ export class GestionUsuariosComponent implements OnInit {
   }
 
   nuevoUsuario(form?: NgForm) {
-    if(form) form.resetForm();
+    if (form) form.resetForm();
     this.usuarioSeleccionado = {
       id: 0,
       nombre: '',
@@ -556,17 +1253,25 @@ export class GestionUsuariosComponent implements OnInit {
       created: new Date().toISOString(),
       updated: new Date().toISOString(),
       deleted: false,
-      rol: ''
+      rol: '',
+
+      dni: '',
+      fotoDni: '',
+      direccionEnvio: '',
+      numeroSeguridadSocial: ''
     };
+
     this.selectedFile = null;
     this.mostrarErrores = false;
   }
 
-  editarUsuario(u: User) {
-    this.usuarioSeleccionado = { ...u };
-    this.selectedFile = null;
-  }
 
+editarUsuario(u: User) {
+  console.log('Usuario a editar:', u);
+  console.log('Rol del usuario:', u.rol);
+  this.usuarioSeleccionado = { ...u };
+  this.selectedFile = null;
+}
   cancelarEdicion() {
     this.usuarioSeleccionado = null;
     this.selectedFile = null;
@@ -624,7 +1329,23 @@ export class GestionUsuariosComponent implements OnInit {
     });
   }
 
+  seleccionarTipo(tipo: string) {
+      if (this.usuarioSeleccionado) {
+      this.usuarioSeleccionado.rol = tipo;
+        // Limpiar campos específicos del tipo anterior
+        if (tipo === 'CLIENTE') {
+          this.usuarioSeleccionado.numeroSeguridadSocial = '';
+        } else if (tipo === 'TRABAJADOR') {
+          this.usuarioSeleccionado.dni = '';
+          this.usuarioSeleccionado.direccionEnvio = '';
+        }
+      }
+    }
+
+    
+
   volverAlDashboard() {
     this.router.navigate(['/dashboard']);
   }
 }
+

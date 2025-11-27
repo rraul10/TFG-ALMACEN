@@ -210,7 +210,8 @@ public class PedidoServiceImpl implements PedidoService {
                 .build();
 
         Pedido pedido = new Pedido();
-        pedido.setCliente(clienteService.getClienteEntityById(request.getClienteId()));
+        Cliente cliente = clienteService.getClienteEntityByUserId(request.getUserId());
+        pedido.setCliente(cliente);
         pedido.setEstado(EstadoPedido.PENDIENTE);
         pedido.setFecha(LocalDateTime.now());
         pedido.setLineasVenta(new ArrayList<>());
@@ -226,7 +227,7 @@ public class PedidoServiceImpl implements PedidoService {
         emailService.enviarTicketPorEmail(emailCliente, pdfStream);
 
         return PedidoMapper.toDto(pedido);
-    }
+    }   
 
     @Override
     public List<PedidoResponse> getPedidosByClienteId(Long userId) {
