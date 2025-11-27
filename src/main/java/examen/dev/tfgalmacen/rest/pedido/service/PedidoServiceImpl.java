@@ -2,6 +2,7 @@ package examen.dev.tfgalmacen.rest.pedido.service;
 
 import com.stripe.Stripe;
 import com.stripe.param.checkout.SessionCreateParams;
+import examen.dev.tfgalmacen.rest.clientes.exceptions.ClienteNotFound;
 import examen.dev.tfgalmacen.rest.clientes.models.Cliente;
 import examen.dev.tfgalmacen.rest.clientes.service.ClienteService;
 import examen.dev.tfgalmacen.rest.pedido.controller.PedidoController;
@@ -18,6 +19,7 @@ import examen.dev.tfgalmacen.rest.pedido.repository.PedidoRepository;
 import examen.dev.tfgalmacen.rest.productos.exceptions.ProductoNotFoundException;
 import examen.dev.tfgalmacen.rest.productos.models.Producto;
 import examen.dev.tfgalmacen.rest.productos.repository.ProductoRepository;
+import examen.dev.tfgalmacen.rest.users.repository.UserRepository;
 import examen.dev.tfgalmacen.websockets.notifications.EmailService;
 import examen.dev.tfgalmacen.websockets.notifications.TicketService;
 import com.stripe.model.checkout.Session;
@@ -44,6 +46,7 @@ public class PedidoServiceImpl implements PedidoService {
     private final ProductoRepository productoRepository;
     private final EmailService emailService;
     private final TicketService  ticketService;
+    private final UserRepository userRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(PedidoController.class);
 
@@ -226,8 +229,11 @@ public class PedidoServiceImpl implements PedidoService {
     }
 
     @Override
-    public List<PedidoResponse> getPedidosByClienteId(Long clienteId) {
-        return pedidoRepository.findByClienteIdAndDeletedFalse(clienteId)
+    public List<PedidoResponse> getPedidosByClienteId(Long userId) {
+        Cliente cliente = clienteService.getClienteByEmail(userRepository.findById(userId)
+                .orElseThrow(() -> new ClienteNotFound("Usuario no encontrado")).getCorreo());
+
+        return pedidoRepository.findByClienteIdAndDeletedFalse(cliente.getId())
                 .stream()
                 .map(PedidoMapper::toDto)
                 .collect(Collectors.toList());

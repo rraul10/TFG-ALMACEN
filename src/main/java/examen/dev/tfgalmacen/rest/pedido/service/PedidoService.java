@@ -22,7 +22,7 @@ public interface PedidoService {
 
     PedidoResponse crearCompraDesdeNombreProducto(CompraRequest request);
 
-    List<PedidoResponse> getPedidosByClienteId(Long clienteId);
+    List<PedidoResponse> getPedidosByClienteId(Long userId);
 
     String createStripeCheckout(PedidoResponse pedido);
 
