@@ -65,7 +65,6 @@ public class UserServiceImpl implements UserService {
             dto.setFoto(user.getFoto());
 
             clienteRepository.findByUserId(user.getId()).ifPresent(cliente -> {
-                System.out.println("✅ ENCONTRADO CLIENTE ID: " + cliente.getId() + ", DNI: " + cliente.getDni());
                 dto.setDni(cliente.getDni() != null ? cliente.getDni() : "");
                 dto.setFotoDni(cliente.getFotoDni() != null ? cliente.getFotoDni() : "");
                 dto.setDireccionEnvio(cliente.getDireccionEnvio() != null ? cliente.getDireccionEnvio() : "");
@@ -101,7 +100,6 @@ public class UserServiceImpl implements UserService {
         dto.setFoto(user.getFoto());
 
         clienteRepository.findByUserId(user.getId()).ifPresentOrElse(cliente -> {
-            System.out.println("✅ ENCONTRADO CLIENTE ID: " + cliente.getId() + ", DNI: " + cliente.getDni());
             dto.setDni(cliente.getDni() != null ? cliente.getDni() : "");
             dto.setFotoDni(cliente.getFotoDni() != null ? cliente.getFotoDni() : "");
             dto.setDireccionEnvio(cliente.getDireccionEnvio() != null ? cliente.getDireccionEnvio() : "");
@@ -126,18 +124,10 @@ public class UserServiceImpl implements UserService {
 
         user = userRepository.save(user);
 
-        System.out.println("🔍 USER CREADO ID: " + user.getId());
-        System.out.println("🔍 userRequest.getRoles(): " + userRequest.getRoles());
-
         String rol = userRequest.getRoles().stream()
                 .findFirst()
                 .map(Enum::name)
                 .orElse("CLIENTE");
-
-        System.out.println("🔍 ROL DETECTADO: " + rol);
-        System.out.println("🔍 DNI del request: " + userRequest.getDni());
-        System.out.println("🔍 DIRECCION del request: " + userRequest.getDireccionEnvio());
-
         if ("CLIENTE".equals(rol)) {
             Cliente cliente = Cliente.builder()
                     .user(user)
@@ -147,7 +137,6 @@ public class UserServiceImpl implements UserService {
                     .build();
 
             Cliente savedCliente = clienteRepository.save(cliente);
-            System.out.println("🔍 CLIENTE GUARDADO ID: " + savedCliente.getId());
 
         } else if ("TRABAJADOR".equals(rol)) {
             Trabajador trabajador = Trabajador.builder()
