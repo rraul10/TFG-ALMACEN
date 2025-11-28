@@ -23,6 +23,11 @@ public class UserRequest {
     private String ciudad;
     private String foto;
     private Set<UserRole> roles;
+
+    private String dni;
+    private String fotoDni;
+    private String direccionEnvio;
+    private String numeroSeguridadSocial;
 }
 
 

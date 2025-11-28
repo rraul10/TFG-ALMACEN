@@ -94,9 +94,12 @@ import { Router } from '@angular/router';
             <div class="card-header-user">
               <img [src]="'http://localhost:8080/files/' + u.foto" [alt]="u.nombre" class="usuario-avatar" />
               <span class="badge-activo">✓ Activo</span>
-              <span class="badge-rol" [class.cliente]="u.rol === 'CLIENTE'" [class.trabajador]="u.rol === 'TRABAJADOR'">
-                {{ u.rol === 'CLIENTE' ? '🛒 Cliente' : '💼 Trabajador' }}
-              </span>
+              <!-- Reemplazar en tu template -->
+            <span class="badge-rol" 
+                  [class.cliente]="u.rol === 'CLIENTE'" 
+                  [class.trabajador]="u.rol === 'TRABAJADOR'">
+              {{ u.rol === 'CLIENTE' ? '🛒 Cliente' : '💼 Trabajador' }}
+            </span>
             </div>
             <div class="card-body-user">
               <h3>{{ u.nombre }} {{ u.apellidos }}</h3>
@@ -199,6 +202,7 @@ import { Router } from '@angular/router';
             <div class="modal-body">
               <div class="form-grid">
                 <!-- Selector de Tipo de Usuario -->
+                <!-- Selector de Tipo de Usuario -->
                 <div class="form-group full-width" *ngIf="!usuarioSeleccionado.id">
                   <label>Tipo de Usuario *</label>
                   <div class="tipo-selector">
@@ -208,8 +212,10 @@ import { Router } from '@angular/router';
                       [class.active]="usuarioSeleccionado.rol === 'CLIENTE'"
                       (click)="seleccionarTipo('CLIENTE')"
                     >
-                      <div>
+                      <div class="tipo-icon">🛒</div>
+                      <div class="tipo-info">
                         <span class="tipo-title">Cliente</span>
+                        <span class="tipo-desc">Comprador del sistema</span>
                       </div>
                     </button>
                     <button 
@@ -218,8 +224,10 @@ import { Router } from '@angular/router';
                       [class.active]="usuarioSeleccionado.rol === 'TRABAJADOR'"
                       (click)="seleccionarTipo('TRABAJADOR')"
                     >
-                      <div>
+                      <div class="tipo-icon">💼</div>
+                      <div class="tipo-info">
                         <span class="tipo-title">Trabajador</span>
+                        <span class="tipo-desc">Empleado de la tienda</span>
                       </div>
                     </button>
                   </div>
@@ -388,67 +396,124 @@ import { Router } from '@angular/router';
   font-size: 2rem; 
 }
 /* Selector de Tipo de Usuario */
-.tipo-usuario-selector {
+/* Selector de Tipo de Usuario */
+.tipo-selector {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 1rem;
-  margin-bottom: 0.5rem;
+  margin-top: 0.75rem;
 }
 
 .tipo-btn {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1rem;
   padding: 1.5rem;
   background: rgba(15, 23, 42, 0.6);
   border: 2px solid var(--border);
-  border-radius: 12px;
+  border-radius: 16px;
   color: var(--text-muted);
-  font-size: 0.95rem;
-  font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.tipo-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1));
+  opacity: 0;
+  transition: opacity 0.3s;
 }
 
 .tipo-btn:hover {
   background: rgba(15, 23, 42, 0.8);
   border-color: rgba(99, 102, 241, 0.5);
+  transform: translateY(-2px);
+}
+
+.tipo-btn:hover::before {
+  opacity: 1;
 }
 
 .tipo-btn.active {
-  background: rgba(99, 102, 241, 0.2);
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.15));
   border-color: var(--primary);
-  color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  color: var(--text);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15), 0 8px 20px rgba(99, 102, 241, 0.3);
 }
 
-.tipo-btn svg {
-  width: 32px;
-  height: 32px;
+.tipo-btn.active .tipo-icon {
+  transform: scale(1.1);
 }
 
-.badge-rol-display {
-  display: inline-flex;
+.tipo-icon {
+  font-size: 2.5rem;
+  display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.75rem 1.25rem;
+  width: 60px;
+  height: 60px;
+  background: rgba(99, 102, 241, 0.15);
   border-radius: 12px;
-  font-size: 0.95rem;
+  flex-shrink: 0;
+  transition: all 0.3s;
+}
+
+.tipo-btn.active .tipo-icon {
+  background: rgba(99, 102, 241, 0.3);
+}
+
+.tipo-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  text-align: left;
+  flex: 1;
+}
+
+.tipo-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+  display: block;
+}
+
+.tipo-desc {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  display: block;
+}
+
+.tipo-btn.active .tipo-title {
+  background: linear-gradient(135deg, #6366f1, #a855f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.badge-rol {
+  position: absolute;
+  bottom: 1rem;
+  left: 1rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
   font-weight: 600;
-  width: fit-content;
+  backdrop-filter: blur(10px);
 }
 
-.badge-rol-display.rol-cliente {
-  background: rgba(59, 130, 246, 0.2);
-  color: #3b82f6;
-  border: 2px solid rgba(59, 130, 246, 0.3);
+.badge-rol.cliente {
+  background: rgba(59, 130, 246, 0.25);
+  color: #000000ff;
+  border: 1px solid rgba(59, 130, 246, 0.3);
 }
 
-.badge-rol-display.rol-trabajador {
-  background: rgba(168, 85, 247, 0.2);
-  color: #a855f7;
-  border: 2px solid rgba(168, 85, 247, 0.3);
+.badge-rol.trabajador {
+  background: rgba(168, 85, 247, 0.25);
+  color: #000000ff;
+  border: 1px solid rgba(168, 85, 247, 0.3);
 }
 .logo-text { 
   display: flex; 
@@ -1266,12 +1331,25 @@ export class GestionUsuariosComponent implements OnInit {
   }
 
 
-editarUsuario(u: User) {
-  console.log('Usuario a editar:', u);
-  console.log('Rol del usuario:', u.rol);
-  this.usuarioSeleccionado = { ...u };
-  this.selectedFile = null;
-}
+  editarUsuario(u: User) {
+    console.log('🔍 Usuario ORIGINAL del backend:', u);
+    console.log('🔍 Campos DNI:', u.dni);
+    console.log('🔍 Campos DIRECCION:', u.direccionEnvio);
+    console.log('🔍 Campos SS:', u.numeroSeguridadSocial);
+    
+    const usuarioCompleto: User = {
+      ...u,
+      dni: u.dni || '',
+      direccionEnvio: u.direccionEnvio || '',
+      numeroSeguridadSocial: u.numeroSeguridadSocial || '',
+      fotoDni: u.fotoDni || ''
+    };
+    
+    console.log('🔍 Usuario COMPLETO para editar:', usuarioCompleto);
+    this.usuarioSeleccionado = usuarioCompleto;
+    this.selectedFile = null;
+  }
+
   cancelarEdicion() {
     this.usuarioSeleccionado = null;
     this.selectedFile = null;
@@ -1283,40 +1361,59 @@ editarUsuario(u: User) {
   }
 
   guardarUsuario(form: NgForm) {
-    if (!this.usuarioSeleccionado) return;
+  if (!this.usuarioSeleccionado) return;
 
-    this.mostrarErrores = true;
-    Object.values(form.controls).forEach(control => control?.markAsTouched());
+  this.mostrarErrores = true;
+  Object.values(form.controls).forEach(control => control?.markAsTouched());
 
-    if (!form.valid) return;
+  if (!form.valid) return;
 
-    const userToSend: Partial<User> = { ...this.usuarioSeleccionado };
-    if (userToSend.id === 0) delete userToSend.id;
+  const userToSend: any = { 
+  ...this.usuarioSeleccionado,
+  roles: this.usuarioSeleccionado.rol ? [this.usuarioSeleccionado.rol] : [],
+  
+  dni: this.usuarioSeleccionado.rol === 'CLIENTE' ? (this.usuarioSeleccionado.dni || '') : '',
+  direccionEnvio: this.usuarioSeleccionado.rol === 'CLIENTE' ? (this.usuarioSeleccionado.direccionEnvio || '') : '',
+  numeroSeguridadSocial: this.usuarioSeleccionado.rol === 'TRABAJADOR' ? (this.usuarioSeleccionado.numeroSeguridadSocial || '') : '',
+  fotoDni: this.usuarioSeleccionado.fotoDni || ''
+};
 
-    const formData = new FormData();
-    formData.append('user', JSON.stringify(userToSend));
-    if (this.selectedFile) formData.append('foto', this.selectedFile);
 
-    const req = this.usuarioSeleccionado.id
-      ? this.userService.updateWithFile(this.usuarioSeleccionado.id, formData)
-      : this.userService.createWithFile(formData);
+  if (userToSend.id === 0) delete userToSend.id;
 
-    req.subscribe({
-      next: () => {
-        this.snackBar.open(
-          this.usuarioSeleccionado!.id ? '✅ Usuario actualizado' : '✅ Usuario creado',
-          'Cerrar',
-          { duration: 3000 }
-        );
-        this.cargarUsuarios();
-        this.cancelarEdicion();
-      },
-      error: (err) => {
-        console.error('Error en guardarUsuario:', err);
-        this.snackBar.open('❌ Error al guardar', 'Cerrar', { duration: 3000 });
-      }
-    });
-  }
+  Object.keys(userToSend).forEach((key: string) => {
+    if (userToSend[key] === undefined || userToSend[key] === null || userToSend[key] === '') {
+      delete userToSend[key];
+    }
+  });
+
+  console.log('🔍 Datos completos a enviar:', userToSend);
+
+  const formData = new FormData();
+  formData.append('user', JSON.stringify(userToSend));
+  if (this.selectedFile) formData.append('foto', this.selectedFile);
+
+  const req = this.usuarioSeleccionado!.id
+    ? this.userService.updateWithFile(this.usuarioSeleccionado.id, formData)
+    : this.userService.createWithFile(formData);
+
+  req.subscribe({
+    next: () => {
+      this.snackBar.open(
+        this.usuarioSeleccionado!.id ? '✅ Usuario actualizado' : '✅ Usuario creado',
+        'Cerrar',
+        { duration: 3000 }
+      );
+      this.cargarUsuarios();
+      this.cancelarEdicion();
+    },
+    error: (err) => {
+      console.error('Error en guardarUsuario:', err);
+      this.snackBar.open('❌ Error al guardar', 'Cerrar', { duration: 3000 });
+    }
+  });
+}
+
 
   eliminarUsuario(id: number) {
     if (!confirm('¿Eliminar este usuario?')) return;
@@ -1332,7 +1429,6 @@ editarUsuario(u: User) {
   seleccionarTipo(tipo: string) {
       if (this.usuarioSeleccionado) {
       this.usuarioSeleccionado.rol = tipo;
-        // Limpiar campos específicos del tipo anterior
         if (tipo === 'CLIENTE') {
           this.usuarioSeleccionado.numeroSeguridadSocial = '';
         } else if (tipo === 'TRABAJADOR') {

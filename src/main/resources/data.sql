@@ -122,8 +122,7 @@ INSERT INTO pedido (id, cliente_id, estado, fecha, created, updated, deleted) VA
   (16, 9, 'PENDIENTE', NOW(), NOW(), NOW(), false),
   (17, 10, 'ENVIADO', NOW(), NOW(), NOW(), false),
   (18, 10, 'PREPARACION', NOW(), NOW(), NOW(), false),
-  (19, 1, 'PREPARACION', NOW(), NOW(), NOW(), false),
-  (20, 1, 'ENVIADO', NOW(), NOW(), NOW(), false);
+  (19, 1, 'PREPARACION', NOW(), NOW(), NOW(), false);
 
 -- LINEAS DE VENTA DE EJEMPLO
 SELECT setval('pedido_id_seq', (SELECT MAX(id) FROM pedido));
@@ -149,7 +148,9 @@ INSERT INTO linea_venta (pedido_id, producto_id, cantidad, precio_unitario) VALU
     (15, 15, 1, 59.50),
     (16, 16, 1, 99.99),
     (17, 17, 2, 219.90),
-    (18, 18, 1, 549.00);
+    (18, 18, 1, 549.00),
+    (19, 18, 6, 249.50);
+
 
 -- Ajustar secuencia para evitar conflictos con ID ya existentes
 SELECT setval('users_id_seq', (SELECT MAX(id) FROM users));

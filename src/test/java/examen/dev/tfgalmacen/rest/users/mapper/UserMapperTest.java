@@ -23,7 +23,12 @@ class UserMapperTest {
     void setUp() {
         userMapper = new UserMapper();
 
-        userRequest = new UserRequest("Raul", "raul@example.com", "password123", Set.of(UserRole.CLIENTE));
+        userRequest = UserRequest.builder()
+                .nombre("Raul")
+                .correo("raul@example.com")
+                .password("password123")
+                .roles(Set.of(UserRole.CLIENTE))
+                .build();
 
         user = User.builder()
                 .id(1L)

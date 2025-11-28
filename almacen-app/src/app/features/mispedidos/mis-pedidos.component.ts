@@ -360,7 +360,7 @@ import { AuthService } from '@core/services/auth.service';
 .search-filter-section { background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(10px); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem; }
 .search-box { position: relative; margin-bottom: 1.5rem; }
 .search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; }
-.search-box input { width: 90%; padding: 0.85rem 3rem 0.85rem 3rem; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 0.95rem; transition: all 0.3s; }
+.search-box input { width: 92%; padding: 0.85rem 3rem 0.85rem 3rem; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 0.95rem; transition: all 0.3s; }
 .search-box input::placeholder { color: rgba(148, 163, 184, 0.5); }
 .search-box input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15); }
 .clear-btn { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; border: none; background: rgba(100, 116, 139, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; }
@@ -1132,7 +1132,7 @@ export class MisPedidosComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    let user: any = null; // declarar la variable fuera del if
+    let user: any = null; 
 
     const userStr = localStorage.getItem('user');
     if (userStr) {
@@ -1144,8 +1144,8 @@ export class MisPedidosComponent implements OnInit {
       this.fotoPerfil = user.foto || this.fotoPerfil;
     }
 
-    if (user) { // asegurarse de que user exista antes de usarlo
-      const clienteId = user.clienteId ?? user.id; // usar clienteId si existe
+    if (user) { 
+      const clienteId = user.clienteId ?? user.id;
       this.pedidoService.getByCliente(clienteId).subscribe(pedidos => {
         this.pedidos = pedidos;
         this.pedidosFiltrados = [...this.pedidos];
@@ -1153,8 +1153,6 @@ export class MisPedidosComponent implements OnInit {
     }
   }
 
-
-  // ---------------- Métodos del header / menú ----------------
   toggleMenu() { this.menuOpen = !this.menuOpen; }
 
   goToProfile() { 

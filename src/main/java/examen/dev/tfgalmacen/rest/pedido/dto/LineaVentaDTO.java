@@ -14,7 +14,6 @@ public class LineaVentaDTO {
     private Integer cantidad;
     private Double precio;
 
-    // Método estático para convertir LineaVenta a LineaVentaDTO
     public static LineaVentaDTO fromLineaVenta(LineaVenta lineaVenta) {
         return LineaVentaDTO.builder()
                 .productoId(lineaVenta.getProducto().getId())

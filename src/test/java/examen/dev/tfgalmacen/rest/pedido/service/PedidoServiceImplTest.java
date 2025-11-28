@@ -230,8 +230,11 @@ class PedidoServiceImplTest {
         userMock.setCorreo("test@correo.com");
         clienteMock.setUser(userMock);
 
-
-        CompraRequest request = new CompraRequest(productoNombre, cantidad, clienteId);
+        CompraRequest request = CompraRequest.builder()
+                .productoNombre(productoNombre)
+                .cantidad(cantidad)
+                .userId(clienteId)
+                .build();
 
         when(productoRepository.findByNombreIgnoreCase(productoNombre))
                 .thenReturn(Optional.of(productoMock));
@@ -264,7 +267,12 @@ class PedidoServiceImplTest {
         String productoNombre = "Producto de prueba";
         int cantidad = 2;
 
-        CompraRequest request = new CompraRequest(productoNombre, cantidad, clienteId);
+        CompraRequest request = CompraRequest.builder()
+                .productoNombre(productoNombre)
+                .cantidad(cantidad)
+                .userId(clienteId)
+                .build();
+
 
         when(productoRepository.findByNombreIgnoreCase(productoNombre))
                 .thenReturn(Optional.empty());
@@ -308,7 +316,7 @@ class PedidoServiceImplTest {
 
         doNothing().when(emailService).notificarCambioEstadoPedido(any(Pedido.class), any(String.class));
 
-        PedidoResponse response = pedidoService.actualizarEstadoPedido(pedidoId, nuevoEstado);
+        PedidoResponse response = pedidoService.actualizarEstado(pedidoId, nuevoEstado.name());
 
         assertNotNull(response);
         assertEquals(nuevoEstado, response.getEstado());
@@ -325,8 +333,9 @@ class PedidoServiceImplTest {
 
         when(pedidoRepository.findById(pedidoId)).thenReturn(Optional.empty());
 
-        assertThrows(PedidoNotFoundException.class, () -> {
-            pedidoService.actualizarEstadoPedido(pedidoId, nuevoEstado);
+        assertThrows(RuntimeException.class, () -> {
+            pedidoService.actualizarEstado(pedidoId, nuevoEstado.name());
         });
     }
 }
+

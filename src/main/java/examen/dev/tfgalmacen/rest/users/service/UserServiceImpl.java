@@ -3,7 +3,9 @@ package examen.dev.tfgalmacen.rest.users.service;
 
 import examen.dev.tfgalmacen.auth.dto.UserProfileResponse;
 import examen.dev.tfgalmacen.auth.exceptions.UserNotFound;
+import examen.dev.tfgalmacen.rest.clientes.models.Cliente;
 import examen.dev.tfgalmacen.rest.clientes.repository.ClienteRepository;
+import examen.dev.tfgalmacen.rest.trabajadores.models.Trabajador;
 import examen.dev.tfgalmacen.rest.trabajadores.repository.TrabajadorRepository;
 import examen.dev.tfgalmacen.rest.users.dto.UserRequest;
 import examen.dev.tfgalmacen.rest.users.dto.UserResponse;
@@ -50,33 +52,68 @@ public class UserServiceImpl implements UserService {
             dto.setNombre(user.getNombre());
             dto.setCorreo(user.getCorreo());
             dto.setRoles(user.getRoles());
+
+            String rolPrincipal = user.getRoles().stream()
+                    .findFirst()
+                    .map(Enum::name)
+                    .orElse("CLIENTE");
+            dto.setRol(rolPrincipal);
+
             dto.setApellidos(user.getApellidos());
             dto.setTelefono(user.getTelefono());
             dto.setCiudad(user.getCiudad());
             dto.setFoto(user.getFoto());
-            dto.setRol(user.getRoles().stream().findFirst().map(Enum::name).orElse(null));
 
-            clienteRepository.findByUser(user).ifPresent(cliente -> {
-                dto.setDni(cliente.getDni());
-                dto.setFotoDni(cliente.getFotoDni());
-                dto.setDireccionEnvio(cliente.getDireccionEnvio());
+            clienteRepository.findByUserId(user.getId()).ifPresent(cliente -> {
+                System.out.println("✅ ENCONTRADO CLIENTE ID: " + cliente.getId() + ", DNI: " + cliente.getDni());
+                dto.setDni(cliente.getDni() != null ? cliente.getDni() : "");
+                dto.setFotoDni(cliente.getFotoDni() != null ? cliente.getFotoDni() : "");
+                dto.setDireccionEnvio(cliente.getDireccionEnvio() != null ? cliente.getDireccionEnvio() : "");
             });
 
-            trabajadorRepository.findByUser(user).ifPresent(trabajador -> {
-                dto.setNumeroSeguridadSocial(trabajador.getNumeroSeguridadSocial());
-
+            trabajadorRepository.findByUserId(user.getId()).ifPresent(trabajador -> {
+                dto.setNumeroSeguridadSocial(trabajador.getNumeroSeguridadSocial() != null ? trabajador.getNumeroSeguridadSocial() : "");
             });
 
             return dto;
         }).collect(Collectors.toList());
     }
 
-
     @Override
     public UserResponse getUserById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFound("Usuario no encontrado"));
-        return userMapper.toDto(user);
+
+        UserResponse dto = new UserResponse();
+        dto.setId(user.getId());
+        dto.setNombre(user.getNombre());
+        dto.setCorreo(user.getCorreo());
+        dto.setRoles(user.getRoles());
+
+        dto.setRol(user.getRoles().stream()
+                .findFirst()
+                .map(Enum::name)
+                .orElse("CLIENTE"));
+
+        dto.setApellidos(user.getApellidos());
+        dto.setTelefono(user.getTelefono());
+        dto.setCiudad(user.getCiudad());
+        dto.setFoto(user.getFoto());
+
+        clienteRepository.findByUserId(user.getId()).ifPresentOrElse(cliente -> {
+            System.out.println("✅ ENCONTRADO CLIENTE ID: " + cliente.getId() + ", DNI: " + cliente.getDni());
+            dto.setDni(cliente.getDni() != null ? cliente.getDni() : "");
+            dto.setFotoDni(cliente.getFotoDni() != null ? cliente.getFotoDni() : "");
+            dto.setDireccionEnvio(cliente.getDireccionEnvio() != null ? cliente.getDireccionEnvio() : "");
+        }, () -> {
+            dto.setDni(""); dto.setFotoDni(""); dto.setDireccionEnvio("");
+        });
+
+        trabajadorRepository.findByUserId(user.getId()).ifPresentOrElse(trabajador -> {
+            dto.setNumeroSeguridadSocial(trabajador.getNumeroSeguridadSocial() != null ? trabajador.getNumeroSeguridadSocial() : "");
+        }, () -> dto.setNumeroSeguridadSocial(""));
+
+        return dto;
     }
 
     @Override
@@ -89,10 +126,41 @@ public class UserServiceImpl implements UserService {
 
         user = userRepository.save(user);
 
-        emailService.notificarRegistroExitoso(user.getCorreo(), user.getNombre());
+        System.out.println("🔍 USER CREADO ID: " + user.getId());
+        System.out.println("🔍 userRequest.getRoles(): " + userRequest.getRoles());
 
-        return userMapper.toDto(user);
+        String rol = userRequest.getRoles().stream()
+                .findFirst()
+                .map(Enum::name)
+                .orElse("CLIENTE");
+
+        System.out.println("🔍 ROL DETECTADO: " + rol);
+        System.out.println("🔍 DNI del request: " + userRequest.getDni());
+        System.out.println("🔍 DIRECCION del request: " + userRequest.getDireccionEnvio());
+
+        if ("CLIENTE".equals(rol)) {
+            Cliente cliente = Cliente.builder()
+                    .user(user)
+                    .dni(userRequest.getDni())
+                    .fotoDni(userRequest.getFotoDni())
+                    .direccionEnvio(userRequest.getDireccionEnvio())
+                    .build();
+
+            Cliente savedCliente = clienteRepository.save(cliente);
+            System.out.println("🔍 CLIENTE GUARDADO ID: " + savedCliente.getId());
+
+        } else if ("TRABAJADOR".equals(rol)) {
+            Trabajador trabajador = Trabajador.builder()
+                    .user(user)
+                    .numeroSeguridadSocial(userRequest.getNumeroSeguridadSocial())
+                    .build();
+            trabajadorRepository.save(trabajador);
+        }
+
+        return getUserById(user.getId());
     }
+
+
 
     @Override
     public UserResponse updateUser(Long id, UserRequest request) {
@@ -109,8 +177,28 @@ public class UserServiceImpl implements UserService {
         user.setUpdated(LocalDateTime.now());
 
         User saved = userRepository.save(user);
-        return new UserResponse(saved);
+
+        String rol = request.getRoles() != null && !request.getRoles().isEmpty()
+                ? request.getRoles().iterator().next().name()
+                : "CLIENTE";
+
+        if ("CLIENTE".equals(rol)) {
+            Cliente cliente = clienteRepository.findByUserId(saved.getId())
+                    .orElse(Cliente.builder().user(saved).build());
+            cliente.setDni(request.getDni());
+            cliente.setFotoDni(request.getFotoDni());
+            cliente.setDireccionEnvio(request.getDireccionEnvio());
+            clienteRepository.save(cliente);
+        } else if ("TRABAJADOR".equals(rol)) {
+            Trabajador trabajador = trabajadorRepository.findByUserId(saved.getId())
+                    .orElse(Trabajador.builder().user(saved).build());
+            trabajador.setNumeroSeguridadSocial(request.getNumeroSeguridadSocial());
+            trabajadorRepository.save(trabajador);
+        }
+
+        return getUserById(saved.getId());
     }
+
 
     @Override
     public void deleteUser(Long id) {

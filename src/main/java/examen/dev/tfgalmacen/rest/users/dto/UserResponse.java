@@ -23,7 +23,7 @@ public class UserResponse {
     private String foto;
     private Set<UserRole> roles;
 
-    private String rol; // cliente / trabajador / admin
+    private String rol;
 
     private String dni;
     private String fotoDni;

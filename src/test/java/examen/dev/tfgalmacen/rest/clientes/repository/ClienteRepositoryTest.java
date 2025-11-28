@@ -9,62 +9,50 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
-public class ClienteRepositoryTest {
+@DataJpaTest
+class ClienteRepositoryTest {
 
-    @Mock
+    @Autowired
     private ClienteRepository clienteRepository;
 
-    private User user;
-    private Cliente cliente;
-
-    @BeforeEach
-    void setUp() {
-        user = User.builder()
-                .id(1L)
-                .nombre("user1")
-                .correo("user1@example.com")
-                .password("password")
-                .created(LocalDateTime.now())
-                .updated(LocalDateTime.now())
-                .deleted(false)
-                .roles(Set.of(UserRole.CLIENTE))
-                .build();
-
-        cliente = Cliente.builder()
-                .id(1L)
-                .user(user)
-                .dni("12345678A")
-                .fotoDni("foto1.jpg")
-                .direccionEnvio("Calle A")
-                .deleted(false)
-                .created(LocalDateTime.now())
-                .updated(LocalDateTime.now())
-                .build();
-    }
-
+    @Autowired
+    private TestEntityManager entityManager;
 
     @Test
     void testFindByUserId() {
-        when(clienteRepository.findByUserId(1L)).thenReturn(cliente);
+        User user = User.builder()
+                .nombre("user1")
+                .correo("user1@example.com")
+                .password("password")
+                .roles(Set.of(UserRole.CLIENTE))
+                .build();
 
-        Cliente foundCliente = clienteRepository.findByUserId(1L);
+        entityManager.persist(user);
 
-        assertNotNull(foundCliente);
-        assertEquals(1L, foundCliente.getUser().getId());
-        assertEquals("12345678A", foundCliente.getDni());
-        assertEquals("foto1.jpg", foundCliente.getFotoDni());
-        assertEquals("Calle A", foundCliente.getDireccionEnvio());
+        Cliente cliente = Cliente.builder()
+                .user(user)
+                .dni("12345678A")
+                .fotoDni("foto.jpg")
+                .direccionEnvio("Calle A")
+                .build();
 
-        verify(clienteRepository).findByUserId(1L);
+        entityManager.persist(cliente);
+
+        Optional<Cliente> found = clienteRepository.findByUserId(user.getId());
+
+        assertTrue(found.isPresent());
+        assertEquals("12345678A", found.get().getDni());
     }
 }
