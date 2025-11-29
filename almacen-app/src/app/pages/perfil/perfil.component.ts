@@ -399,19 +399,14 @@ export class PerfilComponent implements OnInit {
       this.esTrabajador = this.isTrabajador;
       this.esAdmin = this.isAdmin;
 
-      // Inicializar datos según rol
       if (this.isTrabajador) {
-        // Si ya tenemos datos en localStorage los usamos
         this.trabajadorData.numero_seguridad_social = this.user.numero_seguridad_social || '';
-        // Cargar datos actualizados desde backend
         this.cargarDatosTrabajador();
       } 
       if (this.isCliente) {
-        // Si ya tenemos datos en localStorage los usamos
         this.clienteData.dni = this.user.dni || '';
         this.clienteData.direccion_envio = this.user.direccionEnvio || '';
         this.clienteData.foto_dni = this.user.fotoDni || 'default.jpg';
-        // Cargar datos actualizados desde backend
         this.cargarDatosCliente();
       }
     }
@@ -447,7 +442,6 @@ export class PerfilComponent implements OnInit {
     this.errores = {};
     this.message = '';
 
-    // Validaciones básicas
     if (!this.user.nombre.trim()) this.errores.nombre = '❌ El nombre es obligatorio';
     if (!this.user.apellidos.trim()) this.errores.apellidos = '❌ Los apellidos son obligatorios';
     if (!this.user.correo.trim()) this.errores.correo = '❌ El correo es obligatorio';
@@ -456,7 +450,6 @@ export class PerfilComponent implements OnInit {
     else if (!this.validarTelefono(this.user.telefono)) this.errores.telefono = '❌ Teléfono inválido (7-15 dígitos)';
     if (!this.user.ciudad.trim()) this.errores.ciudad = '❌ La ciudad es obligatoria';
 
-    // Validaciones según rol
     if (this.esTrabajador) {
       if (!this.trabajadorData.numero_seguridad_social.trim()) {
         this.errores.nss = '❌ El número de seguridad social es obligatorio';
@@ -473,26 +466,35 @@ export class PerfilComponent implements OnInit {
       return;
     }
 
-    // Actualizar datos de usuario
-    const userData = {
+    const updatePayload = {
       nombre: this.user.nombre,
       apellidos: this.user.apellidos,
       correo: this.user.correo,
       telefono: this.user.telefono,
-      ciudad: this.user.ciudad
+      ciudad: this.user.ciudad,
+      foto: this.user.foto,
+      roles: this.user.roles,
+      
+      dni: this.clienteData.dni,
+      direccionEnvio: this.clienteData.direccion_envio,
+      fotoDni: this.clienteData.foto_dni,
+
+      numeroSeguridadSocial: this.trabajadorData.numero_seguridad_social
     };
 
-    this.authService.updateUserData(this.user.id, userData).subscribe({
-      next: () => {
-        localStorage.setItem('user', JSON.stringify({ ...this.user }));
-        if (this.esTrabajador) this.guardarDatosTrabajador();
-        if (this.isCliente) this.guardarDatosCliente();
+    this.authService.updateUserData(this.user.id, updatePayload).subscribe({
+      next: (res: any) => {
+        localStorage.setItem('user', JSON.stringify(res));
+        this.user = res;
+        this.message = '✅ Cambios guardados correctamente';
+        setTimeout(() => this.message = '', 3000);
       },
       error: (err) => {
         console.error('Error al actualizar usuario:', err);
         this.message = '❌ Error al guardar los cambios. Intenta de nuevo.';
       }
     });
+
   }
 
   guardarDatosCliente() {

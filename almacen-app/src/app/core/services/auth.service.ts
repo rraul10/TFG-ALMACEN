@@ -64,6 +64,17 @@ export class AuthService {
     });
   }
 
+  isCliente(): boolean {
+    const rol = localStorage.getItem('rol');
+    return rol === 'CLIENTE' || rol === 'ROLE_CLIENTE';
+  }
+
+  isTrabajador(): boolean {
+    const rol = localStorage.getItem('rol');
+    return rol === 'TRABAJADOR' || rol === 'ROLE_TRABAJADOR';
+  }
+
+
   updateUserData(userId: number, data: any): Observable<any> {
     const token = localStorage.getItem('token');
     return this.http.put(`${this.apiUrl}/api/users/${userId}`, data, {

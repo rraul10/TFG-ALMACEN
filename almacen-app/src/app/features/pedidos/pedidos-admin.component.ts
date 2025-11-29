@@ -5,6 +5,9 @@ import { Pedido, PedidoService } from '@core/services/pedido.service';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { RoleService } from '@core/services/role.service';
+import { of, forkJoin } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
+import { ClienteService } from '@core/services/cliente.service';
 
 @Component({
   selector: 'app-pedidos-admin',
@@ -74,12 +77,12 @@ import { RoleService } from '@core/services/role.service';
               <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
             </svg>
             <input 
-              type="number" 
-              [(ngModel)]="clienteIdBusqueda" 
-              (keyup.enter)="buscarPorCliente()"
-              placeholder="Buscar por ID de cliente..."
+              type="text" 
+              [(ngModel)]="clienteBusqueda" 
+              (keyup.enter)="buscarPorCliente()" 
+              placeholder="Buscar por ID o nombre del cliente..."
             />
-            <button class="clear-btn" *ngIf="clienteIdBusqueda" (click)="limpiarBusqueda()">
+            <button class="clear-btn" *ngIf="clienteBusqueda" (click)="limpiarBusqueda()">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6L18 18"/></svg>
             </button>
           </div>
@@ -102,7 +105,7 @@ import { RoleService } from '@core/services/role.service';
 
 
 
-          <div class="results-info" *ngIf="filtroEstado || clienteIdBusqueda">
+          <div class="results-info" *ngIf="filtroEstado || clienteBusqueda">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>
             </svg>
@@ -130,15 +133,20 @@ import { RoleService } from '@core/services/role.service';
 
             <div class="card-body-pedido">
               <div class="pedido-info-row">
-                <div class="info-item">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-                  </svg>
-                  <div>
-                    <div class="info-label">Cliente</div>
-                    <div class="info-value">ID: {{ pedido.clienteId }}</div>
-                  </div>
+           <div class="info-item">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+              <div>
+                <div class="info-label">Cliente</div>
+                <div class="info-value">
+                  ID: {{ pedido.clienteId }}
+                  <span *ngIf="pedido.clienteNombre">({{ pedido.clienteNombre }})</span>
                 </div>
+              </div>
+            </div>
+
 
                 <div class="info-item">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -200,8 +208,8 @@ import { RoleService } from '@core/services/role.service';
         <div class="empty-state" *ngIf="pedidosFiltrados.length === 0">
           <div class="empty-icon">📋</div>
           <h3>No hay pedidos</h3>
-          <p>{{ filtroEstado || clienteIdBusqueda ? 'No se encontraron pedidos con los filtros aplicados' : 'Aún no hay pedidos en el sistema' }}</p>
-          <button *ngIf="filtroEstado || clienteIdBusqueda" class="btn-primary" (click)="resetearFiltros()">
+          <p>{{ filtroEstado || clienteBusqueda ? 'No se encontraron pedidos con los filtros aplicados' : 'Aún no hay pedidos en el sistema' }}</p>
+          <button *ngIf="filtroEstado || clienteBusqueda" class="btn-primary" (click)="resetearFiltros()">
             Limpiar filtros
           </button>
         </div>
@@ -481,7 +489,7 @@ export class PedidosAdminComponent implements OnInit {
   pedidos: Pedido[] = [];
   pedidosFiltrados: Pedido[] = [];
   pedidoSeleccionado: Pedido | null = null;
-  clienteIdBusqueda: number | null = null;
+  clienteBusqueda: string = '';
   filtroEstado: string | null = null;
   isAdmin = false;
 
@@ -491,6 +499,7 @@ export class PedidosAdminComponent implements OnInit {
     private pedidoService: PedidoService,
     private roleService: RoleService,
     private snackBar: MatSnackBar,
+      private clienteService: ClienteService,  
     private router: Router
   ) {}
 
@@ -509,8 +518,21 @@ export class PedidosAdminComponent implements OnInit {
   cargarPedidos() {
     this.pedidoService.getAll().subscribe({
       next: (data) => {
-        this.pedidos = data;
-        this.aplicarFiltros();
+        const pedidosConNombre$ = data.map(pedido => {
+          if (!pedido.clienteId) {
+            return of({ ...pedido, clienteNombre: 'Desconocido' });
+          }
+          return this.clienteService.getById(pedido.clienteId).pipe(
+            map(cliente => ({ ...pedido, clienteNombre: cliente?.nombre || 'Desconocido' })),
+            catchError(() => of({ ...pedido, clienteNombre: 'Desconocido' }))
+          );
+        });
+
+
+        forkJoin(pedidosConNombre$).subscribe(pedidos => {
+          this.pedidos = pedidos;
+          this.aplicarFiltros();
+        });
       },
       error: () => {
         this.pedidos = this.pedidoService.obtenerLocal();
@@ -522,8 +544,13 @@ export class PedidosAdminComponent implements OnInit {
   aplicarFiltros() {
     let resultado = [...this.pedidos];
 
-    if (this.clienteIdBusqueda) {
-      resultado = resultado.filter(p => p.clienteId === this.clienteIdBusqueda);
+    const texto = this.clienteBusqueda.trim().toLowerCase(); 
+    if (texto) {
+      resultado = resultado.filter(p => {
+        const nombre = p.clienteNombre?.toLowerCase() || '';
+        const id = p.clienteId?.toString() || '';
+        return nombre.includes(texto) || id.includes(texto);
+      });
     }
 
     if (this.filtroEstado) {
@@ -533,33 +560,39 @@ export class PedidosAdminComponent implements OnInit {
     this.pedidosFiltrados = resultado;
   }
 
+
   getTotal(pedido: Pedido): number {
     return pedido.lineasVenta.reduce((acc, lv) => acc + lv.cantidad * lv.precio, 0);
   }
 
   buscarPorCliente() {
-    if (!this.clienteIdBusqueda) return;
+    const texto = this.clienteBusqueda.trim();
 
-    const clienteIdNum = Number(this.clienteIdBusqueda);
+    if (!texto) return;
 
-    this.pedidoService.getByCliente(clienteIdNum).subscribe({
-      next: (data) => {
-        console.log('Pedidos del backend:', data);
-        this.pedidos = data;
-        this.aplicarFiltros();
-      },
-      error: (err) => {
-        console.error('No se pudo obtener pedidos del backend', err);
-        this.pedidos = this.pedidoService.obtenerLocal()
-          .filter(p => Number(p.clienteId) === clienteIdNum);
-        this.aplicarFiltros();
-      }
-    });
-  }
+    const clienteIdNum = Number(texto);
+    if (!isNaN(clienteIdNum)) {
+      this.pedidoService.getByCliente(clienteIdNum).subscribe({
+        next: (data) => {
+          this.pedidos = data;
+          this.aplicarFiltros();
+        },
+        error: (err) => {
+          console.error('No se pudo obtener pedidos del backend', err);
+          this.pedidos = this.pedidoService.obtenerLocal()
+            .filter(p => Number(p.clienteId) === clienteIdNum);
+          this.aplicarFiltros();
+        }
+      });
+    } else {
+      this.aplicarFiltros();
+    }
+}
+
 
 
   limpiarBusqueda() {
-    this.clienteIdBusqueda = null;
+    this.clienteBusqueda = '';
     this.cargarPedidos();
   }
 
@@ -569,7 +602,7 @@ export class PedidosAdminComponent implements OnInit {
   }
 
   resetearFiltros() {
-    this.clienteIdBusqueda = null;
+    this.clienteBusqueda = '';
     this.filtroEstado = null;
     this.cargarPedidos();
   }

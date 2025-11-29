@@ -79,6 +79,14 @@ import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
     :host { --primary: #6366f1; --accent: #06b6d4; --bg-card: #1e293b; --text: #f8fafc; --text-muted: #94a3b8; --border: rgba(255,255,255,0.1); --danger: #ef4444; --success: #10b981; }
 
     .productos-container { max-width: 1300px; margin: 0 auto; padding: 0 1.5rem 2rem; }
+.card-overlay {
+  pointer-events: none;
+}
+
+.quick-add-btn {
+  pointer-events: auto;
+  z-index: 10;
+}
 
     .no-resultados { text-align: center; padding: 4rem 2rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; }
     .no-resultados h3 { color: var(--text); font-size: 1.3rem; margin: 1rem 0 0.5rem; }
@@ -154,6 +162,9 @@ export class ProductosListComponent implements OnInit, OnChanges {
 
   constructor(private http: HttpClient, private authService: AuthService, private snackBar: MatSnackBar) {
     this.isAdmin = this.authService.isAdmin();
+    // si tienes métodos para cliente/trabajador, normalízalo aquí:
+    this.isCliente = (this.authService.isCliente && this.authService.isCliente()) || false;
+    this.isTrabajador = (this.authService.isTrabajador && this.authService.isTrabajador()) || false;
   }
 
   ngOnInit() { this.loadProductos(); }
@@ -166,7 +177,7 @@ export class ProductosListComponent implements OnInit, OnChanges {
 
   loadProductos() {
     this.http.get<any[]>('http://localhost:8080/api/productos').subscribe({
-      next: (data) => { this.productos = data; this.filtrarProductos(); },
+      next: (data) => { this.productos = data || []; this.filtrarProductos(); },
       error: () => this.showNotification('❌ Error al cargar los productos')
     });
   }
@@ -240,16 +251,34 @@ export class ProductosListComponent implements OnInit, OnChanges {
     return pages;
   }
 
-  agregarAlCarrito(producto: any) {
-    if (!this.authService.isLoggedIn()) { this.showNotification('⚠️ Debes iniciar sesión'); return; }
-    if (producto.stock === 0) { this.showNotification('⚠️ Producto sin stock'); return; }
+ agregarAlCarrito(producto: any) {
+    const prodId = String(producto.id);
+    const carrito: any[] = JSON.parse(localStorage.getItem('carrito') || '[]');
 
-    const carrito = JSON.parse(localStorage.getItem('carrito') || '[]');
-    carrito.push({ id: producto.id, nombre: producto.nombre, tipo: producto.tipo, precio: producto.precio, cantidad: 1 });
+    const item = carrito.find(i => String(i.id) === prodId);
+
+    if (item) {
+      const nuevaCantidad = Number(item.cantidad || 0) + 1;
+      if (nuevaCantidad > Number(producto.stock || item.stock || 0)) {
+        alert('No hay más stock disponible');
+        return;
+      }
+      item.cantidad = nuevaCantidad;
+    } else {
+      carrito.push({
+        id: prodId,
+        nombre: producto.nombre,
+        tipo: producto.tipo,
+        precio: Number(producto.precio) || 0,
+        cantidad: 1,
+        stock: Number(producto.stock || 0)
+      });
+    }
+
     localStorage.setItem('carrito', JSON.stringify(carrito));
-    window.dispatchEvent(new Event('carritoActualizado'));
-    this.showNotification(`✅ ${producto.nombre} añadido`);
+    window.dispatchEvent(new CustomEvent('carritoActualizado', { detail: { carrito } }));
   }
+
 
   onImageError(e: any) { e.target.src = 'https://via.placeholder.com/300x200/1e293b/6366f1?text=Sin+Imagen'; }
 

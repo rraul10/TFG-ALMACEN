@@ -162,9 +162,7 @@ public class UserServiceImpl implements UserService {
         user.setTelefono(request.getTelefono());
         user.setCiudad(request.getCiudad());
         user.setFoto(request.getFoto());
-
         user.setUpdated(LocalDateTime.now());
-
         User saved = userRepository.save(user);
 
         String rol = request.getRoles() != null && !request.getRoles().isEmpty()
@@ -187,6 +185,7 @@ public class UserServiceImpl implements UserService {
 
         return getUserById(saved.getId());
     }
+
 
 
     @Override
