@@ -848,13 +848,26 @@
       this.authService.login({ correo: this.correo, password: this.password }).subscribe({
         next: (res: any) => {
           localStorage.setItem('token', res.token);
+          
+          // Guardar usuario temporal
           localStorage.setItem('user', JSON.stringify(res.user));
-          this.message = '✓ Acceso concedido. Redirigiendo al sistema...';
-          setTimeout(() => this.router.navigate(['/dashboard']), 1500);
-        },
-        error: () => {
-          this.message = '❌ Credenciales incorrectas. Verifica tus datos e inténtalo de nuevo.';
-        }
-      });
+
+          // Traer datos completos del cliente
+          this.authService.getClienteData(res.user.id).subscribe(cliente => {
+            const userWithClienteId = {
+              ...res.user,
+              clienteId: cliente.id   // <-- aquí agregamos clienteId
+            };
+            localStorage.setItem('user', JSON.stringify(userWithClienteId));
+            
+            this.message = '✓ Acceso concedido. Redirigiendo al sistema...';
+            setTimeout(() => this.router.navigate(['/dashboard']), 1500);
+    });
+  },
+  error: () => {
+    this.message = '❌ Credenciales incorrectas. Verifica tus datos e inténtalo de nuevo.';
+  }
+});
+
     }
   }

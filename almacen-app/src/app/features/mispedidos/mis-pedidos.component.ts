@@ -1186,12 +1186,6 @@ export class MisPedidosComponent implements OnInit {
     this.router.navigate(['/dashboard']);
   }
 
-  private getClienteIdAutenticado(): number {
-    const clienteIdStr = localStorage.getItem('clienteId');
-    return clienteIdStr ? Number(clienteIdStr) : 0;
-  }
-
-
   totalPedido(pedido: Pedido): number {
     return pedido.lineasVenta.reduce((sum, lv) => sum + lv.cantidad * lv.precio, 0);
   }

@@ -110,15 +110,16 @@ public class PedidoServiceImpl implements PedidoService {
     @Override
     @Transactional
     public PedidoResponse create(PedidoRequest request) {
-        // 🔹 Validación de clienteId
         if (request.getClienteId() == null) {
             throw new PedidoNotFoundException("El clienteId es obligatorio para crear un pedido.");
         }
 
-        // 🔹 Obtener el cliente
         Cliente cliente = clienteService.getClienteEntityById(request.getClienteId());
-
-        // 🔹 Validación de lineasVenta
+        logger.info("📝 Creando pedido - Request clienteId: {}, Cliente en BD: {} ({})",
+                request.getClienteId(),
+                cliente.getId(),
+                cliente.getUser() != null ? cliente.getUser().getCorreo() : "SIN USER");
+        
         if (request.getLineasVenta() == null || request.getLineasVenta().isEmpty()) {
             throw new PedidoNotFoundException("El pedido debe contener al menos una línea de venta.");
         }
