@@ -168,44 +168,40 @@ export class CarritoComponent implements OnInit, OnDestroy {
   }
 
   comprar() {
-    if (!this.carrito.length) return alert('El carrito está vacío');
+  console.log('🔥 🔥 NUEVO CÓDIGO ACTIVADO 🔥 🔥');
+  
+  const token = localStorage.getItem('token');
+  if (!token) return alert('Sin token');
 
-    const token = localStorage.getItem('token');
-    const clienteId = localStorage.getItem('clienteId');
+  const headers = new HttpHeaders({
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  });
 
-    if (!token || !clienteId) {
-      return alert('Debes iniciar sesión para realizar la compra.');
-    }
+  const pedidoData = {
+    clienteId: 1,  
+    lineasVenta: [{
+      productoId: 12,  
+      cantidad: 1
+    }]
+  };
 
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
+  console.log('🚀 🚀 ENVIANDO clienteId=1:', pedidoData);
+
+  this.http.post('http://localhost:8080/api/pedidos', pedidoData, { headers })
+    .subscribe({
+      next: (res) => {
+        console.log('✅ ✅ ÉXITO:', res);
+        alert('¡Pedido creado con clienteId=1!');
+      },
+      error: (err) => {
+        console.error('❌ ❌ ERROR:', err);
+        alert('Error: ' + JSON.stringify(err.error));
+      }
     });
+}
 
-    const items = this.carrito.map(item => ({
-      productoId: item.id,
-      cantidad: item.cantidad,
-      precioUnitario: item.precio
-    }));
 
-    this.http.post(`http://localhost:8080/api/pedidos`, {
-      clienteId: clienteId,
-      lineasVenta: items
-    }, { headers })
-      .subscribe({
-        next: (res) => {
-          console.log('Pedido creado ✅', res);
-          alert('Pedido realizado correctamente ✅');
-          this.carrito = [];
-          localStorage.removeItem('carrito');
-          window.dispatchEvent(new CustomEvent('carritoActualizado', { detail: { carrito: [] } }));
-        },
-        error: (err) => {
-          console.error('Error al realizar pedido', err);
-          alert('Hubo un error al realizar el pedido. Revisa la consola.');
-        }
-      });
-  }
 
   cerrar() {
     this.router.navigate(['/productos']);

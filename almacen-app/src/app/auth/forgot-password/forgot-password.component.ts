@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 
@@ -8,7 +8,7 @@ import { Router, RouterModule } from '@angular/router';
 @Component({
   selector: 'app-forgot-password',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, HttpClientModule, RouterModule ],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule ],
   template: `
     <div class="forgot-layout">
       <!-- Logo/Back -->

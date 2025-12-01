@@ -63,4 +63,5 @@ export class UserService {
     const headers = this.getHeaders();
     return this.http.put(`${this.apiUrl}/${id}`, formData, { headers, responseType: 'text' });
   }
+
 }

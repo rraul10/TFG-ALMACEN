@@ -828,46 +828,45 @@
       }
     `]
   })
-  export class LoginComponent {
-    correo = '';
-    password = '';
-    message = '';
+ export class LoginComponent {
+  correo = '';
+  password = '';
+  message = '';
 
-    // Partículas animadas
-    particles = Array.from({ length: 50 }, (_, i) => ({
-      x: Math.random() * 100,
-      delay: `${Math.random() * 20}s`,
-      duration: `${15 + Math.random() * 10}s`
-    }));
+  // Partículas animadas
+  particles = Array.from({ length: 50 }, (_, i) => ({
+    x: Math.random() * 100,
+    delay: `${Math.random() * 20}s`,
+    duration: `${15 + Math.random() * 10}s`
+  }));
 
-    constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService, private router: Router) {}
 
-    onSubmit() {
-      this.message = 'Iniciando sesión...';
+  onSubmit() {
+    this.message = 'Iniciando sesión...';
 
-      this.authService.login({ correo: this.correo, password: this.password }).subscribe({
-        next: (res: any) => {
-          localStorage.setItem('token', res.token);
-          
-          // Guardar usuario temporal
-          localStorage.setItem('user', JSON.stringify(res.user));
+    this.authService.login({ correo: this.correo, password: this.password }).subscribe({
+      next: (res: any) => {
+        localStorage.setItem('token', res.token);
+        localStorage.setItem('user', JSON.stringify(res.user));
 
-          // Traer datos completos del cliente
-          this.authService.getClienteData(res.user.id).subscribe(cliente => {
-            const userWithClienteId = {
-              ...res.user,
-              clienteId: cliente.id   // <-- aquí agregamos clienteId
-            };
+        this.authService.getClienteData(res.user.id).subscribe({
+          next: cliente => {
+            const userWithClienteId = { ...res.user, clienteId: cliente.id };
             localStorage.setItem('user', JSON.stringify(userWithClienteId));
-            
-            this.message = '✓ Acceso concedido. Redirigiendo al sistema...';
-            setTimeout(() => this.router.navigate(['/dashboard']), 1500);
-    });
-  },
-  error: () => {
-    this.message = '❌ Credenciales incorrectas. Verifica tus datos e inténtalo de nuevo.';
-  }
-});
+            console.log('✓ Datos cliente cargados correctamente');
+          },
+          error: err => {
+            console.warn('Cliente data no disponible (403 esperado), continuando login:', err);
+          }
+        });
 
-    }
+        this.message = '✓ Acceso concedido. Redirigiendo al sistema...';
+        setTimeout(() => this.router.navigate(['/dashboard']), 1500);
+      },
+      error: () => {
+        this.message = '❌ Credenciales incorrectas. Verifica tus datos e inténtalo de nuevo.';
+      }
+    });
   }
+}

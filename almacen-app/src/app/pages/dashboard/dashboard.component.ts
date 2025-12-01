@@ -160,9 +160,10 @@ import { NotificationService } from '@core/services/notification.service';
           </select>
         </div>
 
-        <div class="results-count">
+        <div class="results-count" [class.hidden]="productosFiltrados.length === 0">
           <span class="count">{{ productosFiltrados.length }}</span> productos
         </div>
+
 
         <button *ngIf="searchTerm || tipoSeleccionado || ordenSeleccionado" (click)="clearAllFilters()" class="clear-all-btn">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
@@ -253,8 +254,9 @@ import { NotificationService } from '@core/services/notification.service';
 .filters-bar {
   display: flex;
   align-items: center;
-  gap: 10rem;
+  gap: 1.5rem;       
   flex-wrap: wrap;
+  min-height: 0;      
 }
 
 .search-wrapper { position: relative; flex: 1; min-width: 200px; max-width: 350px; }
@@ -276,12 +278,15 @@ import { NotificationService } from '@core/services/notification.service';
 }
 
 .results-count {
+  height: 24px; /* Ajusta al alto real */
   display: flex;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.5rem 1rem;
-  background: rgba(99, 102, 241, 0.1);
-  border-radius: 8px;
+  transition: opacity 0.2s ease;
+}
+
+.results-count.hidden {
+  visibility: hidden;
+  opacity: 0;
 }
 
 .clear-all-btn {
@@ -301,6 +306,16 @@ import { NotificationService } from '@core/services/notification.service';
   position: relative;
   overflow-x: hidden;
 }
+
+.products-counter {
+  height: 24px; /* o el alto que tenga el chip */
+  display: flex;
+  align-items: center;
+}
+.products-counter.hidden {
+  visibility: hidden;
+}
+
 
 /* === NAVBAR === */
 .navbar {
@@ -443,7 +458,9 @@ import { NotificationService } from '@core/services/notification.service';
 
 
 /* === HERO CAROUSEL === */
-.hero-carousel { margin: 2rem auto; max-width: 1300px; padding: 0 1.5rem; }
+.hero-carousel {
+  margin: 1rem auto 1.5rem;   /* antes: 2rem auto */
+}
 .carousel-inner { position: relative; border-radius: 24px; overflow: hidden; box-shadow: 0 25px 50px rgba(0,0,0,0.5); }
 .carousel-track { display: flex; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
 .carousel-slide { min-width: 100%; position: relative; height: 380px; }
@@ -470,7 +487,7 @@ import { NotificationService } from '@core/services/notification.service';
 .dot.active { width: 32px; background: var(--primary); }
 
 /* === FILTERS === */
-.filters-section { max-width: 1300px; margin: 0 auto 2rem; padding: 0 1.5rem; }
+.filters-section { max-width: 1300px; margin: 0 auto 1rem; padding: 0 1.5rem; }
 .filters-bar {
   display: flex;
   align-items: center; /* alinea todo verticalmente centrado */
@@ -513,7 +530,7 @@ import { NotificationService } from '@core/services/notification.service';
 .clear-all-btn:hover { border-color: var(--danger); color: var(--danger); background: rgba(239, 68, 68, 0.1); }
 
 /* === MAIN CONTENT === */
-.main-content { position: relative; z-index: 1; padding-bottom: 3rem; }
+.main-content { position: relative; z-index: 1; padding-bottom: 2rem; }
 
 /* === CART MODAL === */
 .cart-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 200; display: flex; justify-content: flex-end; animation: fadeIn 0.3s; }

@@ -119,7 +119,7 @@ public class PedidoServiceImpl implements PedidoService {
                 request.getClienteId(),
                 cliente.getId(),
                 cliente.getUser() != null ? cliente.getUser().getCorreo() : "SIN USER");
-        
+
         if (request.getLineasVenta() == null || request.getLineasVenta().isEmpty()) {
             throw new PedidoNotFoundException("El pedido debe contener al menos una línea de venta.");
         }

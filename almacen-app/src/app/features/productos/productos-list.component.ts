@@ -1,13 +1,13 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient, } from '@angular/common/http';
 import { AuthService } from '@core/services/auth.service';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-productos-list',
   standalone: true,
-  imports: [CommonModule, CurrencyPipe, HttpClientModule, MatSnackBarModule],
+  imports: [CommonModule, CurrencyPipe, MatSnackBarModule],
   template: `
     <div class="productos-container">
       <div *ngIf="productosFiltrados.length === 0" class="no-resultados">

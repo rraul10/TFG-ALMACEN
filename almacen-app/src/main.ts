@@ -1,13 +1,13 @@
 import { bootstrapApplication } from '@angular/platform-browser';
 import { importProvidersFrom } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { provideRouter } from '@angular/router';
 import { LOCALE_ID } from '@angular/core';
 import { registerLocaleData } from '@angular/common';
 import localeEs from '@angular/common/locales/es';
+
 import { AppComponent } from './app/app.component';
 import { DashboardComponent } from './app/pages/dashboard/dashboard.component';
 import { LoginComponent } from './app/pages/login/login.component';
@@ -21,18 +21,29 @@ import { adminTrabajadorGuard } from 'guards/admin-trabajador-guard';
 import { ForgotPasswordComponent } from './app/auth/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './app/auth/forgot-password/reset-password.component';
 
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { authInterceptor } from './app/interceptors/auth.interceptor';
+
 registerLocaleData(localeEs);
 
 bootstrapApplication(AppComponent, {
   providers: [
     importProvidersFrom(
       BrowserModule,
-      HttpClientModule,
       FormsModule,
       MatSnackBarModule
     ),
-    { provide: LOCALE_ID, useValue: 'es-ES' }, 
-   provideRouter([
+
+    // 👉 Aquí se registra el interceptor
+    provideHttpClient(
+      withInterceptors([
+        authInterceptor
+      ])
+    ),
+
+    { provide: LOCALE_ID, useValue: 'es-ES' },
+
+    provideRouter([
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: DashboardComponent },
       { path: 'login', component: LoginComponent },
@@ -41,18 +52,18 @@ bootstrapApplication(AppComponent, {
       { path: 'mispedidos', component: MisPedidosComponent },
       { path: 'reset-password', component: ResetPasswordComponent },
 
-      { 
-        path: 'admin/clientes', 
+      {
+        path: 'admin/clientes',
         component: GestionUsuariosComponent,
-        canActivate: [adminTrabajadorGuard] 
+        canActivate: [adminTrabajadorGuard]
       },
-      { 
-        path: 'admin/productos', 
+      {
+        path: 'admin/productos',
         component: ProductosAdminComponent,
         canActivate: [adminTrabajadorGuard]
       },
-      { 
-        path: 'admin/pedidos', 
+      {
+        path: 'admin/pedidos',
         component: PedidosAdminComponent,
         canActivate: [adminTrabajadorGuard]
       },
@@ -61,6 +72,5 @@ bootstrapApplication(AppComponent, {
 
       { path: '**', redirectTo: 'dashboard' }
     ])
-
   ]
 });

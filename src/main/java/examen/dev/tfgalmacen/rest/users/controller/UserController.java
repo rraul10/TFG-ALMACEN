@@ -68,9 +68,32 @@ public class UserController {
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @RequestBody UserRequest userRequest) {
+    public ResponseEntity<UserResponse> updateUser(
+            @PathVariable Long id,
+            @RequestHeader("Content-Type") String contentType,
+            @RequestBody(required = false) String jsonBody,
+            @RequestPart(value = "user", required = false) String userJson,
+            @RequestPart(value = "foto", required = false) MultipartFile foto
+    ) throws JsonProcessingException {
+
+        UserRequest userRequest;
+
+        if (contentType.contains("application/json")) {
+            ObjectMapper mapper = new ObjectMapper();
+            userRequest = mapper.readValue(jsonBody, UserRequest.class);
+        } else {
+            ObjectMapper mapper = new ObjectMapper();
+            userRequest = mapper.readValue(userJson, UserRequest.class);
+            if (foto != null && !foto.isEmpty()) {
+                String nombreFoto = storageService.store(foto);
+                userRequest.setFoto(nombreFoto);
+            }
+        }
+
         return ResponseEntity.ok(userService.updateUser(id, userRequest));
     }
+
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
