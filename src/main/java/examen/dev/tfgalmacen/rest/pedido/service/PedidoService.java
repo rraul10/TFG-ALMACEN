@@ -14,7 +14,7 @@ public interface PedidoService {
 
     PedidoResponse getById(Long id);
 
-    PedidoResponse create(PedidoRequest request);
+    PedidoResponse create(PedidoRequest request, Long authenticatedUserId);
 
     PedidoResponse update(Long id, PedidoRequest request);
 
@@ -27,4 +27,6 @@ public interface PedidoService {
     String createStripeCheckout(PedidoResponse pedido);
 
     PedidoResponse actualizarEstado(Long id, String estado);
+
+    Long getUserIdByEmail(String email);
 }

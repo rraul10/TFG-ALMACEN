@@ -250,34 +250,46 @@ export class ProductosListComponent implements OnInit, OnChanges {
     }
     return pages;
   }
+agregarAlCarrito(producto: any) {
+  const prodId = String(producto.id);
+  const rawCarrito: any[] = JSON.parse(localStorage.getItem('carrito') || '[]');
 
- agregarAlCarrito(producto: any) {
-    const prodId = String(producto.id);
-    const carrito: any[] = JSON.parse(localStorage.getItem('carrito') || '[]');
+  const carrito = rawCarrito.map(it => ({
+    id: String(it.id),
+    nombre: it.nombre,
+    tipo: it.tipo,
+    precio: Number(it.precio),
+    cantidad: Number(it.cantidad) || 0,
+    stock: Number(it.stock) || 0
+  }));
 
-    const item = carrito.find(i => String(i.id) === prodId);
+  const item = carrito.find(i => i.id === prodId);
 
-    if (item) {
-      const nuevaCantidad = Number(item.cantidad || 0) + 1;
-      if (nuevaCantidad > Number(producto.stock || item.stock || 0)) {
-        alert('No hay más stock disponible');
-        return;
-      }
-      item.cantidad = nuevaCantidad;
-    } else {
-      carrito.push({
-        id: prodId,
-        nombre: producto.nombre,
-        tipo: producto.tipo,
-        precio: Number(producto.precio) || 0,
-        cantidad: 1,
-        stock: Number(producto.stock || 0)
-      });
+  if (item) {
+    const nuevaCantidad = item.cantidad + 1;
+    if (nuevaCantidad > item.stock) {
+      alert('No hay más stock disponible');
+      return;
     }
-
-    localStorage.setItem('carrito', JSON.stringify(carrito));
-    window.dispatchEvent(new CustomEvent('carritoActualizado', { detail: { carrito } }));
+    item.cantidad = nuevaCantidad;
+  } else {
+    carrito.push({
+      id: prodId,
+      nombre: producto.nombre,
+      tipo: producto.tipo,
+      precio: Number(producto.precio),
+      cantidad: 1,
+      stock: Number(producto.stock)
+    });
   }
+
+  localStorage.setItem('carrito', JSON.stringify(carrito));
+
+  // Se asegura de que CarritoComponent reciba un array con números correctos
+  window.dispatchEvent(new CustomEvent('carritoActualizado', { detail: { carrito } }));
+}
+
+
 
 
   onImageError(e: any) { e.target.src = 'https://via.placeholder.com/300x200/1e293b/6366f1?text=Sin+Imagen'; }

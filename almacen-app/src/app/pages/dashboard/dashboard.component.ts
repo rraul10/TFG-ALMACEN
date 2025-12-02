@@ -5,14 +5,14 @@ import { FormsModule } from '@angular/forms';
 import { AuthService } from '@core/services/auth.service';
 import { RoleService } from '@core/services/role.service';
 import { ProductosListComponent } from '../../features/productos/productos-list.component';
-import { HttpClient, HttpClientModule, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { NotificationService } from '@core/services/notification.service';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [RouterModule, CommonModule, CurrencyPipe, FormsModule, ProductosListComponent, HttpClientModule, MatSnackBarModule],
+  imports: [RouterModule, CommonModule, CurrencyPipe, FormsModule, ProductosListComponent, MatSnackBarModule],
   template: `
 <div class="dashboard-layout">
   <!-- BARRA SUPERIOR -->
@@ -201,13 +201,26 @@ import { NotificationService } from '@core/services/notification.service';
         <div *ngIf="carrito.length > 0; else emptyCart" class="cart-items">
           <div class="cart-item" *ngFor="let item of carrito; let i = index">
             <div class="item-details">
-              <span class="item-name">{{ item.nombre }}</span>
+              <span class="item-name">
+                {{ item.nombre }}
+                <span *ngIf="item.cantidad > 1">x{{ item.cantidad }}</span>
+              </span>
               <span class="item-cat">{{ item.tipo }}</span>
             </div>
+
             <div class="item-price-action">
-              <span class="item-price">{{ item.precio | currency:'EUR' }}</span>
+              <span class="item-price">{{ (item.precio * item.cantidad) | currency:'EUR' }}</span>
+
+              <div class="qty-control">
+                <button (click)="disminuirCantidad(i)">-</button>
+                <span>{{ item.cantidad }}</span>
+                <button (click)="aumentarCantidad(i)">+</button>
+              </div>
+
               <button class="remove-btn" (click)="eliminarDelCarrito(i)">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                </svg>
               </button>
             </div>
           </div>
@@ -224,6 +237,7 @@ import { NotificationService } from '@core/services/notification.service';
           </div>
         </ng-template>
       </div>
+
 
       <div *ngIf="carrito.length > 0" class="cart-footer">
         <div class="cart-total">
@@ -437,6 +451,45 @@ import { NotificationService } from '@core/services/notification.service';
   border-top: 1px solid rgba(239, 68, 68, 0.2);
   padding-top: 1rem;
 }
+
+.qty-control {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  padding: 0.2rem 0.4rem;
+  font-weight: 600;
+}
+
+.qty-control button {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.qty-control button:hover {
+  background: var(--primary-dark);
+  transform: scale(1.1);
+}
+
+.qty-control span {
+  min-width: 24px;
+  text-align: center;
+  font-size: 0.95rem;
+  color: var(--text);
+}
+
 
 .menu-item.logout:hover { 
   background: radial-gradient(circle at 0% 0%, rgba(239, 68, 68, 0.25), rgba(239, 68, 68, 0.1));
@@ -669,7 +722,10 @@ export class DashboardComponent {
   applyFilters() { }
   onProductosFiltered(productos: any[]) { this.productosFiltrados = productos; }
 
-  carritoTotal() { return this.carrito.reduce((sum, item) => sum + item.precio, 0); }
+carritoTotal() {
+  return this.carrito.reduce((sum, item) => sum + (item.precio * (item.cantidad || 1)), 0);
+}
+
   eliminarDelCarrito(i: number) { this.carrito.splice(i, 1); this.updateCarrito(); }
   updateCarrito() { if (this.isLoggedIn) localStorage.setItem('carrito', JSON.stringify(this.carrito)); }
 
@@ -686,6 +742,36 @@ export class DashboardComponent {
       error: () => { snackRef.dismiss(); this.showNotification('❌ Error al realizar el pedido'); }
     });
   }
+
+saveCarrito() {
+  localStorage.setItem('carrito', JSON.stringify(this.carrito));
+  this.recalcularTotal();
+}
+
+total: number = 0;
+
+recalcularTotal() {
+  // Si quieres mantener un total en Dashboard
+  this.total = this.carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+}
+
+aumentarCantidad(index: number) {
+  const item = this.carrito[index];
+  if (!item) return;
+  item.cantidad = (item.cantidad || 0) + 1;
+  this.saveCarrito();
+}
+
+disminuirCantidad(index: number) {
+  const item = this.carrito[index];
+  if (!item) return;
+  if (item.cantidad > 1) {
+    item.cantidad -= 1;
+    this.saveCarrito();
+  } else {
+    this.eliminarDelCarrito(index);
+  }
+}
 
   goToLogin() { this.menuOpen = false; this.router.navigate(['/login']); }
   goToRegister() { this.menuOpen = false; this.router.navigate(['/register']); }

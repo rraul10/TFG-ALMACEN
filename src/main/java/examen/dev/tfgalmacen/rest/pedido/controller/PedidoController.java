@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -47,12 +48,19 @@ public class PedidoController {
     @PostMapping
     public ResponseEntity<?> create(@RequestBody PedidoRequest request) {
         logger.info("Recibiendo solicitud para crear un pedido con datos: {}", request);
+
         try {
-            // Crear el pedido en la base de datos
-            PedidoResponse created = pedidoService.create(request);
+            String userEmail = SecurityContextHolder.getContext()
+                    .getAuthentication()
+                    .getName();
+
+            Long authenticatedUserId = pedidoService.getUserIdByEmail(userEmail);
+
+            logger.info("Usuario autenticado email: {}, userId: {}", userEmail, authenticatedUserId);
+
+            PedidoResponse created = pedidoService.create(request, authenticatedUserId);
             logger.info("Pedido creado con éxito: {}", created);
 
-            // Intentar generar el checkout de Stripe
             String checkoutUrl = pedidoService.createStripeCheckout(created);
             logger.info("URL de Stripe para el checkout: {}", checkoutUrl);
 
@@ -71,6 +79,7 @@ public class PedidoController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<PedidoResponse> update(@PathVariable Long id, @RequestBody PedidoRequest request) {

@@ -18,8 +18,15 @@ import { HttpClient, HttpClientModule, HttpHeaders } from '@angular/common/http'
 
       <div *ngFor="let item of carrito; let i = index" class="carrito-item">
         <div class="item-left">
-          <div class="item-name">{{ item.nombre }} <span *ngIf="item.cantidad > 1">x{{ item.cantidad }}</span></div>
-          <div class="item-sub">{{ item.tipo }}</div>
+          <div class="item-name">
+  {{ item.nombre }} 
+  <span *ngIf="item.cantidad > 1">x{{ item.cantidad }}</span>
+</div>
+
+<div class="item-price">
+  {{ (item.precio * item.cantidad) | currency:'EUR':'symbol':'1.2-2' }}
+</div>
+<div class="item-sub">{{ item.tipo }}</div>
         </div>
 
         <div class="item-right">
@@ -94,19 +101,19 @@ export class CarritoComponent implements OnInit, OnDestroy {
     }
 
     private loadCarritoFromArray(raw: any[]) {
-    this.carrito = raw.map(it => ({
-      id: String(it.id),
-      nombre: it.nombre,
-      tipo: it.tipo,
-      precio: Number(it.precio) || 0,
-      cantidad: Number(it.cantidad) || 1,
-      stock: it.stock !== undefined ? Number(it.stock) : undefined
-    }));
+  this.carrito = raw.map(it => ({
+    id: String(it.id),
+    nombre: it.nombre,
+    tipo: it.tipo,
+    precio: Number(it.precio),
+    cantidad: Number(it.cantidad) || 1,
+    stock: it.stock !== undefined ? Number(it.stock) : undefined
+  }));
 
-    localStorage.setItem('carrito', JSON.stringify(this.carrito));
-    this.recalcularTotal();
-    this.cdr.markForCheck();
-  }
+  this.recalcularTotal();
+  this.cdr.markForCheck();
+}
+
 
   recalcularTotal() {
     this.total = this.carrito.reduce((s, it) => s + (it.precio * it.cantidad), 0);
@@ -168,38 +175,44 @@ export class CarritoComponent implements OnInit, OnDestroy {
   }
 
   comprar() {
-  console.log('🔥 🔥 NUEVO CÓDIGO ACTIVADO 🔥 🔥');
-  
+  console.log('🛒 Iniciando compra con carrito real:', this.carrito);
+
   const token = localStorage.getItem('token');
-  if (!token) return alert('Sin token');
+  const clienteId = Number(localStorage.getItem('clienteId'));
+
+  if (!token) return alert('❌ No estás autenticado.');
+  if (!clienteId) return alert('❌ No se encontró el clienteId del usuario.');
+
+  const lineasVenta = this.carrito.map(item => ({
+    productoId: Number(item.id),
+    cantidad: Number(item.cantidad)
+  }));
+
+  const pedidoData = {
+    clienteId: clienteId,
+    lineasVenta: lineasVenta
+  };
+
+  console.log("📦 ENVIANDO PEDIDO COMPLETO:", pedidoData);
 
   const headers = new HttpHeaders({
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${token}`
   });
 
-  const pedidoData = {
-    clienteId: 1,  
-    lineasVenta: [{
-      productoId: 12,  
-      cantidad: 1
-    }]
-  };
-
-  console.log('🚀 🚀 ENVIANDO clienteId=1:', pedidoData);
-
   this.http.post('http://localhost:8080/api/pedidos', pedidoData, { headers })
     .subscribe({
-      next: (res) => {
-        console.log('✅ ✅ ÉXITO:', res);
-        alert('¡Pedido creado con clienteId=1!');
+      next: (res: any) => {
+        console.log('✅ Pedido creado con éxito:', res);
+        alert('¡Pedido creado con éxito!');
       },
       error: (err) => {
-        console.error('❌ ❌ ERROR:', err);
+        console.error('❌ Error al crear pedido:', err);
         alert('Error: ' + JSON.stringify(err.error));
       }
     });
 }
+
 
 
 

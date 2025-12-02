@@ -109,14 +109,12 @@ public class PedidoServiceImpl implements PedidoService {
 
     @Override
     @Transactional
-    public PedidoResponse create(PedidoRequest request) {
-        if (request.getClienteId() == null) {
-            throw new PedidoNotFoundException("El clienteId es obligatorio para crear un pedido.");
-        }
+    public PedidoResponse create(PedidoRequest request, Long authenticatedUserId) {
 
-        Cliente cliente = clienteService.getClienteEntityById(request.getClienteId());
-        logger.info("📝 Creando pedido - Request clienteId: {}, Cliente en BD: {} ({})",
-                request.getClienteId(),
+        Cliente cliente = clienteService.getClienteEntityByUserId(authenticatedUserId);
+
+        logger.info("📝 Creando pedido - Usuario autenticado userId: {}, Cliente asociado: {} ({})",
+                authenticatedUserId,
                 cliente.getId(),
                 cliente.getUser() != null ? cliente.getUser().getCorreo() : "SIN USER");
 
@@ -125,6 +123,7 @@ public class PedidoServiceImpl implements PedidoService {
         }
 
         List<LineaVenta> lineasVenta = new ArrayList<>();
+
         for (LineaVentaDTO lineaDTO : request.getLineasVenta()) {
             Producto producto = productoRepository.findById(lineaDTO.getProductoId())
                     .orElseThrow(() -> new ProductoNotFoundException(
@@ -163,6 +162,7 @@ public class PedidoServiceImpl implements PedidoService {
 
         return PedidoMapper.toDto(saved);
     }
+
 
 
     @Override
@@ -259,5 +259,13 @@ public class PedidoServiceImpl implements PedidoService {
 
         return PedidoMapper.toDto(pedido);
     }
+
+    @Override
+    public Long getUserIdByEmail(String email) {
+        return userRepository.findByCorreo(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con email: " + email))
+                .getId();
+    }
+
 
 }
