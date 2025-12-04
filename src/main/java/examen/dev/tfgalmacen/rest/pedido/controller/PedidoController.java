@@ -57,7 +57,6 @@ public class PedidoController {
     public ResponseEntity<?> create(@RequestBody PedidoRequest request) {
         logger.info("Recibiendo solicitud para crear un pedido con datos: {}", request);
 
-        // --- LOGS DE DEBUG DE SPRING SECURITY ---
         var auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null) {
             logger.warn("Authentication es null");

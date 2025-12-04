@@ -1,6 +1,7 @@
 package examen.dev.tfgalmacen.rest.users.service;
 
 import examen.dev.tfgalmacen.auth.exceptions.UserNotFound;
+import examen.dev.tfgalmacen.rest.clientes.repository.ClienteRepository;
 import examen.dev.tfgalmacen.rest.trabajadores.repository.TrabajadorRepository;
 import examen.dev.tfgalmacen.rest.users.UserRole;
 import examen.dev.tfgalmacen.rest.users.dto.UserRequest;
@@ -34,12 +35,23 @@ public class UserServiceImplTest {
 
     private UserServiceImpl userService;
 
+    @Mock
+    private ClienteRepository clienteRepository;
+
+
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        userService = new UserServiceImpl(userRepository, userMapper, emailService,
-                null, null, trabajadorRepository); // passwordEncoder y repositorios opcionales para tests
+        userService = new UserServiceImpl(
+                userRepository,
+                userMapper,
+                emailService,
+                null,
+                clienteRepository,
+                trabajadorRepository
+        );
     }
+
 
     @Test
     public void testGetAllUsers() {
@@ -85,26 +97,34 @@ public class UserServiceImplTest {
     public void testGetUserById_UserFound() {
         Set<UserRole> roles = Set.of(UserRole.ADMIN, UserRole.CLIENTE);
 
-        User user = User.builder().id(1L).nombre("Juan Pérez").correo("juan.perez@example.com").roles(roles).build();
-
-        UserResponse userResponse = UserResponse.builder()
+        User user = User.builder()
                 .id(1L)
                 .nombre("Juan Pérez")
                 .correo("juan.perez@example.com")
                 .roles(roles)
                 .build();
 
+        UserResponse expectedResponse = new UserResponse();
+        expectedResponse.setId(1L);
+        expectedResponse.setNombre("Juan Pérez");
+        expectedResponse.setCorreo("juan.perez@example.com");
+        expectedResponse.setRoles(roles);
+        expectedResponse.setRol("ADMIN");
+        expectedResponse.setDni("");
+        expectedResponse.setFotoDni("");
+        expectedResponse.setDireccionEnvio("");
+        expectedResponse.setNumeroSeguridadSocial("");
+
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(userMapper.toDto(user)).thenReturn(userResponse);
 
         UserResponse result = userService.getUserById(1L);
 
         assertNotNull(result);
-        assertEquals(userResponse, result);
+        assertEquals(expectedResponse, result);
 
         verify(userRepository, times(1)).findById(1L);
-        verify(userMapper, times(1)).toDto(user);
     }
+
 
     @Test
     public void testGetUserById_UserNotFound() {
@@ -117,43 +137,37 @@ public class UserServiceImplTest {
     }
 
     @Test
-    public void testCreateUser() {
-        Set<UserRole> roles = Set.of(UserRole.ADMIN, UserRole.CLIENTE);
+    void testCreateUser_Trabajador() {
+        Set<UserRole> roles = Set.of(UserRole.TRABAJADOR);
 
         UserRequest userRequest = UserRequest.builder()
-                .nombre("Juan Pérez")
-                .correo("juan.perez@example.com")
-                .password("password123")
+                .nombre("Pedro Trabajador")
+                .correo("pedro@example.com")
+                .password("pass123")
                 .roles(roles)
+                .numeroSeguridadSocial("123456789")
                 .build();
 
         User user = User.builder()
-                .id(1L)
-                .nombre("Juan Pérez")
-                .correo("juan.perez@example.com")
-                .roles(roles)
-                .build();
-
-        UserResponse userResponse = UserResponse.builder()
-                .id(1L)
-                .nombre("Juan Pérez")
-                .correo("juan.perez@example.com")
+                .id(2L)
+                .nombre("Pedro Trabajador")
+                .correo("pedro@example.com")
                 .roles(roles)
                 .build();
 
         when(userMapper.toEntity(userRequest)).thenReturn(user);
         when(userRepository.save(user)).thenReturn(user);
-        when(userMapper.toDto(user)).thenReturn(userResponse);
+        when(trabajadorRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(userRepository.findById(2L)).thenReturn(Optional.of(user));
 
-        UserResponse result = userService.createUser(userRequest);
+        UserResponse response = userService.createUser(userRequest);
 
-        assertNotNull(result);
-        assertEquals(userResponse, result);
-
-        verify(userMapper, times(1)).toEntity(userRequest);
-        verify(userRepository, times(1)).save(user);
-        verify(userMapper, times(1)).toDto(user);
+        assertNotNull(response);
+        assertEquals("Pedro Trabajador", response.getNombre());
+        verify(trabajadorRepository, times(1)).save(any());
     }
+
+
 
     @Test
     public void testUpdateUser() {

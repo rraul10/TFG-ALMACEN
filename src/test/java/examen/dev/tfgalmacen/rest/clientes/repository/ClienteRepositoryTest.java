@@ -32,8 +32,7 @@ class ClienteRepositoryTest {
                 .password("password")
                 .roles(Set.of(UserRole.CLIENTE))
                 .build();
-
-        entityManager.persist(user);
+        entityManager.persistAndFlush(user);
 
         Cliente cliente = Cliente.builder()
                 .user(user)
@@ -41,12 +40,9 @@ class ClienteRepositoryTest {
                 .fotoDni("foto.jpg")
                 .direccionEnvio("Calle A")
                 .build();
-
-        entityManager.persist(cliente);
-        entityManager.flush();
+        entityManager.persistAndFlush(cliente);
 
         Optional<Cliente> found = clienteRepository.findByUserId(user.getId());
-
         assertTrue(found.isPresent());
         assertEquals("12345678A", found.get().getDni());
     }
@@ -59,7 +55,7 @@ class ClienteRepositoryTest {
                 .password("password")
                 .roles(Set.of(UserRole.CLIENTE))
                 .build();
-        entityManager.persist(user);
+        entityManager.persistAndFlush(user);
 
         Cliente cliente = Cliente.builder()
                 .user(user)
@@ -67,8 +63,7 @@ class ClienteRepositoryTest {
                 .fotoDni("foto2.jpg")
                 .direccionEnvio("Calle B")
                 .build();
-        entityManager.persist(cliente);
-        entityManager.flush();
+        entityManager.persistAndFlush(cliente);
 
         Optional<Cliente> found = clienteRepository.findByUserCorreo("user2@example.com");
         assertTrue(found.isPresent());
