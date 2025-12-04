@@ -4,7 +4,11 @@ import examen.dev.tfgalmacen.rest.pedido.dto.PedidoRequest;
 import examen.dev.tfgalmacen.rest.pedido.dto.PedidoResponse;
 import examen.dev.tfgalmacen.rest.pedido.mapper.PedidoMapper;
 import examen.dev.tfgalmacen.rest.pedido.models.Pedido;
+import examen.dev.tfgalmacen.rest.pedido.repository.PedidoRepository;
 import examen.dev.tfgalmacen.rest.pedido.service.PedidoService;
+import examen.dev.tfgalmacen.websockets.notifications.EmailService;
+import examen.dev.tfgalmacen.websockets.notifications.TicketService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +16,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +33,9 @@ public class PedidoController {
 
     private static final Logger logger = LoggerFactory.getLogger(PedidoController.class);
     private final PedidoService pedidoService;
+    private final PedidoRepository pedidoRepository;
+    private final TicketService ticketService;
+    private final EmailService emailService;
 
     @GetMapping
     public ResponseEntity<List<PedidoResponse>> getAll() {
@@ -49,11 +57,19 @@ public class PedidoController {
     public ResponseEntity<?> create(@RequestBody PedidoRequest request) {
         logger.info("Recibiendo solicitud para crear un pedido con datos: {}", request);
 
-        try {
-            String userEmail = SecurityContextHolder.getContext()
-                    .getAuthentication()
-                    .getName();
+        // --- LOGS DE DEBUG DE SPRING SECURITY ---
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null) {
+            logger.warn("Authentication es null");
+        } else {
+            logger.info("Usuario autenticado (getName): {}", auth.getName());
+            logger.info("Es anónimo? {}", auth.getAuthorities().isEmpty());
+            logger.info("Roles/Authorities: {}", auth.getAuthorities());
+        }
+        // -----------------------------------------
 
+        try {
+            String userEmail = auth.getName(); // aquí puede ser "anonymousUser"
             Long authenticatedUserId = pedidoService.getUserIdByEmail(userEmail);
 
             logger.info("Usuario autenticado email: {}, userId: {}", userEmail, authenticatedUserId);
@@ -79,6 +95,7 @@ public class PedidoController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
+
 
 
     @PutMapping("/{id}")
@@ -113,4 +130,32 @@ public class PedidoController {
         PedidoResponse pedidoActualizado = pedidoService.actualizarEstado(id, estado);
         return ResponseEntity.ok(pedidoActualizado);
     }
+
+    @PostMapping("/{id}/confirmar-pago")
+    @Transactional
+    public ResponseEntity<String> confirmarPago(@PathVariable Long id) {
+        try {
+            Pedido pedido = pedidoRepository.findByIdWithLineasVentaAndProducto(id)
+                    .orElseThrow(() -> new RuntimeException("Pedido no encontrado"));
+
+            ByteArrayOutputStream pdf = ticketService.generarTicketPDF(pedido);
+
+            logger.info("Generando PDF de tamaño {} bytes para el pedido {}", pdf.size(), id);
+
+            String correo = pedido.getCliente().getUser().getCorreo();
+            logger.info("Intentando enviar ticket al correo: {}", correo);
+
+            emailService.enviarTicketPorEmail(correo, pdf);
+
+            return ResponseEntity.ok("PDF enviado");
+
+        } catch (Exception e) {
+            logger.error("Error al enviar ticket del pedido {}: {}", id, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Ocurrió un error al enviar el ticket: " + e.getMessage());
+        }
+    }
+
+
+
 }

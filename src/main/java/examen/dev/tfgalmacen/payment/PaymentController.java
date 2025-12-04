@@ -19,10 +19,12 @@ public class PaymentController {
     private String stripeSecretKey;
 
     @PostMapping("/checkout")
-    public ResponseEntity<Map<String, Object>> createCheckoutSession(@RequestBody List<Map<String, Object>> items) {
+    public ResponseEntity<Map<String, Object>> createCheckoutSession(@RequestBody Map<String, Object> data) {
         try {
-            // 🔑 Configuramos la clave secreta
             Stripe.apiKey = stripeSecretKey;
+
+            int pedidoId = ((Number) data.get("pedidoId")).intValue();
+            List<Map<String, Object>> items = (List<Map<String, Object>>) data.get("items");
 
             List<SessionCreateParams.LineItem> lineItems = new ArrayList<>();
 
@@ -51,12 +53,11 @@ public class PaymentController {
 
             SessionCreateParams params = SessionCreateParams.builder()
                     .setMode(SessionCreateParams.Mode.PAYMENT)
-                    .setSuccessUrl("http://localhost:4200/success")
+                    .setSuccessUrl("http://localhost:4200/success?pedidoId=" + pedidoId)
                     .setCancelUrl("http://localhost:4200/cancel")
                     .addAllLineItem(lineItems)
                     .build();
 
-            // 💳 Crear la sesión de pago
             Session session = Session.create(params);
 
             Map<String, Object> response = new HashMap<>();
@@ -65,9 +66,7 @@ public class PaymentController {
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.internalServerError()
-                    .body(Map.of("error", e.getMessage()));
+            return ResponseEntity.internalServerError().body(Map.of("error", e.getMessage()));
         }
     }
 }

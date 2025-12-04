@@ -23,5 +23,12 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
             "WHERE p.cliente.id = :clienteId AND p.deleted = false")
     List<Pedido> findByClienteIdAndDeletedFalse(@Param("clienteId") Long clienteId);
 
+    @Query("SELECT DISTINCT p FROM Pedido p " +
+            "LEFT JOIN FETCH p.lineasVenta lv " +
+            "LEFT JOIN FETCH lv.producto " +
+            "WHERE p.id = :id AND p.deleted = false")
+    Optional<Pedido> findByIdWithLineasVentaAndProducto(@Param("id") Long id);
+
+
 
 }

@@ -10,6 +10,7 @@ import { PedidosAdminComponent } from './features/pedidos/pedidos-admin.componen
 import { adminTrabajadorGuard } from 'guards/admin-trabajador-guard';
 import { ForgotPasswordComponent } from './auth/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './auth/forgot-password/reset-password.component';
+import { SuccessComponent } from './pages/success/success.component';
 
 
 const routes: Routes = [
@@ -20,8 +21,9 @@ const routes: Routes = [
   { path: 'perfil', component: PerfilComponent },
   { path: 'mispedidos', component: MisPedidosComponent },
   { path: 'reset-password', component: ResetPasswordComponent },
+  { path: 'success', component: SuccessComponent },
 
-  
+
   { 
     path: 'admin/productos', 
     component: ProductosAdminComponent,

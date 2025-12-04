@@ -20,7 +20,7 @@ import { PedidosAdminComponent } from './app/features/pedidos/pedidos-admin.comp
 import { adminTrabajadorGuard } from 'guards/admin-trabajador-guard';
 import { ForgotPasswordComponent } from './app/auth/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './app/auth/forgot-password/reset-password.component';
-
+import { SuccessComponent } from './app/pages/success/success.component';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { authInterceptor } from './app/interceptors/auth.interceptor';
 
@@ -51,6 +51,7 @@ bootstrapApplication(AppComponent, {
       { path: 'perfil', component: PerfilComponent },
       { path: 'mispedidos', component: MisPedidosComponent },
       { path: 'reset-password', component: ResetPasswordComponent },
+      { path: 'success', component: SuccessComponent },
 
       {
         path: 'admin/clientes',

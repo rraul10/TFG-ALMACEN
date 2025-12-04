@@ -29,7 +29,10 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import java.io.ByteArrayOutputStream;
 import java.time.LocalDateTime;
@@ -80,7 +83,7 @@ public class PedidoServiceImpl implements PedidoService {
             SessionCreateParams params = SessionCreateParams.builder()
                     .addAllLineItem(lineItems)
                     .setMode(SessionCreateParams.Mode.PAYMENT)
-                    .setSuccessUrl("http://localhost:4200/dashboard")
+                    .setSuccessUrl("http://localhost:4200/success?pedidoId=" + pedido.getId())
                     .setCancelUrl("http://localhost:4200/dashboard")
                     .build();
 
@@ -228,7 +231,7 @@ public class PedidoServiceImpl implements PedidoService {
         emailService.enviarTicketPorEmail(emailCliente, pdfStream);
 
         return PedidoMapper.toDto(pedido);
-    }   
+    }
 
     @Override
     public List<PedidoResponse> getPedidosByClienteId(Long userId) {
@@ -266,6 +269,4 @@ public class PedidoServiceImpl implements PedidoService {
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado con email: " + email))
                 .getId();
     }
-
-
 }

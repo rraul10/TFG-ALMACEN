@@ -174,11 +174,15 @@ export class CarritoComponent implements OnInit, OnDestroy {
     console.groupEnd();
   }
 
-  comprar() {
-  console.log('🛒 Iniciando compra con carrito real:', this.carrito);
 
+comprar() {
+  console.log('🛒 Botón comprar pulsado');
   const token = localStorage.getItem('token');
   const clienteId = Number(localStorage.getItem('clienteId'));
+
+  console.log('🛒 Carrito a enviar:', this.carrito);
+  console.log('📌 token del localStorage:', token);
+  console.log('📌 clienteId del localStorage:', clienteId);
 
   if (!token) return alert('❌ No estás autenticado.');
   if (!clienteId) return alert('❌ No se encontró el clienteId del usuario.');
@@ -190,21 +194,27 @@ export class CarritoComponent implements OnInit, OnDestroy {
 
   const pedidoData = {
     clienteId: clienteId,
-    lineasVenta: lineasVenta
+    lineasVenta: lineasVenta,
+    items: this.carrito.map(item => ({
+      nombre: item.nombre,
+      cantidad: item.cantidad,
+      precio: item.precio
+    }))
   };
 
-  console.log("📦 ENVIANDO PEDIDO COMPLETO:", pedidoData);
+  console.log("📦 Datos a enviar al backend:", pedidoData);
 
   const headers = new HttpHeaders({
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${token}`
   });
 
+  console.log('📌 Headers que se enviarán:', headers);
+
   this.http.post('http://localhost:8080/api/pedidos', pedidoData, { headers })
     .subscribe({
       next: (res: any) => {
-        console.log('✅ Pedido creado con éxito:', res);
-        alert('¡Pedido creado con éxito!');
+        console.log('✅ Respuesta del backend:', res);
       },
       error: (err) => {
         console.error('❌ Error al crear pedido:', err);
@@ -212,6 +222,8 @@ export class CarritoComponent implements OnInit, OnDestroy {
       }
     });
 }
+
+
 
 
 
