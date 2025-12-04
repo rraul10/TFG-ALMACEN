@@ -50,10 +50,23 @@ class ClienteControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(clienteController).build();
     }
 
+    private ClienteResponse buildClienteResponse(
+            Long id, Long userId, String dni, String fotoDni, String direccionEnvio
+    ) {
+        ClienteResponse cliente = new ClienteResponse();
+        cliente.setId(id);
+        cliente.setUserId(userId);
+        cliente.setDni(dni);
+        cliente.setFotoDni(fotoDni);
+        cliente.setDireccionEnvio(direccionEnvio);
+        // otros campos opcionales se pueden dejar como null
+        return cliente;
+    }
+
     @Test
     void testGetAllClientes() {
         List<ClienteResponse> clientes = List.of(
-                new ClienteResponse(1L, 2L, "12345678A", "dni.jpg", "Calle A")
+                buildClienteResponse(1L, 2L, "12345678A", "dni.jpg", "Calle A")
         );
 
         when(clienteService.getAllClientes()).thenReturn(clientes);
@@ -67,7 +80,8 @@ class ClienteControllerTest {
 
     @Test
     void testGetClienteById() {
-        ClienteResponse cliente = new ClienteResponse(1L, 2L, "12345678A", "dni.jpg", "Calle A");
+        ClienteResponse cliente = buildClienteResponse(1L, 2L, "12345678A", "dni.jpg", "Calle A");
+
         when(clienteService.getById(1L)).thenReturn(cliente);
 
         var response = clienteController.getClienteById(1L);
@@ -92,7 +106,7 @@ class ClienteControllerTest {
     void testCreateCliente() throws Exception {
 
         ClienteRequest request = new ClienteRequest(null, "12345678Z", null, "Calle Nueva");
-        ClienteResponse responseMock = new ClienteResponse(2L, 3L, "12345678Z", "imagenGuardada.jpg", "Calle Nueva");
+        ClienteResponse responseMock = buildClienteResponse(2L, 3L, "12345678Z", "imagenGuardada.jpg", "Calle Nueva");
 
         MockMultipartFile clienteFile = new MockMultipartFile(
                 "cliente",
@@ -105,7 +119,7 @@ class ClienteControllerTest {
                 "fotoDni",
                 "dni.jpg",
                 "image/jpeg",
-                "testdata".getBytes() // archivo con contenido → NO empty
+                "testdata".getBytes()
         );
 
         when(storageService.store(any())).thenReturn("imagenGuardada.jpg");
@@ -126,7 +140,7 @@ class ClienteControllerTest {
     void testUpdateClienteOk() throws Exception {
 
         ClienteRequest request = new ClienteRequest(4L, "87654321B", null, "Calle B");
-        ClienteResponse responseMock = new ClienteResponse(1L, 4L, "87654321B", "fotoActualizada.jpg", "Calle B");
+        ClienteResponse responseMock = buildClienteResponse(1L, 4L, "87654321B", "fotoActualizada.jpg", "Calle B");
 
         MockMultipartFile clienteFile = new MockMultipartFile(
                 "cliente", "cliente.json", "application/json",
@@ -222,8 +236,7 @@ class ClienteControllerTest {
                         .build()
         );
 
-        when(pedidoService.getPedidosByClienteId(clienteId))
-                .thenReturn(pedidos);
+        when(pedidoService.getPedidosByClienteId(clienteId)).thenReturn(pedidos);
 
         mockMvc.perform(get("/api/clientes/{id}/mispedidos", clienteId))
                 .andExpect(status().isOk())

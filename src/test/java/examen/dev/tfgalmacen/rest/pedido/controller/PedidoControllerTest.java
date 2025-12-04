@@ -86,8 +86,9 @@ class PedidoControllerTest {
         PedidoRequest request = mockRequest();
         PedidoResponse response = mockResponse();
 
-        when(pedidoService.create(any(PedidoRequest.class))).thenReturn(response);
+        when(pedidoService.create(any(PedidoRequest.class), eq(1L))).thenReturn(response);
         when(pedidoService.createStripeCheckout(response)).thenReturn("http://stripe-session-url");
+        when(pedidoService.getUserIdByEmail(anyString())).thenReturn(1L);
 
         mockMvc.perform(post("/api/pedidos")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -96,9 +97,10 @@ class PedidoControllerTest {
                 .andExpect(jsonPath("$.pedidoId").value("1"))
                 .andExpect(jsonPath("$.url").value("http://stripe-session-url"));
 
-        verify(pedidoService).create(any(PedidoRequest.class));
+        verify(pedidoService).create(any(PedidoRequest.class), eq(1L));
         verify(pedidoService).createStripeCheckout(any(PedidoResponse.class));
     }
+
 
 
     @Test

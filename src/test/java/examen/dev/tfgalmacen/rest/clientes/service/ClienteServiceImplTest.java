@@ -11,7 +11,6 @@ import examen.dev.tfgalmacen.rest.users.models.User;
 import examen.dev.tfgalmacen.rest.users.repository.UserRepository;
 import examen.dev.tfgalmacen.storage.service.StorageService;
 import examen.dev.tfgalmacen.websockets.notifications.EmailService;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -51,6 +50,16 @@ class ClienteServiceImplTest {
         MockitoAnnotations.openMocks(this);
     }
 
+    private ClienteResponse buildClienteResponse(Long id, Long userId, String dni, String fotoDni, String direccionEnvio) {
+        ClienteResponse cliente = new ClienteResponse();
+        cliente.setId(id);
+        cliente.setUserId(userId);
+        cliente.setDni(dni);
+        cliente.setFotoDni(fotoDni);
+        cliente.setDireccionEnvio(direccionEnvio);
+        return cliente;
+    }
+
     @Test
     void getAllClientes() {
         Cliente cliente1 = new Cliente();
@@ -68,8 +77,8 @@ class ClienteServiceImplTest {
         List<Cliente> clientes = List.of(cliente1, cliente2);
 
         when(clienteRepository.findAll()).thenReturn(clientes);
-        when(clienteMapper.toResponse(cliente1)).thenReturn(new ClienteResponse(1L, 1L, "12345678A", "foto1.jpg", "Calle A"));
-        when(clienteMapper.toResponse(cliente2)).thenReturn(new ClienteResponse(2L, 2L, "98765432B", "foto2.jpg", "Calle B"));
+        when(clienteMapper.toResponse(cliente1)).thenReturn(buildClienteResponse(1L, 1L, "12345678A", "foto1.jpg", "Calle A"));
+        when(clienteMapper.toResponse(cliente2)).thenReturn(buildClienteResponse(2L, 2L, "98765432B", "foto2.jpg", "Calle B"));
 
         List<ClienteResponse> response = clienteService.getAllClientes();
 
@@ -95,24 +104,25 @@ class ClienteServiceImplTest {
         cliente.setFotoDni("foto1.jpg");
         cliente.setDireccionEnvio("Calle A");
 
-        when(clienteRepository.findByUserId(1L)).thenReturn(Optional.of(cliente));
-        when(clienteMapper.toResponse(cliente)).thenReturn(new ClienteResponse(1L, 1L, "12345678A", "foto1.jpg", "Calle A"));
+        when(clienteRepository.findById(1L)).thenReturn(Optional.of(cliente));
+        when(clienteMapper.toResponse(cliente)).thenReturn(
+                buildClienteResponse(1L, 1L, "12345678A", "foto1.jpg", "Calle A")
+        );
 
         ClienteResponse response = clienteService.getById(1L);
 
         assertNotNull(response);
         assertEquals("12345678A", response.getDni());
-        verify(clienteRepository).findByUserId(1L);
+        verify(clienteRepository).findById(1L);
     }
 
     @Test
     void getByIdClientNotFound() {
-        when(clienteRepository.findByUserId(1L)).thenReturn(Optional.empty());
+        when(clienteRepository.findById(1L)).thenReturn(Optional.empty());
 
         assertThrows(ClienteNotFound.class, () -> clienteService.getById(1L));
-        verify(clienteRepository).findByUserId(1L);
+        verify(clienteRepository).findById(1L);
     }
-
 
     @Test
     void createCliente() {
@@ -135,7 +145,7 @@ class ClienteServiceImplTest {
         cliente.setFotoDni("foto1.jpg");
         cliente.setDireccionEnvio("Calle A");
 
-        ClienteResponse responseMock = new ClienteResponse(1L, 1L, "12345678A", "foto1.jpg", "Calle A");
+        ClienteResponse responseMock = buildClienteResponse(1L, 1L, "12345678A", "foto1.jpg", "Calle A");
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(clienteMapper.toEntity(request, user)).thenReturn(cliente);
@@ -182,9 +192,7 @@ class ClienteServiceImplTest {
 
         when(clienteRepository.findById(1L)).thenReturn(Optional.of(clienteExistente));
         when(clienteRepository.save(clienteExistente)).thenReturn(clienteActualizado);
-        when(clienteMapper.toResponse(clienteActualizado)).thenReturn(
-                new ClienteResponse(1L, 1L, "87654321B", "foto2.jpg", "Calle B")
-        );
+        when(clienteMapper.toResponse(clienteActualizado)).thenReturn(buildClienteResponse(1L, 1L, "87654321B", "foto2.jpg", "Calle B"));
 
         ClienteResponse response = clienteService.updateCliente(1L, request);
 
@@ -220,7 +228,6 @@ class ClienteServiceImplTest {
 
         assertThrows(ClienteNotFound.class, () -> clienteService.deleteCliente(1L));
     }
-
 
     @Test
     void testGetClienteEntityById_Existente() {
