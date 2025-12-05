@@ -5,11 +5,13 @@ import { Producto, ProductoService } from '@core/services/producto.service';
 import { RoleService } from '@core/services/role.service';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
+import { UploadService } from '@core/services/upload.service';
+import { HttpClientModule } from '@angular/common/http';
 
 @Component({
   selector: 'app-productos-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatSnackBarModule],
+  imports: [CommonModule, FormsModule, MatSnackBarModule,HttpClientModule],
   template: `
     <div class="gestion-layout">
       <!-- NAVBAR -->
@@ -138,8 +140,8 @@ import { Router } from '@angular/router';
         <div class="productos-grid" *ngIf="productosFiltrados.length > 0">
           <div class="producto-card" *ngFor="let p of productosFiltrados">
             <div class="card-header-product">
-              <img [src]="'http://localhost:8080/files/' + p.imagen" [alt]="p.nombre" class="producto-imagen" />
-              <span class="badge-stock" [class.low-stock]="p.stock < 10 && p.stock > 0" [class.out-stock]="p.stock === 0">
+              <img [src]="p.imagen" [alt]="p.nombre" class="producto-imagen" (error)="onImageError($event)" />
+<span class="badge-stock" [class.low-stock]="p.stock < 10 && p.stock > 0" [class.out-stock]="p.stock === 0">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M20 7H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2z"/><path d="M16 21V5c0-.5-.2-1-.6-1.4-.4-.4-.9-.6-1.4-.6h-4c-.5 0-1 .2-1.4.6-.4.4-.6.9-.6 1.4v16"/>
                 </svg>
@@ -586,6 +588,9 @@ export class ProductosAdminComponent implements OnInit {
   filtroTipo: string = '';
   productosFiltrados: Producto[] = [];
   ordenSeleccionado: string = '';
+  imagenPreview: string | null = null;
+subiendoImagen: boolean = false;
+
 
 
   particles = Array.from({ length: 30 }, () => ({ x: Math.random() * 100, delay: `${Math.random() * 20}s`, duration: `${15 + Math.random() * 10}s` }));
@@ -594,7 +599,8 @@ export class ProductosAdminComponent implements OnInit {
     private productoService: ProductoService,
     private roleService: RoleService,
     private snackBar: MatSnackBar,
-    private router: Router
+    private router: Router,
+    private uploadService: UploadService
   ) {}
 
   ngOnInit(): void {
@@ -608,6 +614,11 @@ export class ProductosAdminComponent implements OnInit {
 
     this.cargarProductos(); 
   }
+
+  onImageError(event: any) {
+  event.target.src = 'assets/img/default.jpg';
+}
+
 
   cargarProductos() {
     this.productoService.getProductos().subscribe(
@@ -753,11 +764,26 @@ export class ProductosAdminComponent implements OnInit {
   }
 
   onFileSelected(event: any) {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      this.selectedFile = input.files[0];
-    }
-  }
+  const file = event.target.files[0];
+  if (!file) return;
+
+  this.selectedFile = file;
+  this.subiendoImagen = true;
+
+  const reader = new FileReader();
+  reader.onload = () => this.imagenPreview = reader.result as string;
+  reader.readAsDataURL(file);
+
+  this.uploadService.uploadImage(file).subscribe({
+    next: (res: { url: string }) => {
+      if (this.productoSeleccionado) {
+        this.productoSeleccionado.imagen = res.url;
+      }
+      this.subiendoImagen = false;
+    },
+    error: () => this.subiendoImagen = false
+  });
+}
 
   eliminarProducto(id: number) {
     if (!confirm('¿Seguro que quieres eliminar este producto?')) return;

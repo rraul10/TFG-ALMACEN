@@ -25,7 +25,8 @@ import { AuthService } from '@core/services/auth.service';
         <div class="nav-right">
           <div class="user-menu" (click)="toggleMenu()">
             <div class="avatar-btn">
-              <img [src]="fotoPerfil" class="user-icon" />
+              <img [src]="user.foto || 'assets/img/default.jpg'" class="user-icon" />
+
               <svg class="chevron" [class.rotated]="menuOpen" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M6 9l6 6 6-6"/>
               </svg>
@@ -88,7 +89,7 @@ import { AuthService } from '@core/services/auth.service';
             <div class="profile-banner"></div>
             <div class="profile-info-header">
               <div class="avatar-wrapper">
-                <img [src]="fotoPerfil" alt="Foto de perfil" class="profile-avatar" />
+                <img [src]="user.foto || 'assets/img/default.jpg'" (error)="onImageError($event)">
                 <label class="avatar-edit-btn" for="file-input">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M12 16C14.2091 16 16 14.2091 16 12C16 9.79086 14.2091 8 12 8C9.79086 8 8 9.79086 8 12C8 14.2091 9.79086 16 12 16Z"/>
@@ -101,9 +102,9 @@ import { AuthService } from '@core/services/auth.service';
                 <h1>{{ user.nombre }} {{ user.apellidos }}</h1>
                 <p class="user-email">{{ user.correo }}</p>
                 <div class="user-badges">
-                  <span class="badge" [class.badge-trabajador]="esTrabajador" [class.badge-cliente]="!esTrabajador">
-                    {{ esTrabajador ? '👷 Trabajador' : '👤 Cliente' }}
-                  </span>
+                  <span class="badge" [class.badge-trabajador]="esTrabajador" [class.badge-cliente]="!esTrabajador && !esAdmin">
+                  {{ esAdmin ? '👑 Administrador' : esTrabajador ? '👷 Trabajador' : '👤 Cliente' }}
+                </span>
                 </div>
               </div>
             </div>
@@ -158,13 +159,20 @@ import { AuthService } from '@core/services/auth.service';
               </div>
 
               <!-- Info según rol -->
-              <div class="form-section">
+              <div class="form-section" *ngIf="!esAdmin">
                 <div class="section-header">
                   <div class="section-icon">{{ esTrabajador ? '💼' : '🏠' }}</div>
                   <h2>{{ esTrabajador ? 'Información Laboral' : 'Información de Envío' }}</h2>
                 </div>
                 <div class="form-grid">
-                  <ng-container *ngIf="!esTrabajador">
+                  <ng-container *ngIf="esTrabajador">
+                    <div class="form-group full-width">
+                      <label for="nss">Número de Seguridad Social</label>
+                      <input id="nss" type="text" [(ngModel)]="trabajadorData.numero_seguridad_social" name="nss" placeholder="SS001234567890" [class.error-input]="errores.nss"/>
+                      <span class="error-message" *ngIf="errores.nss">{{ errores.nss }}</span>
+                    </div>
+                  </ng-container>
+                  <ng-container *ngIf="isCliente">
                     <div class="form-group">
                       <label for="dni">DNI</label>
                       <input id="dni" type="text" [(ngModel)]="clienteData.dni" name="dni" placeholder="12345678A" maxlength="9" [class.error-input]="errores.dni"/>
@@ -176,15 +184,10 @@ import { AuthService } from '@core/services/auth.service';
                       <span class="error-message" *ngIf="errores.direccion">{{ errores.direccion }}</span>
                     </div>
                   </ng-container>
-                  <ng-container *ngIf="esTrabajador">
-                    <div class="form-group full-width">
-                      <label for="nss">Número de Seguridad Social</label>
-                      <input id="nss" type="text" [(ngModel)]="trabajadorData.numero_seguridad_social" name="nss" placeholder="SS001234567890" [class.error-input]="errores.nss"/>
-                      <span class="error-message" *ngIf="errores.nss">{{ errores.nss }}</span>
-                    </div>
-                  </ng-container>
                 </div>
               </div>
+
+
 
               <!-- Actions -->
               <div class="form-actions">
@@ -264,7 +267,15 @@ import { AuthService } from '@core/services/auth.service';
 .profile-header-card { background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; margin-bottom: 1.5rem; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
 .profile-banner { height: 100px; background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #06b6d4 100%); }
 .profile-info-header { padding: 0 2rem 1.5rem; margin-top: -50px; display: flex; gap: 1.5rem; align-items: flex-end; }
-.avatar-wrapper { position: relative; flex-shrink: 0; }
+.avatar-wrapper img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 4px solid var(--bg-dark);
+  object-fit: cover;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+
 .profile-avatar { width: 100px; height: 100px; border-radius: 50%; border: 4px solid var(--bg-dark); object-fit: cover; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
 .avatar-edit-btn { position: absolute; bottom: 4px; right: 4px; width: 32px; height: 32px; background: linear-gradient(135deg, var(--primary), var(--accent)); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.5); transition: transform 0.3s; color: white; }
 .avatar-edit-btn:hover { transform: scale(1.1); }
@@ -383,34 +394,35 @@ export class PerfilComponent implements OnInit {
   }));
 
   constructor(private authService: AuthService, private router: Router) {}
+ngOnInit() {
+  const userData = localStorage.getItem('user');
+  const token = localStorage.getItem('token');
+  this.isLoggedIn = !!token;
 
-  ngOnInit() {
-    const userData = localStorage.getItem('user');
-    const token = localStorage.getItem('token');
-    this.isLoggedIn = !!token;
+  if (userData && token) {
+    this.user = JSON.parse(userData);
+    let roles: string[] = this.user.roles?.map((r: string) => r.toLowerCase()) || [];
 
-    if (userData && token) {
-      this.user = JSON.parse(userData);
-      let roles: string[] = this.user.roles?.map((r: string) => r.toLowerCase()) || [];
+    this.isAdmin = roles.includes('admin');
+    this.isTrabajador = roles.includes('trabajador') && !this.isAdmin; 
+    this.isCliente = roles.includes('cliente') && !this.isAdmin;     
 
-      this.isAdmin = roles.includes('admin');
-      this.isTrabajador = roles.includes('trabajador') || this.isAdmin;
-      this.isCliente = roles.includes('cliente');
-      this.esTrabajador = this.isTrabajador;
-      this.esAdmin = this.isAdmin;
+    this.esTrabajador = this.isTrabajador;
+    this.esAdmin = this.isAdmin;
 
-      if (this.isTrabajador) {
-        this.trabajadorData.numero_seguridad_social = this.user.numero_seguridad_social || '';
-        this.cargarDatosTrabajador();
-      } 
-      if (this.isCliente) {
-        this.clienteData.dni = this.user.dni || '';
-        this.clienteData.direccion_envio = this.user.direccionEnvio || '';
-        this.clienteData.foto_dni = this.user.fotoDni || 'default.jpg';
-        this.cargarDatosCliente();
-      }
+    if (this.isTrabajador) {
+      this.trabajadorData.numero_seguridad_social = this.user.numero_seguridad_social || '';
+      this.cargarDatosTrabajador();
+    } 
+    if (this.isCliente) {
+      this.clienteData.dni = this.user.dni || '';
+      this.clienteData.direccion_envio = this.user.direccionEnvio || '';
+      this.clienteData.foto_dni = this.user.fotoDni || 'default.jpg';
+      this.cargarDatosCliente();
     }
   }
+}
+
 
   cargarDatosCliente() {
     this.authService.getClienteData(this.user.id).subscribe({
@@ -529,18 +541,25 @@ export class PerfilComponent implements OnInit {
     });
   }
 
-  // Manejo de archivos
   onFileSelected(event: any) {
-    const file = event.target.files[0];
-    if (!file) return;
-    if (!file.type.startsWith('image/')) {
-      this.errores.foto = '❌ Solo se permiten imágenes';
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = () => this.user.foto = reader.result as string;
-    reader.readAsDataURL(file);
+  const file = event.target.files[0];
+  if (!file) return;
+  if (!file.type.startsWith('image/')) {
+    this.errores.foto = '❌ Solo se permiten imágenes';
+    return;
   }
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    this.user.foto = reader.result as string;
+
+    localStorage.setItem('user', JSON.stringify(this.user));
+
+    window.dispatchEvent(new CustomEvent('user-updated', { detail: this.user }));
+  };
+  reader.readAsDataURL(file);
+}
+
 
   onDniFileSelected(event: any) {
     const file = event.target.files[0];
@@ -567,6 +586,20 @@ export class PerfilComponent implements OnInit {
       ? 'http://localhost:8080/uploads/' + this.user.foto
       : 'http://localhost:8080/uploads/default.jpg';
   }
+
+  get fotoPerfilUrl() {
+  if (!this.user || !this.user.foto) {
+    return 'assets/default-avatar.png';
+  }
+
+  return 'http://localhost:8000/storage/perfiles/' + this.user.foto;
+}
+
+onImageError(event: any) {
+  event.target.src = 'assets/img/default.jpg';
+}
+
+
 
   // Navegación
   goToLogin() { this.menuOpen = false; this.router.navigate(['/login']); }

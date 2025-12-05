@@ -42,7 +42,6 @@ public class EmailService {
         mailSender.send(mensajeCorreo);
     }
 
-
     public void notificarRegistroExitoso(String destinatario, String nombre) {
         SimpleMailMessage mensaje = new SimpleMailMessage();
         mensaje.setTo(destinatario);
@@ -51,7 +50,7 @@ public class EmailService {
 
         mailSender.send(mensaje);
     }
-
+    
     public void enviarTicketPorEmail(String destinatario, ByteArrayOutputStream pdfStream) {
         try {
             MimeMessage message = mailSender.createMimeMessage();

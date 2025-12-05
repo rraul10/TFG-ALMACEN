@@ -40,7 +40,7 @@ import { NotificationService } from '@core/services/notification.service';
 
       <div class="user-menu" (click)="toggleMenu()">
         <div class="avatar-btn">
-          <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" class="user-icon" />
+          <img [src]="user?.foto || 'https://cdn-icons-png.flaticon.com/512/847/847969.png'" class="user-icon" />
           <svg class="chevron" [class.rotated]="menuOpen" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M6 9l6 6 6-6"/>
           </svg>
@@ -179,6 +179,21 @@ import { NotificationService } from '@core/services/notification.service';
       [ordenSeleccionado]="ordenSeleccionado"
       (productosFiltered)="onProductosFiltered($event)">
     </app-productos-list>
+    <!-- MODAL PRODUCTO -->
+    <div *ngIf="productoModalOpen" class="product-modal-overlay" (click)="cerrarProductoModal()">
+      <div class="product-modal" (click)="$event.stopPropagation()">
+        <button class="close-btn" (click)="cerrarProductoModal()">×</button>
+        <div class="modal-content">
+          <h2>{{ selectedProducto?.nombre }}</h2>
+          <img [src]="selectedProducto?.imagen" alt="{{ selectedProducto?.nombre }}" />
+          <p>Tipo: {{ selectedProducto?.tipo }}</p>
+          <p>Precio: {{ selectedProducto?.precio | currency:'EUR' }}</p>
+          <p>{{ selectedProducto?.descripcion }}</p>
+          <button (click)="agregarAlCarrito(selectedProducto)">Añadir al carrito 🛒</button>
+        </div>
+      </div>
+    </div>
+
   </main>
 
   <!-- MODAL CARRITO -->
@@ -328,6 +343,54 @@ import { NotificationService } from '@core/services/notification.service';
 }
 .products-counter.hidden {
   visibility: hidden;
+}
+
+.product-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 300;
+}
+
+.product-modal {
+  background: var(--bg-dark);
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 500px;
+  width: 90%;
+  color: var(--text);
+  position: relative;
+}
+
+.product-modal .close-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--text-muted);
+}
+
+.product-modal img {
+  max-width: 100%;
+  margin: 1rem 0;
+  border-radius: 12px;
+}
+
+.product-modal button {
+  padding: 0.75rem 1.5rem;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  margin-top: 1rem;
 }
 
 
@@ -656,6 +719,8 @@ export class DashboardComponent {
   isCliente = false;
   isTrabajador = false;
   carrito: any[] = [];
+  user: any = null;
+
 
   searchTerm: string = '';
   tipoSeleccionado: string = '';
@@ -695,14 +760,49 @@ export class DashboardComponent {
     window.addEventListener('carritoActualizado', () => this.loadCarrito());
   }
 
-  ngOnInit() {
-    this.isLoggedIn = this.authService.isLoggedIn();
-    this.isAdmin = this.roleService.isAdmin();
-    this.isCliente = this.roleService.isCliente();
-    this.isTrabajador = this.roleService.isTrabajador();
-    this.notificationService.notification$.subscribe((msg: string) => this.showNotification(msg));
-    this.startCarousel();
+  agregarAlCarrito(producto: any) {
+    if (!producto) return;
+    const itemExistente = this.carrito.find(item => item.id === producto.id);
+    if (itemExistente) {
+      itemExistente.cantidad = (itemExistente.cantidad || 1) + 1;
+    } else {
+      this.carrito.push({ ...producto, cantidad: 1 });
+    }
+    this.saveCarrito(); 
+    this.cerrarProductoModal();
+    this.showNotification(`${producto.nombre} añadido al carrito 🛒`); 
   }
+
+
+
+  ngOnInit() {
+  this.isLoggedIn = this.authService.isLoggedIn();
+  this.isAdmin = this.roleService.isAdmin();
+  this.isCliente = this.roleService.isCliente();
+  this.isTrabajador = this.roleService.isTrabajador();
+
+  this.user = JSON.parse(localStorage.getItem('user') || '{}');
+
+  window.addEventListener('user-updated', (event: any) => {
+    this.user = event.detail;
+  });
+
+  this.notificationService.notification$.subscribe((msg: string) => this.showNotification(msg));
+  this.startCarousel();
+}
+
+productoModalOpen: boolean = false;
+selectedProducto: any = null;
+
+verProducto(producto: any) {
+  this.selectedProducto = producto;
+  this.productoModalOpen = true;
+}
+
+cerrarProductoModal() {
+  this.productoModalOpen = false;
+  this.selectedProducto = null;
+}
 
   ngOnDestroy() { if (this.carouselInterval) clearInterval(this.carouselInterval); }
 

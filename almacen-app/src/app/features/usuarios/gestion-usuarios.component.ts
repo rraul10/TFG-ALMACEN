@@ -92,13 +92,13 @@ import { Router } from '@angular/router';
         <div class="usuarios-grid" *ngIf="usuariosFiltrados.length > 0">
           <div class="usuario-card" *ngFor="let u of usuariosFiltrados">
             <div class="card-header-user">
-              <img [src]="'http://localhost:8080/files/' + u.foto" [alt]="u.nombre" class="usuario-avatar" />
+              <img [src]="u.foto" [alt]="u.nombre" class="usuario-avatar" (error)="onImageError($event)" />
               <span class="badge-activo">✓ Activo</span>
-              <!-- Reemplazar en tu template -->
-            <span class="badge-rol" 
+              <span class="badge-rol" 
                   [class.cliente]="u.rol === 'CLIENTE'" 
-                  [class.trabajador]="u.rol === 'TRABAJADOR'">
-              {{ u.rol === 'CLIENTE' ? '🛒 Cliente' : '💼 Trabajador' }}
+                  [class.trabajador]="u.rol === 'TRABAJADOR'"
+                  [class.admin]="u.rol === 'ADMIN'">
+              {{ u.rol === 'CLIENTE' ? '🛒 Cliente' : u.rol === 'TRABAJADOR' ? '💼 Trabajador' : '🛡️ Admin' }}
             </span>
             </div>
             <div class="card-body-user">
@@ -124,7 +124,6 @@ import { Router } from '@angular/router';
                   </svg>
                   <span>{{ u.ciudad }}</span>
                 </div>
-                <!-- ✅ CORRECTO - compara con MAYÚSCULAS -->
                 <div class="detail-row" *ngIf="u.rol === 'CLIENTE' && u.dni">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
@@ -201,7 +200,6 @@ import { Router } from '@angular/router';
           <form #usuarioForm="ngForm" (ngSubmit)="guardarUsuario(usuarioForm)">
             <div class="modal-body">
               <div class="form-grid">
-                <!-- Selector de Tipo de Usuario -->
                 <!-- Selector de Tipo de Usuario -->
                 <div class="form-group full-width" *ngIf="!usuarioSeleccionado.id">
                   <label>Tipo de Usuario *</label>
@@ -291,6 +289,16 @@ import { Router } from '@angular/router';
                     <label for="foto-input" class="file-label">
                       {{ selectedFile ? selectedFile.name : 'Seleccionar archivo' }}
                     </label>
+                  </div>
+
+                  <!-- Preview -->
+                  <div class="foto-preview" *ngIf="selectedFile || usuarioSeleccionado?.foto">
+                    <img 
+                      [src]="selectedFile ? previewUrl : usuarioSeleccionado.foto" 
+                      alt="Foto de {{ usuarioSeleccionado?.nombre }}" 
+                      class="usuario-avatar-preview"
+                      (error)="onImageError($event)"
+                    />
                   </div>
                 </div>
 
@@ -395,7 +403,7 @@ import { Router } from '@angular/router';
 .logo-icon { 
   font-size: 2rem; 
 }
-/* Selector de Tipo de Usuario */
+
 /* Selector de Tipo de Usuario */
 .tipo-selector {
   display: grid;
@@ -505,16 +513,17 @@ import { Router } from '@angular/router';
 }
 
 .badge-rol.cliente {
-  background: rgba(59, 130, 246, 0.25);
-  color: #000000ff;
+  background: rgba(0, 0, 0, 0.25);
+  color: #fcfcfcff;
   border: 1px solid rgba(59, 130, 246, 0.3);
 }
 
 .badge-rol.trabajador {
   background: rgba(168, 85, 247, 0.25);
-  color: #000000ff;
+  color: #ffffffff;
   border: 1px solid rgba(168, 85, 247, 0.3);
 }
+
 .logo-text { 
   display: flex; 
   flex-direction: column; 
@@ -638,622 +647,530 @@ import { Router } from '@angular/router';
   justify-content: center; 
 }
 
-.stat-icon.blue { 
+.stat-icon.blue {
   background: rgba(59, 130, 246, 0.2); 
 }
-
-.stat-icon.green { 
-  background: rgba(16, 185, 129, 0.2); 
+.stat-icon.green {
+background: rgba(16, 185, 129, 0.2);
 }
-
-.stat-info { 
-  display: flex; 
-  flex-direction: column; 
+.stat-info {
+display: flex;
+flex-direction: column;
 }
-
-.stat-value { 
-  font-size: 1.75rem; 
-  font-weight: 700; 
+.stat-value {
+font-size: 1.75rem;
+font-weight: 700;
 }
-
-.stat-label { 
-  font-size: 0.8rem; 
-  color: var(--text-muted); 
+.stat-label {
+font-size: 0.8rem;
+color: var(--text-muted);
 }
-
 /* Search and Filters */
-.search-filter-section { 
-  background: rgba(30, 41, 59, 0.6); 
-  backdrop-filter: blur(10px); 
-  border: 1px solid var(--border); 
-  border-radius: 16px; 
-  padding: 1.5rem; 
-  margin-bottom: 2rem; 
+.search-filter-section {
+background: rgba(30, 41, 59, 0.6);
+backdrop-filter: blur(10px);
+border: 1px solid var(--border);
+border-radius: 16px;
+padding: 1.5rem;
+margin-bottom: 2rem;
 }
-
-.search-box { 
-  position: relative; 
-  margin-bottom: 0; 
+.search-box {
+position: relative;
+margin-bottom: 0;
 }
-
-.search-icon { 
-  position: absolute; 
-  left: 16px; 
-  top: 50%; 
-  transform: translateY(-50%); 
-  color: var(--text-muted); 
-  pointer-events: none; 
+.search-icon {
+position: absolute;
+left: 16px;
+top: 50%;
+transform: translateY(-50%);
+color: var(--text-muted);
+pointer-events: none;
 }
-
-.search-box input { 
-  width: 100%; 
-  padding: 0.85rem 3rem 0.85rem 3rem; 
-  background: rgba(15, 23, 42, 0.6); 
-  border: 1px solid var(--border); 
-  border-radius: 10px; 
-  color: var(--text); 
-  font-size: 0.95rem; 
-  transition: all 0.3s; 
-  box-sizing: border-box; 
+.search-box input {
+width: 100%;
+padding: 0.85rem 3rem 0.85rem 3rem;
+background: rgba(15, 23, 42, 0.6);
+border: 1px solid var(--border);
+border-radius: 10px;
+color: var(--text);
+font-size: 0.95rem;
+transition: all 0.3s;
+box-sizing: border-box;
 }
-
-.search-box input::placeholder { 
-  color: rgba(148, 163, 184, 0.5); 
+.search-box input::placeholder {
+color: rgba(148, 163, 184, 0.5);
 }
-
-.search-box input:focus { 
-  outline: none; 
-  border-color: var(--primary); 
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15); 
+.search-box input:focus {
+outline: none;
+border-color: var(--primary);
+box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
 }
-
-.clear-btn { 
-  position: absolute; 
-  right: 12px; 
-  top: 50%; 
-  transform: translateY(-50%); 
-  width: 32px; 
-  height: 32px; 
-  border: none; 
-  background: rgba(100, 116, 139, 0.2); 
-  border-radius: 50%; 
-  display: flex; 
-  align-items: center; 
-  justify-content: center; 
-  cursor: pointer; 
-  transition: all 0.2s; 
+.clear-btn {
+position: absolute;
+right: 12px;
+top: 50%;
+transform: translateY(-50%);
+width: 32px;
+height: 32px;
+border: none;
+background: rgba(100, 116, 139, 0.2);
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+cursor: pointer;
+transition: all 0.2s;
 }
-
-.clear-btn:hover { 
-  background: rgba(100, 116, 139, 0.3); 
+.clear-btn:hover {
+background: rgba(100, 116, 139, 0.3);
 }
-
-.clear-btn svg { 
-  color: var(--text-muted); 
+.clear-btn svg {
+color: var(--text-muted);
 }
-
-.results-info { 
-  display: flex; 
-  align-items: center; 
-  gap: 8px; 
-  padding: 0.75rem 1rem; 
-  background: rgba(100, 116, 139, 0.15); 
-  border-radius: 10px; 
-  color: var(--text-muted); 
-  font-size: 0.85rem; 
-  font-weight: 500; 
-  margin-top: 1rem; 
+.results-info {
+display: flex;
+align-items: center;
+gap: 8px;
+padding: 0.75rem 1rem;
+background: rgba(100, 116, 139, 0.15);
+border-radius: 10px;
+color: var(--text-muted);
+font-size: 0.85rem;
+font-weight: 500;
+margin-top: 1rem;
 }
-
-.results-info svg { 
-  color: var(--primary); 
-  flex-shrink: 0; 
-  display: flex; 
-  align-items: center; 
-  gap: 8px; 
-  padding: 0.75rem 1rem; 
-  background: rgba(100, 116, 139, 0.15); 
-  border-radius: 10px; 
-  color: var(--text-muted); 
-  font-size: 0.85rem; 
-  font-weight: 500; 
-  margin-top: 1rem; 
+.results-info svg {
+color: var(--primary);
+flex-shrink: 0;
 }
-
-.results-info svg { 
-  color: var(--primary); 
-  flex-shrink: 0; 
+.btn-reset-filters {
+margin-left: auto;
+padding: 0.4rem 0.85rem;
+background: rgba(99, 102, 241, 0.2);
+border: 1px solid rgba(99, 102, 241, 0.3);
+border-radius: 8px;
+font-size: 0.8rem;
+font-weight: 600;
+color: var(--primary);
+cursor: pointer;
+transition: all 0.2s;
 }
-
-.btn-reset-filters { 
-  margin-left: auto; 
-  padding: 0.4rem 0.85rem; 
-  background: rgba(99, 102, 241, 0.2); 
-  border: 1px solid rgba(99, 102, 241, 0.3); 
-  border-radius: 8px; 
-  font-size: 0.8rem; 
-  font-weight: 600; 
-  color: var(--primary); 
-  cursor: pointer; 
-  transition: all 0.2s; 
+.btn-reset-filters:hover {
+background: var(--primary);
+color: white;
+border-color: var(--primary);
 }
-
-.btn-reset-filters:hover { 
-  background: var(--primary); 
-  color: white; 
-  border-color: var(--primary); 
-}
-
 /* Grid Usuarios */
-.usuarios-grid { 
-  display: grid; 
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
-  gap: 1.5rem; 
+.usuarios-grid {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+gap: 1.5rem;
 }
-
-.usuario-card { 
-  background: rgba(30, 41, 59, 0.6); 
-  backdrop-filter: blur(10px); 
-  border: 1px solid var(--border); 
-  border-radius: 16px; 
-  overflow: hidden; 
-  transition: all 0.3s; 
+.usuario-card {
+background: rgba(30, 41, 59, 0.6);
+backdrop-filter: blur(10px);
+border: 1px solid var(--border);
+border-radius: 16px;
+overflow: hidden;
+transition: all 0.3s;
 }
-
-.usuario-card:hover { 
-  transform: translateY(-4px); 
-  border-color: rgba(99, 102, 241, 0.3); 
-  box-shadow: 0 15px 40px rgba(0,0,0,0.3); 
+.usuario-card:hover {
+transform: translateY(-4px);
+border-color: rgba(99, 102, 241, 0.3);
+box-shadow: 0 15px 40px rgba(0,0,0,0.3);
 }
-
-.card-header-user { 
-  background: linear-gradient(135deg, var(--primary), #764ba2); 
-  padding: 1.5rem; 
-  display: flex; 
-  align-items: center; 
-  gap: 1rem; 
-  position: relative; 
+.card-header-user {
+background: linear-gradient(135deg, var(--primary), #764ba2);
+padding: 1.5rem;
+display: flex;
+align-items: center;
+gap: 1rem;
+position: relative;
 }
-
-.usuario-avatar { 
-  width: 70px; 
-  height: 70px; 
-  border-radius: 50%; 
-  border: 3px solid white; 
-  object-fit: cover; 
-  box-shadow: 0 4px 15px rgba(0,0,0,0.3); 
+.usuario-avatar {
+width: 70px;
+height: 70px;
+border-radius: 50%;
+border: 3px solid white;
+object-fit: cover;
+box-shadow: 0 4px 15px rgba(0,0,0,0.3);
 }
-
-.badge-activo { 
-  position: absolute; 
-  top: 1rem; 
-  right: 1rem; 
-  background: rgba(16, 185, 129, 0.95); 
-  color: white; 
-  padding: 0.3rem 0.75rem; 
-  border-radius: 20px; 
-  font-size: 0.75rem; 
-  font-weight: 600; 
-  backdrop-filter: blur(10px); 
+.badge-activo {
+position: absolute;
+top: 1rem;
+right: 1rem;
+background: rgba(16, 185, 129, 0.95);
+color: white;
+padding: 0.3rem 0.75rem;
+border-radius: 20px;
+font-size: 0.75rem;
+font-weight: 600;
+backdrop-filter: blur(10px);
 }
-
-.card-body-user { 
-  padding: 1.25rem; 
+.card-body-user {
+padding: 1.25rem;
 }
-
-.card-body-user h3 { 
-  font-size: 1.1rem; 
-  font-weight: 700; 
-  margin: 0 0 1rem; 
-  color: var(--text); 
+.card-body-user h3 {
+font-size: 1.1rem;
+font-weight: 700;
+margin: 0 0 1rem;
+color: var(--text);
 }
-
-.user-details { 
-  display: flex; 
-  flex-direction: column; 
-  gap: 0.6rem; 
+.user-details {
+display: flex;
+flex-direction: column;
+gap: 0.6rem;
 }
-
-.detail-row { 
-  display: flex; 
-  align-items: center; 
-  gap: 0.6rem; 
-  font-size: 0.85rem; 
-  color: var(--text-muted); 
+.detail-row {
+display: flex;
+align-items: center;
+gap: 0.6rem;
+font-size: 0.85rem;
+color: var(--text-muted);
 }
-
-.detail-row svg { 
-  color: var(--primary); 
-  flex-shrink: 0; 
+.detail-row svg {
+color: var(--primary);
+flex-shrink: 0;
 }
-
-.detail-row span { 
-  white-space: nowrap; 
-  overflow: hidden; 
-  text-overflow: ellipsis; 
+.detail-row span {
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
 }
-
-.card-footer-user { 
-  padding: 1rem 1.25rem; 
-  border-top: 1px solid var(--border); 
-  display: flex; 
-  gap: 0.75rem; 
+.card-footer-user {
+padding: 1rem 1.25rem;
+border-top: 1px solid var(--border);
+display: flex;
+gap: 0.75rem;
 }
-
-.btn-edit, .btn-delete { 
-  flex: 1; 
-  display: flex; 
-  align-items: center; 
-  justify-content: center; 
-  gap: 0.4rem; 
-  padding: 0.65rem; 
-  border: none; 
-  border-radius: 8px; 
-  font-size: 0.85rem; 
-  font-weight: 600; 
-  cursor: pointer; 
-  transition: all 0.3s; 
+.btn-edit, .btn-delete {
+flex: 1;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 0.4rem;
+padding: 0.65rem;
+border: none;
+border-radius: 8px;
+font-size: 0.85rem;
+font-weight: 600;
+cursor: pointer;
+transition: all 0.3s;
 }
-
-.btn-edit { 
-  background: rgba(59, 130, 246, 0.2); 
-  color: #3b82f6; 
+.btn-edit {
+background: rgba(59, 130, 246, 0.2);
+color: #3b82f6;
 }
-
-.btn-edit:hover { 
-  background: rgba(59, 130, 246, 0.3); 
+.btn-edit:hover {
+background: rgba(59, 130, 246, 0.3);
 }
-
-.btn-delete { 
-  background: rgba(239, 68, 68, 0.2); 
-  color: var(--danger); 
+.btn-delete {
+background: rgba(239, 68, 68, 0.2);
+color: var(--danger);
 }
-
-.btn-delete:hover { 
-  background: rgba(239, 68, 68, 0.3); 
+.btn-delete:hover {
+background: rgba(239, 68, 68, 0.3);
 }
-
 /* Empty State */
-.empty-state { 
-  text-align: center; 
-  padding: 4rem 2rem; 
-  background: rgba(30, 41, 59, 0.6); 
-  border: 1px solid var(--border); 
-  border-radius: 20px; 
+.empty-state {
+text-align: center;
+padding: 4rem 2rem;
+background: rgba(30, 41, 59, 0.6);
+border: 1px solid var(--border);
+border-radius: 20px;
 }
-
-.empty-icon { 
-  font-size: 4rem; 
-  margin-bottom: 1rem; 
-  opacity: 0.5; 
+.empty-icon {
+font-size: 4rem;
+margin-bottom: 1rem;
+opacity: 0.5;
 }
-
-.empty-state h3 { 
-  font-size: 1.5rem; 
-  margin: 0 0 0.5rem; 
+.empty-state h3 {
+font-size: 1.5rem;
+margin: 0 0 0.5rem;
 }
-
-.empty-state p { 
-  color: var(--text-muted); 
-  margin: 0 0 1.5rem; 
+.empty-state p {
+color: var(--text-muted);
+margin: 0 0 1.5rem;
 }
-
-/* MODAL - SCROLL MEJORADO */
-.modal-overlay { 
-  position: fixed; 
-  inset: 0; 
-  background: rgba(0,0,0,0.7); 
-  backdrop-filter: blur(8px); 
-  z-index: 200; 
-  display: flex; 
-  justify-content: center; 
-  align-items: flex-start;
-  padding: 2rem 1rem; 
-  overflow-y: auto; 
+/* MODAL */
+.modal-overlay {
+position: fixed;
+inset: 0;
+background: rgba(0,0,0,0.7);
+backdrop-filter: blur(8px);
+z-index: 200;
+display: flex;
+justify-content: center;
+align-items: flex-start;
+padding: 2rem 1rem;
+overflow-y: auto;
 }
-
-.modal-content { 
-  background: var(--bg-dark); 
-  border: 1px solid var(--border); 
-  border-radius: 20px; 
-  width: 100%; 
-  max-width: 850px; 
-  display: flex; 
-  flex-direction: column; 
-  box-shadow: 0 25px 60px rgba(0,0,0,0.5); 
-  animation: slideUp 0.3s ease; 
-  margin: auto;
-  margin-bottom: 2rem;
+.modal-content {
+background: var(--bg-dark);
+border: 1px solid var(--border);
+border-radius: 20px;
+width: 100%;
+max-width: 850px;
+display: flex;
+flex-direction: column;
+box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+animation: slideUp 0.3s ease;
+margin: auto;
+margin-bottom: 2rem;
 }
-
-@keyframes slideUp { 
-  from { 
-    opacity: 0; 
-    transform: translateY(30px); 
-  } 
-  to { 
-    opacity: 1; 
-    transform: translateY(0); 
-  } 
+@keyframes slideUp {
+from {
+opacity: 0;
+transform: translateY(30px);
 }
-
-.modal-header { 
-  padding: 1.5rem 2.5rem; 
-  background: linear-gradient(135deg, var(--primary), var(--accent)); 
-  display: flex; 
-  justify-content: space-between; 
-  align-items: center; 
-  flex-shrink: 0;
+to {
+opacity: 1;
+transform: translateY(0);
 }
-
-.modal-header h2 { 
-  margin: 0; 
-  font-size: 1.4rem; 
-  color: white; 
-  font-weight: 700;
 }
-
-.btn-close { 
-  width: 36px; 
-  height: 36px; 
-  background: rgba(255,255,255,0.2); 
-  border: none; 
-  border-radius: 50%; 
-  color: white; 
-  font-size: 1.5rem;
-  line-height: 1;
-  cursor: pointer; 
-  display: flex; 
-  align-items: center; 
-  justify-content: center; 
-  transition: all 0.2s; 
+.modal-header {
+padding: 1.5rem 2.5rem;
+background: linear-gradient(135deg, var(--primary), var(--accent));
+display: flex;
+justify-content: space-between;
+align-items: center;
+flex-shrink: 0;
 }
-
-.btn-close:hover { 
-  background: rgba(255,255,255,0.3); 
-  transform: rotate(90deg);
+.modal-header h2 {
+margin: 0;
+font-size: 1.4rem;
+color: white;
+font-weight: 700;
 }
-
-.modal-body { 
-  padding: 2.5rem; 
-  overflow-y: visible;
-  flex: 1;
+.btn-close {
+width: 36px;
+height: 36px;
+background: rgba(255,255,255,0.2);
+border: none;
+border-radius: 50%;
+color: white;
+font-size: 1.5rem;
+line-height: 1;
+cursor: pointer;
+display: flex;
+align-items: center;
+justify-content: center;
+transition: all 0.2s;
 }
-
-/* Scrollbar personalizado para modal-overlay */
+.btn-close:hover {
+background: rgba(255,255,255,0.3);
+transform: rotate(90deg);
+}
+.modal-body {
+padding: 2.5rem;
+overflow-y: visible;
+flex: 1;
+}
 .modal-overlay::-webkit-scrollbar {
-  width: 14px;
+width: 14px;
 }
-
 .modal-overlay::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.8);
+background: rgba(15, 23, 42, 0.8);
 }
-
 .modal-overlay::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, var(--primary), var(--accent));
-  border-radius: 10px;
-  border: 3px solid rgba(15, 23, 42, 0.8);
+background: linear-gradient(135deg, var(--primary), var(--accent));
+border-radius: 10px;
+border: 3px solid rgba(15, 23, 42, 0.8);
 }
-
 .modal-overlay::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #7c3aed, #06b6d4);
-  border: 2px solid rgba(15, 23, 42, 0.8);
+background: linear-gradient(135deg, #7c3aed, #06b6d4);
+border: 2px solid rgba(15, 23, 42, 0.8);
 }
-
-.form-grid { 
-  display: grid; 
-  grid-template-columns: repeat(2, 1fr); 
-  gap: 1.75rem;
-  padding-bottom: 0.5rem;
+.form-grid {
+display: grid;
+grid-template-columns: repeat(2, 1fr);
+gap: 1.75rem;
+padding-bottom: 0.5rem;
 }
-
-.form-group { 
-  display: flex; 
-  flex-direction: column; 
-  gap: 0.5rem; 
+.form-group {
+display: flex;
+flex-direction: column;
+gap: 0.5rem;
 }
-
-.form-group.full-width { 
-  grid-column: 1 / -1; 
+.form-group.full-width {
+grid-column: 1 / -1;
 }
-
-.form-group label { 
-  font-size: 0.85rem; 
-  font-weight: 600; 
-  color: var(--text); 
-  text-transform: uppercase; 
-  letter-spacing: 0.5px; 
+.form-group label {
+font-size: 0.85rem;
+font-weight: 600;
+color: var(--text);
+text-transform: uppercase;
+letter-spacing: 0.5px;
 }
-
-.form-group input { 
-  padding: 0.85rem 1.1rem; 
-  background: rgba(15, 23, 42, 0.6); 
-  border: 1px solid var(--border); 
-  border-radius: 10px; 
-  color: var(--text); 
-  font-size: 0.95rem; 
-  transition: all 0.3s; 
-  width: 100%;
-  box-sizing: border-box;
+.form-group input {
+padding: 0.85rem 1.1rem;
+background: rgba(15, 23, 42, 0.6);
+border: 1px solid var(--border);
+border-radius: 10px;
+color: var(--text);
+font-size: 0.95rem;
+transition: all 0.3s;
+width: 100%;
+box-sizing: border-box;
 }
-
-.form-group input::placeholder { 
-  color: rgba(148, 163, 184, 0.5); 
+.form-group input::placeholder {
+color: rgba(148, 163, 184, 0.5);
 }
-
-.form-group input:focus { 
-  outline: none; 
-  border-color: var(--primary); 
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15); 
-  background: rgba(15, 23, 42, 0.8);
+.form-group input:focus {
+outline: none;
+border-color: var(--primary);
+box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+background: rgba(15, 23, 42, 0.8);
 }
-
 .error-msg {
-  color: var(--danger);
-  font-size: 0.8rem;
-  margin-top: 0.25rem;
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
+color: var(--danger);
+font-size: 0.8rem;
+margin-top: 0.25rem;
+display: flex;
+align-items: center;
+gap: 0.3rem;
 }
-
-.file-upload { 
-  position: relative; 
-  width: 100%;
+.file-upload {
+position: relative;
+width: 100%;
 }
-
-.file-upload input[type="file"] { 
-  position: absolute; 
-  opacity: 0; 
-  width: 0; 
-  height: 0; 
+.file-upload input[type="file"] {
+position: absolute;
+opacity: 0;
+width: 0;
+height: 0;
 }
-
-.file-label { 
-  display: flex; 
-  align-items: center; 
-  justify-content: center;
-  gap: 0.6rem; 
-  padding: 0.85rem 1.1rem; 
-  background: rgba(15, 23, 42, 0.6); 
-  border: 1px dashed var(--border); 
-  border-radius: 10px; 
-  color: var(--text-muted); 
-  font-size: 0.9rem; 
-  cursor: pointer; 
-  transition: all 0.3s; 
-  width: 100%; 
-  box-sizing: border-box;
-  text-align: center;
+.file-label {
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 0.6rem;
+padding: 0.85rem 1.1rem;
+background: rgba(15, 23, 42, 0.6);
+border: 1px dashed var(--border);
+border-radius: 10px;
+color: var(--text-muted);
+font-size: 0.9rem;
+cursor: pointer;
+transition: all 0.3s;
+width: 100%;
+box-sizing: border-box;
+text-align: center;
 }
-
-.file-label:hover { 
-  border-color: var(--primary); 
-  background: rgba(15, 23, 42, 0.8);
-  color: var(--primary); 
+.file-label:hover {
+border-color: var(--primary);
+background: rgba(15, 23, 42, 0.8);
+color: var(--primary);
 }
-
 .file-label::before {
-  content: "📁";
-  font-size: 1.2rem;
+content: "📁";
+font-size: 1.2rem;
 }
-
-.modal-footer { 
-  padding: 1.5rem 2.5rem; 
-  border-top: 1px solid var(--border); 
-  display: flex; 
-  justify-content: flex-end; 
-  gap: 1rem; 
-  flex-shrink: 0;
-  background: rgba(15, 23, 42, 0.5);
+.foto-preview {
+display: flex;
+justify-content: center;
+align-items: center;
+margin-top: 1.5rem;
+padding: 1rem;
+background: rgba(15, 23, 42, 0.4);
+border-radius: 12px;
+border: 1px dashed var(--border);
 }
-
+.usuario-avatar-preview {
+width: 120px;
+height: 120px;
+object-fit: cover;
+border-radius: 50%;
+border: 3px solid var(--primary);
+box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3), 0 4px 12px rgba(0,0,0,0.35);
+transition: all 0.3s ease;
+}
+.usuario-avatar-preview:hover {
+transform: scale(1.05);
+box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4), 0 6px 15px rgba(0,0,0,0.4);
+}
+.section-divider {
+display: flex;
+align-items: center;
+gap: 1rem;
+margin: 1.5rem 0 1rem;
+}
+.divider-line {
+flex: 1;
+height: 1px;
+background: var(--border);
+}
+.divider-text {
+font-size: 0.9rem;
+font-weight: 600;
+color: var(--text-muted);
+white-space: nowrap;
+}
+.modal-footer {
+padding: 1.5rem 2.5rem;
+border-top: 1px solid var(--border);
+display: flex;
+justify-content: flex-end;
+gap: 1rem;
+flex-shrink: 0;
+background: rgba(15, 23, 42, 0.5);
+}
 /* Particles */
-.particles-bg { 
-  position: fixed; 
-  inset: 0; 
-  pointer-events: none; 
-  z-index: 0; 
-  overflow: hidden; 
+.particles-bg {
+position: fixed;
+inset: 0;
+pointer-events: none;
+z-index: 0;
+overflow: hidden;
 }
-
-.particle { 
-  position: absolute; 
-  width: 3px; 
-  height: 3px; 
-  background: rgba(99, 102, 241, 0.4); 
-  border-radius: 50%; 
-  animation: rise 20s infinite ease-in-out; 
+.particle {
+position: absolute;
+width: 3px;
+height: 3px;
+background: rgba(99, 102, 241, 0.4);
+border-radius: 50%;
+animation: rise 20s infinite ease-in-out;
 }
-
-@keyframes rise { 
-  0%, 100% { 
-    transform: translateY(100vh) scale(0); 
-    opacity: 0; 
-  } 
-  10% { 
-    opacity: 1; 
-  } 
-  90% { 
-    opacity: 1; 
-  } 
-  100% { 
-    transform: translateY(-10vh) scale(1); 
-    opacity: 0; 
-  } 
+@keyframes rise {
+0%, 100% {
+transform: translateY(100vh) scale(0);
+opacity: 0;
 }
-
+10% {
+opacity: 1;
+}
+90% {
+opacity: 1;
+}
+100% {
+transform: translateY(-10vh) scale(1);
+opacity: 0;
+}
+}
 /* Responsive */
 @media (max-width: 768px) {
-  .navbar { 
-    padding: 0.75rem 1rem; 
-  }
-  
-  .app-subtitle { 
-    display: none; 
-  }
-  
-  .main-content { 
-    padding: 1rem; 
-  }
-  
-  .page-header { 
-    flex-direction: column; 
-    align-items: flex-start; 
-  }
-  
-  .btn-primary { 
-    width: 100%; 
-    justify-content: center; 
-  }
-  
-  .stats-grid { 
-    grid-template-columns: 1fr 1fr; 
-  }
-  
-  .usuarios-grid { 
-    grid-template-columns: 1fr; 
-  }
-  
-  .modal-content {
-    max-width: 100%;
-    margin: 0.5rem;
-    max-height: 95vh;
-  }
-  
-  .modal-header {
-    padding: 1.25rem 1.5rem;
-  }
-  
-  .modal-header h2 {
-    font-size: 1.2rem;
-  }
-  
-  .modal-body {
-    padding: 1.5rem;
-  }
-  
-  .form-grid { 
-    grid-template-columns: 1fr; 
-    gap: 1rem;
-  }
-  
-  .modal-footer { 
-    padding: 1rem 1.5rem;
-    flex-direction: column-reverse; 
-  }
-  
-  .modal-footer button { 
-    width: 100%; 
-    justify-content: center; 
-  }
+.navbar { padding: 0.75rem 1rem; }
+.app-subtitle { display: none; }
+.main-content { padding: 1rem; }
+.page-header { flex-direction: column; align-items: flex-start; }
+.btn-primary { width: 100%; justify-content: center; }
+.stats-grid { grid-template-columns: 1fr 1fr; }
+.usuarios-grid { grid-template-columns: 1fr; }
+.modal-content { max-width: 100%; margin: 0.5rem; max-height: 95vh; }
+.modal-header { padding: 1.25rem 1.5rem; }
+.modal-header h2 { font-size: 1.2rem; }
+.modal-body { padding: 1.5rem; }
+.form-grid { grid-template-columns: 1fr; gap: 1rem; }
+.modal-footer { padding: 1rem 1.5rem; flex-direction: column-reverse; }
+.modal-footer button { width: 100%; justify-content: center; }
 }
-  `]
+`]
 })
 export class GestionUsuariosComponent implements OnInit {
   usuarios: User[] = [];
   usuarioSeleccionado: User | null = null;
   selectedFile: File | null = null;
+  previewUrl: string | null = null;
   searchTerm: string = '';
   usuariosFiltrados: User[] = [];
   mostrarErrores = false;
@@ -1273,21 +1190,20 @@ export class GestionUsuariosComponent implements OnInit {
   ngOnInit(): void {
     this.cargarUsuarios();
   }
-
+  
   cargarUsuarios() {
     this.userService.getAll().subscribe({
-      next: (data: User[]) => {
-        console.log('Usuarios desde API:', data);
-        this.usuarios = data;
-        this.usuariosFiltrados = [...this.usuarios];
-      },
-      error: (err: any) => console.error('Error cargando usuarios', err)
+    next: (data: User[]) => {
+    this.usuarios = data;
+    this.usuariosFiltrados = [...this.usuarios];
+  },
+    error: (err: any) => console.error('Error cargando usuarios', err)
     });
   }
-
+  
   aplicarFiltros() {
-    const termino = this.searchTerm.trim().toLowerCase();
-    this.usuariosFiltrados = this.usuarios.filter(u =>
+      const termino = this.searchTerm.trim().toLowerCase();
+      this.usuariosFiltrados = this.usuarios.filter(u =>
       u.nombre.toLowerCase().includes(termino) ||
       u.apellidos.toLowerCase().includes(termino) ||
       u.correo.toLowerCase().includes(termino)
@@ -1304,98 +1220,88 @@ export class GestionUsuariosComponent implements OnInit {
     this.aplicarFiltros();
   }
 
-  nuevoUsuario(form?: NgForm) {
-    if (form) form.resetForm();
+  nuevoUsuario() {
     this.usuarioSeleccionado = {
-      id: 0,
-      nombre: '',
-      apellidos: '',
-      correo: '',
-      password: '',
-      telefono: '',
-      ciudad: '',
-      foto: '',
-      created: new Date().toISOString(),
-      updated: new Date().toISOString(),
-      deleted: false,
-      rol: '',
-
-      dni: '',
-      fotoDni: '',
-      direccionEnvio: '',
-      numeroSeguridadSocial: ''
-    };
-
+    id: 0,
+    nombre: '',
+    apellidos: '',
+    correo: '',
+    password: '',
+    telefono: '',
+    ciudad: '',
+    foto: '',
+    created: new Date().toISOString(),
+    updated: new Date().toISOString(),
+    deleted: false,
+    rol: '',
+    dni: '',
+    fotoDni: '',
+    direccionEnvio: '',
+    numeroSeguridadSocial: ''
+  };
     this.selectedFile = null;
+    this.previewUrl = null;
     this.mostrarErrores = false;
   }
-
-
   editarUsuario(u: User) {
-    console.log('🔍 Usuario ORIGINAL del backend:', u);
-    console.log('🔍 Campos DNI:', u.dni);
-    console.log('🔍 Campos DIRECCION:', u.direccionEnvio);
-    console.log('🔍 Campos SS:', u.numeroSeguridadSocial);
-    
-    const usuarioCompleto: User = {
-      ...u,
-      dni: u.dni || '',
-      direccionEnvio: u.direccionEnvio || '',
-      numeroSeguridadSocial: u.numeroSeguridadSocial || '',
-      fotoDni: u.fotoDni || ''
-    };
-    
-    console.log('🔍 Usuario COMPLETO para editar:', usuarioCompleto);
-    this.usuarioSeleccionado = usuarioCompleto;
+    this.usuarioSeleccionado = {
+    ...u,
+    dni: u.dni || '',
+    direccionEnvio: u.direccionEnvio || '',
+    numeroSeguridadSocial: u.numeroSeguridadSocial || '',
+    fotoDni: u.fotoDni || ''
+  };
     this.selectedFile = null;
+    this.previewUrl = null;
   }
 
   cancelarEdicion() {
     this.usuarioSeleccionado = null;
     this.selectedFile = null;
+    this.previewUrl = null;
   }
 
   onFileSelected(event: any) {
     const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) this.selectedFile = input.files[0];
+    if (input.files && input.files.length > 0) {
+    this.selectedFile = input.files[0];
+    const reader = new FileReader();
+    reader.onload = () => this.previewUrl = reader.result as string;
+    reader.readAsDataURL(this.selectedFile);
+    }
   }
 
   guardarUsuario(form: NgForm) {
-  if (!this.usuarioSeleccionado) return;
+    if (!this.usuarioSeleccionado) return;
+    this.mostrarErrores = true;
+    Object.values(form.controls).forEach(control => control?.markAsTouched());
 
-  this.mostrarErrores = true;
-  Object.values(form.controls).forEach(control => control?.markAsTouched());
+    if (!form.valid) return;
 
-  if (!form.valid) return;
+    const userToSend: any = { 
+      ...this.usuarioSeleccionado,
+      roles: this.usuarioSeleccionado.rol ? [this.usuarioSeleccionado.rol] : [],
+      dni: this.usuarioSeleccionado.rol === 'CLIENTE' ? (this.usuarioSeleccionado.dni || '') : '',
+      direccionEnvio: this.usuarioSeleccionado.rol === 'CLIENTE' ? (this.usuarioSeleccionado.direccionEnvio || '') : '',
+      numeroSeguridadSocial: this.usuarioSeleccionado.rol === 'TRABAJADOR' ? (this.usuarioSeleccionado.numeroSeguridadSocial || '') : '',
+      fotoDni: this.usuarioSeleccionado.fotoDni || ''
+    };
 
-  const userToSend: any = { 
-  ...this.usuarioSeleccionado,
-  roles: this.usuarioSeleccionado.rol ? [this.usuarioSeleccionado.rol] : [],
-  
-  dni: this.usuarioSeleccionado.rol === 'CLIENTE' ? (this.usuarioSeleccionado.dni || '') : '',
-  direccionEnvio: this.usuarioSeleccionado.rol === 'CLIENTE' ? (this.usuarioSeleccionado.direccionEnvio || '') : '',
-  numeroSeguridadSocial: this.usuarioSeleccionado.rol === 'TRABAJADOR' ? (this.usuarioSeleccionado.numeroSeguridadSocial || '') : '',
-  fotoDni: this.usuarioSeleccionado.fotoDni || ''
-};
+    if (userToSend.id === 0) delete userToSend.id;
 
+    Object.keys(userToSend).forEach((key: string) => {
+      if (userToSend[key] === undefined || userToSend[key] === null || userToSend[key] === '') {
+        delete userToSend[key];
+      }
+    });
 
-  if (userToSend.id === 0) delete userToSend.id;
+    const formData = new FormData();
+    formData.append('user', JSON.stringify(userToSend));
+    if (this.selectedFile) formData.append('foto', this.selectedFile);
 
-  Object.keys(userToSend).forEach((key: string) => {
-    if (userToSend[key] === undefined || userToSend[key] === null || userToSend[key] === '') {
-      delete userToSend[key];
-    }
-  });
-
-  console.log('🔍 Datos completos a enviar:', userToSend);
-
-  const formData = new FormData();
-  formData.append('user', JSON.stringify(userToSend));
-  if (this.selectedFile) formData.append('foto', this.selectedFile);
-
-  const req = this.usuarioSeleccionado!.id
-    ? this.userService.updateWithFile(this.usuarioSeleccionado.id, formData)
-    : this.userService.createWithFile(formData);
+    const req = this.usuarioSeleccionado!.id
+      ? this.userService.updateWithFile(this.usuarioSeleccionado.id, formData)
+      : this.userService.createWithFile(formData);
 
   req.subscribe({
     next: () => {
@@ -1407,41 +1313,46 @@ export class GestionUsuariosComponent implements OnInit {
       this.cargarUsuarios();
       this.cancelarEdicion();
     },
-    error: (err) => {
-      console.error('Error en guardarUsuario:', err);
-      this.snackBar.open('❌ Error al guardar', 'Cerrar', { duration: 3000 });
-    }
-  });
-}
-
+      error: (err) => {
+        console.error('Error en guardarUsuario:', err);
+        this.snackBar.open('❌ Error al guardar', 'Cerrar', { duration: 3000 });
+      }
+    });
+  }
 
   eliminarUsuario(id: number) {
-    if (!confirm('¿Eliminar este usuario?')) return;
+  if (!confirm('¿Eliminar este usuario?')) return;
     this.userService.delete(id).subscribe({
-      next: () => {
-        this.snackBar.open('✅ Usuario eliminado', 'Cerrar', { duration: 3000 });
-        this.cargarUsuarios();
-      },
-      error: () => this.snackBar.open('❌ Error al eliminar', 'Cerrar', { duration: 3000 })
+    next: () => {
+      this.snackBar.open('✅ Usuario eliminado', 'Cerrar', { duration: 3000 });
+      this.cargarUsuarios();
+    },
+    error: () => this.snackBar.open('❌ Error al eliminar', 'Cerrar', { duration: 3000 })
     });
   }
 
   seleccionarTipo(tipo: string) {
-      if (this.usuarioSeleccionado) {
-      this.usuarioSeleccionado.rol = tipo;
-        if (tipo === 'CLIENTE') {
-          this.usuarioSeleccionado.numeroSeguridadSocial = '';
-        } else if (tipo === 'TRABAJADOR') {
-          this.usuarioSeleccionado.dni = '';
-          this.usuarioSeleccionado.direccionEnvio = '';
-        }
-      }
+  if (this.usuarioSeleccionado) {
+    this.usuarioSeleccionado.rol = tipo;
+
+    if (tipo === 'CLIENTE') {
+      this.usuarioSeleccionado.numeroSeguridadSocial = '';
+    } else if (tipo === 'TRABAJADOR') {
+      this.usuarioSeleccionado.dni = '';
+      this.usuarioSeleccionado.direccionEnvio = '';
+    } else if (tipo === 'ADMIN') {
+      this.usuarioSeleccionado.dni = '';
+      this.usuarioSeleccionado.direccionEnvio = '';
+      this.usuarioSeleccionado.numeroSeguridadSocial = '';
     }
-
-    
-
-  volverAlDashboard() {
-    this.router.navigate(['/dashboard']);
   }
 }
 
+  
+  onImageError(event: any) {
+    event.target.src = 'assets/img/default.jpg';
+  }
+  volverAlDashboard() {
+    this.router.navigate(['/dashboard']);
+  }
+  }

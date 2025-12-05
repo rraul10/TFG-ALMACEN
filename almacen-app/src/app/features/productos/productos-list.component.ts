@@ -3,6 +3,10 @@ import { CommonModule, CurrencyPipe } from '@angular/common';
 import { HttpClient, } from '@angular/common/http';
 import { AuthService } from '@core/services/auth.service';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
+import { ProductoViewModalComponent } from './producto-view-modal.component'; 
+import { Producto } from '@core/services/producto.service'; 
+
 
 @Component({
   selector: 'app-productos-list',
@@ -21,9 +25,9 @@ import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
       <div class="productos-grid">
         <div *ngFor="let producto of productosPaginados" class="producto-card">
           <div class="card-img-wrapper">
-            <img [src]="'assets/img/productos/' + producto.imagen" 
-                 [alt]="producto.nombre"
-                 (error)="onImageError($event)">
+            <img [src]="producto.imagen || 'assets/img/default.jpg'" 
+              [alt]="producto.nombre"
+              (error)="onImageError($event)">
             <div class="card-overlay">
               <button *ngIf="!isAdmin && producto.stock > 0" 
                       (click)="agregarAlCarrito(producto)" 
@@ -154,18 +158,29 @@ export class ProductosListComponent implements OnInit, OnChanges {
   isCliente = false;
   isTrabajador = false;
 
-  productos: any[] = [];
-  productosFiltrados: any[] = [];
+  productos: Producto[] = [];
+  productosFiltrados: Producto[] = [];
+  productosPaginados: Producto[] = [];
   currentPage: number = 1;
   pageSize: number = 15;
-  productosPaginados: any[] = [];
 
-  constructor(private http: HttpClient, private authService: AuthService, private snackBar: MatSnackBar) {
-    this.isAdmin = this.authService.isAdmin();
-    // si tienes métodos para cliente/trabajador, normalízalo aquí:
-    this.isCliente = (this.authService.isCliente && this.authService.isCliente()) || false;
-    this.isTrabajador = (this.authService.isTrabajador && this.authService.isTrabajador()) || false;
-  }
+  constructor(
+  private http: HttpClient, 
+  private authService: AuthService, 
+  private snackBar: MatSnackBar,
+  private dialog: MatDialog   
+) {
+  this.isAdmin = this.authService.isAdmin();
+  this.isCliente = (this.authService.isCliente && this.authService.isCliente()) || false;
+  this.isTrabajador = (this.authService.isTrabajador && this.authService.isTrabajador()) || false;
+}
+
+verProducto(producto: Producto) {
+  this.dialog.open(ProductoViewModalComponent, {
+    width: '400px',
+    data: producto
+  });
+}
 
   ngOnInit() { this.loadProductos(); }
 
@@ -181,6 +196,8 @@ export class ProductosListComponent implements OnInit, OnChanges {
       error: () => this.showNotification('❌ Error al cargar los productos')
     });
   }
+
+  
 
   filtrarProductos() {
     let filtrados = [...this.productos];
@@ -289,10 +306,9 @@ agregarAlCarrito(producto: any) {
   window.dispatchEvent(new CustomEvent('carritoActualizado', { detail: { carrito } }));
 }
 
-
-
-
-  onImageError(e: any) { e.target.src = 'https://via.placeholder.com/300x200/1e293b/6366f1?text=Sin+Imagen'; }
+onImageError(event: any) {
+  event.target.src = 'assets/img/default.jpg';
+}
 
   showNotification(msg: string) {
     this.snackBar.open(msg, 'Cerrar', { duration: 3000, horizontalPosition: 'right', verticalPosition: 'top' });

@@ -16,10 +16,10 @@ export interface User {
   deleted: boolean;
   rol: string;
 
-      dni?: string | null;
-    fotoDni?: string | null;
-    direccionEnvio?: string | null;
-    numeroSeguridadSocial?: string | null;
+  dni?: string | null;
+  fotoDni?: string | null;
+  direccionEnvio?: string | null;
+  numeroSeguridadSocial?: string | null;
 }
 
 

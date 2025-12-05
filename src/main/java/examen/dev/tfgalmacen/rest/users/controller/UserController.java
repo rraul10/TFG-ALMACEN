@@ -2,6 +2,7 @@ package examen.dev.tfgalmacen.rest.users.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import examen.dev.tfgalmacen.cloudinary.service.CloudinaryService;
 import examen.dev.tfgalmacen.rest.users.dto.UserRequest;
 import examen.dev.tfgalmacen.rest.users.dto.UserResponse;
 import examen.dev.tfgalmacen.rest.users.service.UserService;
@@ -21,11 +22,13 @@ public class UserController {
 
     private final UserService userService;
     private final StorageService storageService;
+    private final CloudinaryService cloudinaryService;
 
     @Autowired
-    public UserController(UserService userService, StorageService storageService) {
+    public UserController(UserService userService, StorageService storageService, CloudinaryService cloudinaryService) {
         this.userService = userService;
         this.storageService = storageService;
+        this.cloudinaryService = cloudinaryService;
     }
 
     @GetMapping
@@ -41,31 +44,28 @@ public class UserController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> createUser(
             @RequestPart("user") String userJson,
-            @RequestPart(value = "foto", required = false) MultipartFile foto
-    ) throws JsonProcessingException {
+            @RequestPart(value = "foto", required = false) MultipartFile foto) {
 
         try {
             ObjectMapper mapper = new ObjectMapper();
-            UserRequest userRequest = mapper.readValue(userJson, UserRequest.class);
+            UserRequest request = mapper.readValue(userJson, UserRequest.class);
 
             if (foto != null && !foto.isEmpty()) {
-                String nombreFoto = storageService.store(foto);
-                userRequest.setFoto(nombreFoto);
+                String urlFoto = cloudinaryService.uploadFile(foto);
+                request.setFoto(urlFoto);
             } else {
-                userRequest.setFoto("default.jpg");
+                request.setFoto("default.jpg");
             }
 
-            UserResponse userResponse = userService.createUser(userRequest);
-            return ResponseEntity.status(HttpStatus.CREATED).body(userResponse);
+            UserResponse response = userService.createUser(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
 
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body("Usuario creado, pero hubo un aviso: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al crear el usuario: " + e.getMessage());
         }
     }
-
-
 
     @PutMapping("/{id}")
     public ResponseEntity<UserResponse> updateUser(
