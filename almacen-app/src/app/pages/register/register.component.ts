@@ -967,7 +967,7 @@ export class RegisterComponent {
   message = '';
   dni: string = "";
   direccionEnvio: string = "";
-  fotoDni: File | null = null;
+  fotoDni: File | null = null;  
 
 
   // Partículas animadas
