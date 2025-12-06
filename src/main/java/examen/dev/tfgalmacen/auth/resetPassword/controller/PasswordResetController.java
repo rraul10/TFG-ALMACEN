@@ -1,5 +1,6 @@
 package examen.dev.tfgalmacen.auth.resetPassword.controller;
 
+import examen.dev.tfgalmacen.auth.resetPassword.models.PasswordResetToken;
 import examen.dev.tfgalmacen.auth.resetPassword.services.PasswordResetService;
 import examen.dev.tfgalmacen.rest.clientes.service.ClienteService;
 import examen.dev.tfgalmacen.websockets.notifications.EmailService;
@@ -20,23 +21,16 @@ public class PasswordResetController {
     private final EmailService emailService;
 
     @PostMapping("/forgot-password")
-    public ResponseEntity<String> forgotPassword(@RequestBody Map<String, String> request) {
+    public ResponseEntity<Map<String, String>> forgotPassword(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
         try {
-            String email = request.get("email");
-
             Cliente cliente = clienteService.getClienteByEmail(email);
-            if (cliente == null) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email no encontrado");
-            }
-
-            var token = passwordResetService.createToken(cliente);
+            PasswordResetToken token = passwordResetService.createToken(cliente);
             emailService.enviarEmailResetPassword(email, token.getToken());
-
-            return ResponseEntity.ok("Correo enviado si el email existe.");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al enviar correo: " + e.getMessage());
+            System.err.println("Error al procesar forgot password para " + email + ": " + e.getMessage());
         }
+        return ResponseEntity.ok(Map.of("message", "Correo enviado, si existe la cuenta"));
     }
 
     @PostMapping("/reset-password")
@@ -56,8 +50,6 @@ public class PasswordResetController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno del servidor: " + e.getMessage());
         }
     }
-
-
 }
 
 

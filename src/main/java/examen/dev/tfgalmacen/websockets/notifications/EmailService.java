@@ -79,10 +79,16 @@ public class EmailService {
 
     public void enviarEmailResetPassword(String destinatario, String token) {
         String url = "http://localhost:4200/reset-password?token=" + token;
-        SimpleMailMessage mensaje = new SimpleMailMessage();
-        mensaje.setTo(destinatario);
-        mensaje.setSubject("Restablecer contraseña");
-        mensaje.setText("Haz clic aquí para restablecer tu contraseña: " + url);
-        mailSender.send(mensaje);
+        try {
+            SimpleMailMessage mensaje = new SimpleMailMessage();
+            mensaje.setTo(destinatario);
+            mensaje.setSubject("Restablecer contraseña");
+            mensaje.setText("Haz clic aquí para restablecer tu contraseña: " + url);
+            mailSender.send(mensaje);
+            System.out.println("Correo enviado a " + destinatario);
+        } catch (Exception e) {
+            System.err.println("No se pudo enviar correo a " + destinatario + ": " + e.getMessage());
+        }
     }
+
 }

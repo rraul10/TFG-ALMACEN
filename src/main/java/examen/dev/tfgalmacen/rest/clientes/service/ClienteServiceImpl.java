@@ -98,7 +98,7 @@ public class ClienteServiceImpl implements ClienteService {
 
 
     public Cliente getClienteByEmail(String email) {
-        return clienteRepository.findByUserCorreo(email)
+        return clienteRepository.findByUser_Correo(email)
                 .orElseThrow(() -> new ClienteNotFound("Cliente no encontrado"));
     }
 

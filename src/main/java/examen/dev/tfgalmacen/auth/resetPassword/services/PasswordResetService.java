@@ -1,5 +1,7 @@
 package examen.dev.tfgalmacen.auth.resetPassword.services;
 
+import examen.dev.tfgalmacen.rest.users.models.User;
+import examen.dev.tfgalmacen.rest.users.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,7 @@ public class PasswordResetService {
     private final PasswordResetTokenRepository tokenRepository;
     private final ClienteService clienteService;
     private final PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
 
     public PasswordResetToken createToken(Cliente cliente) {
         String token = UUID.randomUUID().toString();
@@ -44,7 +47,13 @@ public class PasswordResetService {
     }
 
     public void updatePassword(Cliente cliente, String nuevaPass) {
-        cliente.getUser().setPassword(passwordEncoder.encode(nuevaPass));
+        User user = cliente.getUser();
+
+        user.setPassword(passwordEncoder.encode(nuevaPass));
+
+        userRepository.save(user);
+
+        cliente.setUpdated(LocalDateTime.now());
         clienteService.updateClienteEntity(cliente);
     }
 }

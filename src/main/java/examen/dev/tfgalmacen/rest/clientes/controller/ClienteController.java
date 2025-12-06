@@ -154,7 +154,7 @@ public class ClienteController {
 
 
     @GetMapping("/user/{userId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'TRABAJADOR') or #userId == principal.id")
+    @PreAuthorize("hasAnyRole('ADMIN','TRABAJADOR') or @clienteService.getClienteEntityByUserId(#userId).user.correo == principal.username")
     public ResponseEntity<ClienteResponse> getClienteByUserId(@PathVariable Long userId) {
         ClienteResponse cliente = clienteService.getByUserId(userId);
         return ResponseEntity.ok(cliente);

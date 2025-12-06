@@ -67,33 +67,30 @@ public class UserController {
         }
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<UserResponse> updateUser(
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> updateUser(
             @PathVariable Long id,
-            @RequestHeader("Content-Type") String contentType,
-            @RequestBody(required = false) String jsonBody,
-            @RequestPart(value = "user", required = false) String userJson,
+            @RequestPart("user") String userJson,
             @RequestPart(value = "foto", required = false) MultipartFile foto
-    ) throws JsonProcessingException {
-
-        UserRequest userRequest;
-
-        if (contentType.contains("application/json")) {
+    ) {
+        try {
             ObjectMapper mapper = new ObjectMapper();
-            userRequest = mapper.readValue(jsonBody, UserRequest.class);
-        } else {
-            ObjectMapper mapper = new ObjectMapper();
-            userRequest = mapper.readValue(userJson, UserRequest.class);
+            UserRequest request = mapper.readValue(userJson, UserRequest.class);
+
             if (foto != null && !foto.isEmpty()) {
-                String nombreFoto = storageService.store(foto);
-                userRequest.setFoto(nombreFoto);
+                String urlFoto = cloudinaryService.uploadFile(foto);
+                request.setFoto(urlFoto);
             }
+
+            UserResponse response = userService.updateUser(id, request);
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Error al actualizar usuario: " + e.getMessage());
         }
-
-        return ResponseEntity.ok(userService.updateUser(id, userRequest));
     }
-
-
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {

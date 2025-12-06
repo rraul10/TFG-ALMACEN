@@ -188,16 +188,17 @@ export class ForgotPasswordComponent {
     this.error = '';
 
     const email = this.forgotForm.value.email;
-    this.http.post<any>('http://localhost:8080/auth/forgot-password', { email }).subscribe({
-      next: () => {
+    this.http.post<{ message: string }>('http://localhost:8080/auth/forgot-password', { email }).subscribe({
+      next: (res) => {
         this.loading = false;
-        this.message = '✉️ Correo enviado. Revisa tu bandeja de entrada.';
+        this.message = res.message;
         this.error = '';
       },
-      error: () => {
-        this.loading = true;
+      error: (err) => {
+        this.loading = false;
         this.error = 'Error al enviar correo. Intenta de nuevo.';
         this.message = '';
+        console.error(err);
       }
     });
   }

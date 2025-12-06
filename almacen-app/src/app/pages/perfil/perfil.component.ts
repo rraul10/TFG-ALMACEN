@@ -152,7 +152,7 @@ import { AuthService } from '@core/services/auth.service';
                   </div>
                   <div class="form-group full-width">
                     <label for="ciudad">Ciudad</label>
-                    <input id="ciudad" type="text" [(ngModel)]="user.ciudad" name="ciudad" placeholder="Tu ciudad" [class.error-input]="errores.ciudad"/>
+                    <input id="ciudad" tyactualizarUsuariope="text" [(ngModel)]="user.ciudad" name="ciudad" placeholder="Tu ciudad" [class.error-input]="errores.ciudad"/>
                     <span class="error-message" *ngIf="errores.ciudad">{{ errores.ciudad }}</span>
                   </div>
                 </div>
@@ -204,15 +204,6 @@ import { AuthService } from '@core/services/auth.service';
               <div *ngIf="message" [class]="message.includes('✅') ? 'alert success' : 'alert error'">{{ message }}</div>
             </form>
 
-            <!-- Zona de Peligro Compacta -->
-            <div class="danger-zone">
-              <div class="danger-content">
-                <button type="button" class="btn-danger-sm" (click)="logout()">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                  Salir
-                </button>
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -394,35 +385,35 @@ export class PerfilComponent implements OnInit {
   }));
 
   constructor(private authService: AuthService, private router: Router) {}
-ngOnInit() {
-  const userData = localStorage.getItem('user');
-  const token = localStorage.getItem('token');
-  this.isLoggedIn = !!token;
+    
+  ngOnInit() {
+    const userData = localStorage.getItem('user');
+    const token = localStorage.getItem('token');
+    this.isLoggedIn = !!token;
 
-  if (userData && token) {
-    this.user = JSON.parse(userData);
-    let roles: string[] = this.user.roles?.map((r: string) => r.toLowerCase()) || [];
+    if (userData && token) {
+      this.user = JSON.parse(userData);
+      let roles: string[] = this.user.roles?.map((r: string) => r.toLowerCase()) || [];
 
-    this.isAdmin = roles.includes('admin');
-    this.isTrabajador = roles.includes('trabajador') && !this.isAdmin; 
-    this.isCliente = roles.includes('cliente') && !this.isAdmin;     
+      this.isAdmin = roles.includes('admin');
+      this.isTrabajador = roles.includes('trabajador') && !this.isAdmin; 
+      this.isCliente = roles.includes('cliente') && !this.isAdmin;     
 
-    this.esTrabajador = this.isTrabajador;
-    this.esAdmin = this.isAdmin;
+      this.esTrabajador = this.isTrabajador;
+      this.esAdmin = this.isAdmin;
 
-    if (this.isTrabajador) {
-      this.trabajadorData.numero_seguridad_social = this.user.numero_seguridad_social || '';
-      this.cargarDatosTrabajador();
-    } 
-    if (this.isCliente) {
-      this.clienteData.dni = this.user.dni || '';
-      this.clienteData.direccion_envio = this.user.direccionEnvio || '';
-      this.clienteData.foto_dni = this.user.fotoDni || 'default.jpg';
-      this.cargarDatosCliente();
+      if (this.isTrabajador) {
+        this.trabajadorData.numero_seguridad_social = this.user.numero_seguridad_social || '';
+        this.cargarDatosTrabajador();
+      } 
+      if (this.isCliente) {
+        this.clienteData.dni = this.user.dni || '';
+        this.clienteData.direccion_envio = this.user.direccionEnvio || '';
+        this.clienteData.foto_dni = this.user.fotoDni || 'default.jpg';
+        this.cargarDatosCliente();
+      }
     }
   }
-}
-
 
   cargarDatosCliente() {
     this.authService.getClienteData(this.user.id).subscribe({
@@ -450,6 +441,8 @@ ngOnInit() {
     });
   }
 
+ fotoFile: File | null = null; // declara esto en la clase
+
   guardarCambios() {
     this.errores = {};
     this.message = '';
@@ -466,7 +459,7 @@ ngOnInit() {
       if (!this.trabajadorData.numero_seguridad_social.trim()) {
         this.errores.nss = '❌ El número de seguridad social es obligatorio';
       }
-    } 
+    }
     if (this.isCliente) {
       if (!this.clienteData.dni.trim()) this.errores.dni = '❌ El DNI es obligatorio';
       else if (!this.validarDNI(this.clienteData.dni)) this.errores.dni = '❌ DNI inválido (8 números + letra)';
@@ -478,7 +471,7 @@ ngOnInit() {
       return;
     }
 
-    const updatePayload = {
+    const userPayload = {
       nombre: this.user.nombre,
       apellidos: this.user.apellidos,
       correo: this.user.correo,
@@ -486,7 +479,7 @@ ngOnInit() {
       ciudad: this.user.ciudad,
       foto: this.user.foto,
       roles: this.user.roles,
-      
+
       dni: this.clienteData.dni,
       direccionEnvio: this.clienteData.direccion_envio,
       fotoDni: this.clienteData.foto_dni,
@@ -494,20 +487,30 @@ ngOnInit() {
       numeroSeguridadSocial: this.trabajadorData.numero_seguridad_social
     };
 
-    this.authService.updateUserData(this.user.id, updatePayload).subscribe({
+    const formData = new FormData();
+    formData.append(
+      'user',
+      new Blob([JSON.stringify(userPayload)], { type: 'application/json' })
+    );
+
+    if (this.fotoFile) {
+      formData.append('foto', this.fotoFile);
+    }
+
+    this.authService.updateUserData(this.user.id, formData).subscribe({
       next: (res: any) => {
         localStorage.setItem('user', JSON.stringify(res));
         this.user = res;
         this.message = '✅ Cambios guardados correctamente';
-        setTimeout(() => this.message = '', 3000);
+        setTimeout(() => (this.message = ''), 3000);
       },
       error: (err) => {
         console.error('Error al actualizar usuario:', err);
         this.message = '❌ Error al guardar los cambios. Intenta de nuevo.';
       }
     });
-
   }
+
 
   guardarDatosCliente() {
     const clienteData = {
@@ -542,24 +545,23 @@ ngOnInit() {
   }
 
   onFileSelected(event: any) {
-  const file = event.target.files[0];
-  if (!file) return;
-  if (!file.type.startsWith('image/')) {
-    this.errores.foto = '❌ Solo se permiten imágenes';
-    return;
+    const file = event.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      this.errores.foto = '❌ Solo se permiten imágenes';
+      return;
+    }
+
+    this.fotoFile = file; 
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.user.foto = reader.result as string;
+      localStorage.setItem('user', JSON.stringify(this.user));
+      window.dispatchEvent(new CustomEvent('user-updated', { detail: this.user }));
+    };
+    reader.readAsDataURL(file);
   }
-
-  const reader = new FileReader();
-  reader.onload = () => {
-    this.user.foto = reader.result as string;
-
-    localStorage.setItem('user', JSON.stringify(this.user));
-
-    window.dispatchEvent(new CustomEvent('user-updated', { detail: this.user }));
-  };
-  reader.readAsDataURL(file);
-}
-
 
   onDniFileSelected(event: any) {
     const file = event.target.files[0];
