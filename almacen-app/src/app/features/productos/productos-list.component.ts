@@ -82,7 +82,7 @@ import { Producto } from '@core/services/producto.service';
   styles: [`
     :host { --primary: #6366f1; --accent: #06b6d4; --bg-card: #1e293b; --text: #f8fafc; --text-muted: #94a3b8; --border: rgba(255,255,255,0.1); --danger: #ef4444; --success: #10b981; }
 
-    .productos-container { max-width: 1300px; margin: 0 auto; padding: 0 1.5rem 2rem; }
+    .productos-container { max-width: 1300px; margin: 0 auto; padding: 0 1.5rem 2rem; min-height: 0; }
 .card-overlay {
   pointer-events: none;
 }
