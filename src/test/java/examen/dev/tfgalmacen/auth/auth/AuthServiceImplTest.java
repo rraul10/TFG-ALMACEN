@@ -1,10 +1,12 @@
 package examen.dev.tfgalmacen.auth.auth;
 
 import examen.dev.tfgalmacen.auth.dto.JwtAuthResponse;
+import examen.dev.tfgalmacen.auth.dto.RegisterClienteRequest;
 import examen.dev.tfgalmacen.auth.dto.RegisterUserRequest;
 import examen.dev.tfgalmacen.auth.dto.UserLoginRequest;
 import examen.dev.tfgalmacen.auth.jwt.JwtService;
 import examen.dev.tfgalmacen.auth.users.repository.AuthUserRepository;
+import examen.dev.tfgalmacen.rest.clientes.models.Cliente;
 import examen.dev.tfgalmacen.websockets.notifications.EmailService;
 import examen.dev.tfgalmacen.rest.users.UserRole;
 import examen.dev.tfgalmacen.rest.users.models.User;
@@ -98,6 +100,51 @@ class AuthServiceImplTest {
                 .thenReturn(Optional.empty());
 
         assertThrows(RuntimeException.class, () -> authService.login(request));
+    }
+
+
+    @Test
+    void testRegisterCliente_ok() {
+        RegisterClienteRequest request = new RegisterClienteRequest();
+        request.setNombre("Juan");
+        request.setApellidos("Pérez");
+        request.setCorreo("juan@example.com");
+        request.setPassword("123456");
+        request.setTelefono("123456789");
+        request.setCiudad("Madrid");
+        request.setDni("12345678A");
+        request.setDireccionEnvio("Calle Falsa 123");
+        request.setFotoDni("dni.jpg");
+
+        when(passwordEncoder.encode("123456")).thenReturn("hashedPassword");
+
+        doAnswer(invocation -> {
+            User u = invocation.getArgument(0);
+            u.setId(1L);
+            return u;
+        }).when(userRepository).save(any(User.class));
+
+        doAnswer(invocation -> {
+            Cliente c = invocation.getArgument(0);
+            c.setId(1L);
+            return c;
+        }).when(clienteRepository).save(any(Cliente.class));
+
+        when(jwtService.generateToken(any(User.class))).thenReturn("fake-jwt-token");
+
+        JwtAuthResponse response = authService.registerCliente(request);
+
+        assertNotNull(response);
+        assertEquals("fake-jwt-token", response.getToken());
+        assertEquals("Juan", response.getUser().getNombre());
+        assertEquals("12345678A", response.getUser().getDni());
+        assertEquals("dni.jpg", response.getUser().getFotoDni());
+        assertEquals(Collections.singleton(UserRole.CLIENTE), response.getUser().getRoles());
+
+        verify(userRepository, times(1)).save(any(User.class));
+        verify(clienteRepository, times(1)).save(any(Cliente.class));
+        verify(jwtService, times(1)).generateToken(any(User.class));
+        verify(emailService, times(1)).notificarRegistroExitoso("juan@example.com", "Juan");
     }
 }
 

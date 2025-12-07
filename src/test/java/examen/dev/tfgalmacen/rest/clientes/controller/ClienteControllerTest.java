@@ -3,6 +3,7 @@ package examen.dev.tfgalmacen.rest.clientes.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import examen.dev.tfgalmacen.rest.clientes.dto.ClienteRequest;
 import examen.dev.tfgalmacen.rest.clientes.dto.ClienteResponse;
+import examen.dev.tfgalmacen.rest.clientes.models.Cliente;
 import examen.dev.tfgalmacen.rest.clientes.service.ClienteService;
 import examen.dev.tfgalmacen.rest.pedido.dto.CompraRequest;
 import examen.dev.tfgalmacen.rest.pedido.dto.PedidoResponse;
@@ -244,5 +245,144 @@ class ClienteControllerTest {
                 .andExpect(jsonPath("$[1].estado").value("ENVIADO"));
 
         verify(pedidoService).getPedidosByClienteId(clienteId);
+    }
+
+    @Test
+    void test_updateClienteByUserId() throws Exception {
+
+        Long userId = 5L;
+
+        Cliente clienteEntity = new Cliente();
+        clienteEntity.setId(1L);
+        clienteEntity.setDni("OLD");
+        clienteEntity.setDireccionEnvio("OLD");
+        clienteEntity.setFotoDni("OLD.jpg");
+
+        when(clienteService.getClienteEntityByUserId(userId))
+                .thenReturn(clienteEntity);
+
+        ClienteResponse responseMock = new ClienteResponse();
+        responseMock.setId(1L);
+        responseMock.setDni("12345678A");
+        responseMock.setDireccionEnvio("New Street");
+        responseMock.setFotoDni("dni.png");
+
+        when(clienteService.getByUserId(userId))
+                .thenReturn(responseMock);
+
+        when(storageService.store(any()))
+                .thenReturn("dni.png");
+
+        // Construir multipart
+        String clienteJson = """
+                {
+                   "dni":"12345678A",
+                   "direccionEnvio":"New Street",
+                   "fotoDni": null
+                }
+                """;
+
+        MockMultipartFile clientePart =
+                new MockMultipartFile("cliente", "", "application/json", clienteJson.getBytes());
+
+        MockMultipartFile foto =
+                new MockMultipartFile("fotoDni", "file.png", "image/png", "fakeimage".getBytes());
+
+        mockMvc.perform(
+                        multipart("/api/clientes/user/{userId}", userId)
+                                .file(clientePart)
+                                .file(foto)
+                                .with(req -> {
+                                    req.setMethod("PUT");
+                                    return req;
+                                })
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.dni").value("12345678A"))
+                .andExpect(jsonPath("$.direccionEnvio").value("New Street"))
+                .andExpect(jsonPath("$.fotoDni").value("dni.png"));
+
+        verify(clienteService, times(1)).updateClienteEntity(any());
+    }
+
+    @Test
+    void test_updateClienteByUserId_sinFoto() throws Exception {
+        Long userId = 6L;
+
+        Cliente clienteEntity = new Cliente();
+        clienteEntity.setId(2L);
+        clienteEntity.setDni("OLD");
+        clienteEntity.setDireccionEnvio("OLD");
+        clienteEntity.setFotoDni("OLD.jpg");
+
+        when(clienteService.getClienteEntityByUserId(userId)).thenReturn(clienteEntity);
+
+        ClienteResponse responseMock = new ClienteResponse();
+        responseMock.setId(2L);
+        responseMock.setDni("99999999X");
+        responseMock.setDireccionEnvio("Otra Calle");
+        responseMock.setFotoDni("OLD.jpg"); // No cambia
+
+        when(clienteService.getByUserId(userId)).thenReturn(responseMock);
+
+        String clienteJson = """
+            {
+               "dni":"99999999X",
+               "direccionEnvio":"Otra Calle",
+               "fotoDni": null
+            }
+            """;
+
+        MockMultipartFile clientePart =
+                new MockMultipartFile("cliente", "", "application/json", clienteJson.getBytes());
+
+        mockMvc.perform(
+                        multipart("/api/clientes/user/{userId}", userId)
+                                .file(clientePart)
+                                .with(req -> { req.setMethod("PUT"); return req; })
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.dni").value("99999999X"))
+                .andExpect(jsonPath("$.direccionEnvio").value("Otra Calle"))
+                .andExpect(jsonPath("$.fotoDni").value("OLD.jpg")); // sigue siendo la misma
+
+        verify(clienteService, times(1)).updateClienteEntity(any());
+        verify(storageService, never()).store(any());
+    }
+
+    @Test
+    void test_getClienteByUserId_noExiste() {
+        Long userId = 999L;
+
+        when(clienteService.getByUserId(userId))
+                .thenThrow(new NoSuchElementException("Cliente no encontrado"));
+
+        NoSuchElementException ex = assertThrows(NoSuchElementException.class, () -> {
+            clienteController.getClienteByUserId(userId);
+        });
+
+        assertEquals("Cliente no encontrado", ex.getMessage());
+        verify(clienteService).getByUserId(userId);
+    }
+
+    @Test
+    void test_getClienteByUserId() throws Exception {
+
+        Long userId = 5L;
+
+        ClienteResponse response = new ClienteResponse();
+        response.setId(1L);
+        response.setDni("12345678A");
+        response.setDireccionEnvio("Calle Falsa 123");
+        response.setFotoDni("dni.png");
+
+        when(clienteService.getByUserId(userId))
+                .thenReturn(response);
+
+        mockMvc.perform(get("/api/clientes/user/{userId}", userId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.dni").value("12345678A"))
+                .andExpect(jsonPath("$.direccionEnvio").value("Calle Falsa 123"))
+                .andExpect(jsonPath("$.fotoDni").value("dni.png"));
     }
 }

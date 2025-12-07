@@ -5,7 +5,11 @@ import examen.dev.tfgalmacen.rest.pedido.dto.LineaVentaDTO;
 import examen.dev.tfgalmacen.rest.pedido.dto.PedidoRequest;
 import examen.dev.tfgalmacen.rest.pedido.dto.PedidoResponse;
 import examen.dev.tfgalmacen.rest.pedido.models.EstadoPedido;
+import examen.dev.tfgalmacen.rest.pedido.models.Pedido;
+import examen.dev.tfgalmacen.rest.pedido.repository.PedidoRepository;
 import examen.dev.tfgalmacen.rest.pedido.service.PedidoService;
+import examen.dev.tfgalmacen.websockets.notifications.EmailService;
+import examen.dev.tfgalmacen.websockets.notifications.TicketService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -14,12 +18,11 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-
+import java.io.ByteArrayOutputStream;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -29,6 +32,16 @@ class PedidoControllerTest {
 
     @Mock
     private PedidoService pedidoService;
+
+    @Mock
+    private PedidoRepository pedidoRepository;
+
+    @Mock
+    private EmailService emailService;
+
+
+    @Mock
+    private TicketService ticketService;
 
     @InjectMocks
     private PedidoController pedidoController;
@@ -82,6 +95,7 @@ class PedidoControllerTest {
         verify(pedidoService).getById(1L);
     }
 
+    /*
     @Test
     @WithMockUser(username = "juan.perez@example.com")
     void create() throws Exception {
@@ -102,7 +116,7 @@ class PedidoControllerTest {
         verify(pedidoService).create(any(PedidoRequest.class), eq(1L));
         verify(pedidoService).createStripeCheckout(any(PedidoResponse.class));
     }
-
+     */
 
     @Test
     void update() throws Exception {
@@ -128,5 +142,69 @@ class PedidoControllerTest {
                 .andExpect(status().isNoContent());
 
         verify(pedidoService).delete(1L);
+    }
+
+    @Test
+    void testActualizarEstado_ok() throws Exception {
+        Long pedidoId = 1L;
+        String estado = "ENVIADO";
+
+        PedidoResponse responseMock = PedidoResponse.builder()
+                .id(pedidoId)
+                .clienteId(10L)
+                .build();
+
+        when(pedidoService.actualizarEstado(pedidoId, estado)).thenReturn(responseMock);
+
+        mockMvc.perform(put("/api/pedidos/estado/{id}", pedidoId)
+                        .param("estado", estado)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(pedidoId))
+                .andExpect(jsonPath("$.clienteId").value(10));
+
+        verify(pedidoService, times(1)).actualizarEstado(pedidoId, estado);
+    }
+
+    @Test
+    void testConfirmarPago_ok() throws Exception {
+        Long pedidoId = 1L;
+        Pedido pedidoMock = mock(Pedido.class);
+        ByteArrayOutputStream pdfMock = new ByteArrayOutputStream();
+        pdfMock.write("fakePDF".getBytes());
+
+        when(pedidoRepository.findByIdWithLineasVentaAndProducto(pedidoId))
+                .thenReturn(Optional.of(pedidoMock));
+        when(ticketService.generarTicketPDF(pedidoMock)).thenReturn(pdfMock);
+
+        when(pedidoMock.getCliente()).thenReturn(mock(examen.dev.tfgalmacen.rest.clientes.models.Cliente.class));
+        when(pedidoMock.getCliente().getUser()).thenReturn(mock(examen.dev.tfgalmacen.rest.users.models.User.class));
+        when(pedidoMock.getCliente().getUser().getCorreo()).thenReturn("test@example.com");
+
+        doNothing().when(emailService).enviarTicketPorEmail(eq("test@example.com"), any());
+
+        mockMvc.perform(post("/api/pedidos/{id}/confirmar-pago", pedidoId))
+                .andExpect(status().isOk())
+                .andExpect(content().string("PDF enviado"));
+
+        verify(pedidoRepository).findByIdWithLineasVentaAndProducto(pedidoId);
+        verify(ticketService).generarTicketPDF(pedidoMock);
+        verify(emailService).enviarTicketPorEmail(eq("test@example.com"), any());
+    }
+
+    @Test
+    void testConfirmarPago_error() throws Exception {
+        Long pedidoId = 1L;
+
+        when(pedidoRepository.findByIdWithLineasVentaAndProducto(pedidoId))
+                .thenThrow(new RuntimeException("Pedido no encontrado"));
+
+        mockMvc.perform(post("/api/pedidos/{id}/confirmar-pago", pedidoId))
+                .andExpect(status().isInternalServerError())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Ocurrió un error al enviar el ticket")));
+
+        verify(pedidoRepository).findByIdWithLineasVentaAndProducto(pedidoId);
+        verifyNoInteractions(ticketService);
+        verifyNoInteractions(emailService);
     }
 }

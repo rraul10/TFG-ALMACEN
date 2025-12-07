@@ -1,7 +1,9 @@
 package examen.dev.tfgalmacen.rest.users.service;
 
 import examen.dev.tfgalmacen.auth.exceptions.UserNotFound;
+import examen.dev.tfgalmacen.rest.clientes.models.Cliente;
 import examen.dev.tfgalmacen.rest.clientes.repository.ClienteRepository;
+import examen.dev.tfgalmacen.rest.trabajadores.models.Trabajador;
 import examen.dev.tfgalmacen.rest.trabajadores.repository.TrabajadorRepository;
 import examen.dev.tfgalmacen.rest.users.UserRole;
 import examen.dev.tfgalmacen.rest.users.dto.UserRequest;
@@ -121,8 +123,6 @@ public class UserServiceImplTest {
         verify(userRepository, times(1)).findById(1L);
     }
 
-
-
     @Test
     public void testGetUserById_UserNotFound() {
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
@@ -201,6 +201,64 @@ public class UserServiceImplTest {
         assertEquals("", result.getFotoDni());
         assertEquals("", result.getDireccionEnvio());
         assertEquals("", result.getNumeroSeguridadSocial());
+    }
+
+    @Test
+    void testUpdateUser_cliente() {
+        Set<UserRole> roles = Set.of(UserRole.CLIENTE);
+
+        UserRequest request = UserRequest.builder()
+                .nombre("Cliente Actualizado")
+                .correo("cliente@example.com")
+                .roles(roles)
+                .dni("12345678Z")
+                .fotoDni("dni.jpg")
+                .direccionEnvio("Calle Falsa 123")
+                .build();
+
+        User user = User.builder().id(1L).nombre("Cliente").correo("cliente@example.com").roles(roles).build();
+
+        Cliente cliente = Cliente.builder().user(user).build();
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userRepository.save(any())).thenReturn(user);
+        when(clienteRepository.findByUserId(1L)).thenReturn(Optional.of(cliente));
+        when(clienteRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        UserResponse response = userService.updateUser(1L, request);
+
+        assertNotNull(response);
+        assertEquals("Cliente Actualizado", response.getNombre());
+        verify(clienteRepository, times(1)).save(any());
+        verify(trabajadorRepository, never()).save(any());
+    }
+
+    @Test
+    void testUpdateUser_trabajador() {
+        Set<UserRole> roles = Set.of(UserRole.TRABAJADOR);
+
+        UserRequest request = UserRequest.builder()
+                .nombre("Trabajador Actualizado")
+                .correo("trabajador@example.com")
+                .roles(roles)
+                .numeroSeguridadSocial("987654321")
+                .build();
+
+        User user = User.builder().id(2L).nombre("Trabajador").correo("trabajador@example.com").roles(roles).build();
+
+        Trabajador trabajador = Trabajador.builder().user(user).build();
+
+        when(userRepository.findById(2L)).thenReturn(Optional.of(user));
+        when(userRepository.save(any())).thenReturn(user);
+        when(trabajadorRepository.findByUserId(2L)).thenReturn(Optional.of(trabajador));
+        when(trabajadorRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        UserResponse response = userService.updateUser(2L, request);
+
+        assertNotNull(response);
+        assertEquals("Trabajador Actualizado", response.getNombre());
+        verify(trabajadorRepository, times(1)).save(any());
+        verify(clienteRepository, never()).save(any());
     }
 
 

@@ -65,7 +65,6 @@ public class PedidoController {
             logger.info("Es anónimo? {}", auth.getAuthorities().isEmpty());
             logger.info("Roles/Authorities: {}", auth.getAuthorities());
         }
-        // -----------------------------------------
 
         try {
             String userEmail = auth.getName(); // aquí puede ser "anonymousUser"
@@ -94,8 +93,6 @@ public class PedidoController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
-
-
 
     @PutMapping("/{id}")
     public ResponseEntity<PedidoResponse> update(@PathVariable Long id, @RequestBody PedidoRequest request) {
@@ -154,7 +151,4 @@ public class PedidoController {
                     .body("Ocurrió un error al enviar el ticket: " + e.getMessage());
         }
     }
-
-
-
 }

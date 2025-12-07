@@ -251,4 +251,110 @@ class ClienteServiceImplTest {
 
         assertEquals("Cliente no encontrado", ex.getMessage());
     }
+
+    @Test
+    void test_getByUserId_success() {
+        Long userId = 10L;
+
+        Cliente cliente = new Cliente();
+        cliente.setId(1L);
+
+        ClienteResponse response = new ClienteResponse();
+        response.setId(1L);
+
+        when(clienteRepository.findByUserId(userId))
+                .thenReturn(Optional.of(cliente));
+
+        when(clienteMapper.toResponse(cliente))
+                .thenReturn(response);
+
+        ClienteResponse result = clienteService.getByUserId(userId);
+
+        assertNotNull(result);
+        assertEquals(1L, result.getId());
+        verify(clienteRepository, times(1)).findByUserId(userId);
+        verify(clienteMapper, times(1)).toResponse(cliente);
+    }
+
+    @Test
+    void test_getByUserId_notFound() {
+        Long userId = 10L;
+
+        when(clienteRepository.findByUserId(userId))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                ClienteNotFound.class,
+                () -> clienteService.getByUserId(userId)
+        );
+    }
+
+    @Test
+    void test_getClienteByEmail_success() {
+        String email = "correo@test.com";
+
+        Cliente cliente = new Cliente();
+        cliente.setId(1L);
+
+        when(clienteRepository.findByUser_Correo(email))
+                .thenReturn(Optional.of(cliente));
+
+        Cliente result = clienteService.getClienteByEmail(email);
+
+        assertNotNull(result);
+        assertEquals(1L, result.getId());
+        verify(clienteRepository, times(1)).findByUser_Correo(email);
+    }
+
+    @Test
+    void test_getClienteByEmail_notFound() {
+        String email = "correo@test.com";
+
+        when(clienteRepository.findByUser_Correo(email))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                ClienteNotFound.class,
+                () -> clienteService.getClienteByEmail(email)
+        );
+    }
+
+    @Test
+    void test_updateClienteEntity_callsRepositorySave() {
+        Cliente cliente = new Cliente();
+        cliente.setId(1L);
+
+        clienteService.updateClienteEntity(cliente);
+
+        verify(clienteRepository, times(1)).save(cliente);
+    }
+
+    @Test
+    void test_getClienteEntityByUserId_success() {
+        Long userId = 5L;
+
+        Cliente cliente = new Cliente();
+        cliente.setId(1L);
+
+        when(clienteRepository.findByUserId(userId))
+                .thenReturn(Optional.of(cliente));
+
+        Cliente result = clienteService.getClienteEntityByUserId(userId);
+
+        assertNotNull(result);
+        assertEquals(1L, result.getId());
+    }
+
+    @Test
+    void test_getClienteEntityByUserId_notFound() {
+        Long userId = 5L;
+
+        when(clienteRepository.findByUserId(userId))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                ClienteNotFound.class,
+                () -> clienteService.getClienteEntityByUserId(userId)
+        );
+    }
 }

@@ -1,5 +1,8 @@
 package examen.dev.tfgalmacen.rest.pedido.service;
 
+import com.stripe.model.checkout.Session;
+import com.stripe.param.checkout.SessionCreateParams;
+import examen.dev.tfgalmacen.rest.clientes.exceptions.ClienteNotFound;
 import examen.dev.tfgalmacen.rest.clientes.models.Cliente;
 import examen.dev.tfgalmacen.rest.clientes.service.ClienteService;
 import examen.dev.tfgalmacen.rest.pedido.dto.CompraRequest;
@@ -291,5 +294,136 @@ class PedidoServiceImplTest {
         assertThrows(RuntimeException.class, () ->
                 pedidoService.actualizarEstado(1L, EstadoPedido.ENTREGADO.name())
         );
+    }
+
+    @Test
+    void getUserIdByEmail_ok() {
+        User user = new User();
+        user.setId(42L);
+        user.setCorreo("juan.perez@example.com");
+
+        when(userRepository.findByCorreo("juan.perez@example.com"))
+                .thenReturn(Optional.of(user));
+
+        Long result = pedidoService.getUserIdByEmail("juan.perez@example.com");
+
+        assertEquals(42L, result);
+        verify(userRepository).findByCorreo("juan.perez@example.com");
+    }
+
+    @Test
+    void getUserIdByEmail_notFound() {
+        when(userRepository.findByCorreo("noexiste@example.com"))
+                .thenReturn(Optional.empty());
+
+        RuntimeException ex = assertThrows(RuntimeException.class,
+                () -> pedidoService.getUserIdByEmail("noexiste@example.com"));
+
+        assertEquals("Usuario no encontrado con email: noexiste@example.com", ex.getMessage());
+        verify(userRepository).findByCorreo("noexiste@example.com");
+    }
+
+
+    @Test
+    void getPedidosByClienteId_ok() {
+        User user = new User();
+        user.setId(1L);
+        user.setCorreo("juan@example.com");
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        User userMock = new User();
+        userMock.setCorreo("juan@example.com");
+
+        Cliente clienteMock = new Cliente();
+        clienteMock.setId(10L);
+        clienteMock.setUser(userMock);
+        when(clienteService.getClienteByEmail("juan@example.com")).thenReturn(clienteMock);
+
+        Pedido pedido1 = new Pedido();
+        pedido1.setId(100L);
+        pedido1.setCliente(clienteMock);
+
+        Pedido pedido2 = new Pedido();
+        pedido2.setId(101L);
+        pedido2.setCliente(clienteMock);
+
+        when(pedidoRepository.findByClienteIdAndDeletedFalse(10L))
+                .thenReturn(List.of(pedido1, pedido2));
+
+        try (MockedStatic<PedidoMapper> mockedMapper = mockStatic(PedidoMapper.class)) {
+            PedidoResponse dto1 = PedidoResponse.builder().id(100L).clienteId(10L).build();
+            PedidoResponse dto2 = PedidoResponse.builder().id(101L).clienteId(10L).build();
+
+            mockedMapper.when(() -> PedidoMapper.toDto(pedido1)).thenReturn(dto1);
+            mockedMapper.when(() -> PedidoMapper.toDto(pedido2)).thenReturn(dto2);
+
+            List<PedidoResponse> result = pedidoService.getPedidosByClienteId(1L);
+
+            assertEquals(2, result.size());
+            assertEquals(100L, result.get(0).getId());
+            assertEquals(101L, result.get(1).getId());
+
+            verify(userRepository).findById(1L);
+            verify(clienteService).getClienteByEmail("juan@example.com");
+            verify(pedidoRepository).findByClienteIdAndDeletedFalse(10L);
+        }
+    }
+
+    @Test
+    void getPedidosByClienteId_userNotFound() {
+        when(userRepository.findById(999L)).thenReturn(Optional.empty());
+
+        ClienteNotFound ex = assertThrows(ClienteNotFound.class,
+                () -> pedidoService.getPedidosByClienteId(999L));
+
+        assertEquals("Usuario no encontrado", ex.getMessage());
+        verify(userRepository).findById(999L);
+    }
+
+    @Test
+    void testCreateStripeCheckout_ok() throws Exception {
+        PedidoResponse pedido = new PedidoResponse();
+        pedido.setId(1L);
+        pedido.setEstado(EstadoPedido.PENDIENTE);
+        pedido.setFecha(LocalDateTime.now());
+        pedido.setClienteId(10L);
+
+        LineaVentaDTO linea = new LineaVentaDTO();
+        linea.setCantidad(2);
+        linea.setPrecio(50.0);
+        linea.setProductoNombre("Producto Test");
+        pedido.setLineasVenta(List.of(linea));
+
+        try (MockedStatic<Session> mockedSession = Mockito.mockStatic(Session.class)) {
+            Session mockSession = mock(Session.class);
+            when(mockSession.getUrl()).thenReturn("http://stripe-session-url");
+
+            mockedSession.when(() -> Session.create(any(SessionCreateParams.class)))
+                    .thenReturn(mockSession);
+
+            String url = pedidoService.createStripeCheckout(pedido);
+
+            assertNotNull(url);
+            assertEquals("http://stripe-session-url", url);
+
+            mockedSession.verify(() -> Session.create(any(SessionCreateParams.class)), times(1));
+        }
+    }
+
+    @Test
+    void testCreateStripeCheckout_error() {
+        PedidoResponse pedido = new PedidoResponse();
+        pedido.setId(1L);
+        pedido.setLineasVenta(List.of());
+
+        try (MockedStatic<Session> mockedSession = Mockito.mockStatic(Session.class)) {
+            mockedSession.when(() -> Session.create(any(SessionCreateParams.class)))
+                    .thenThrow(new RuntimeException("Stripe error"));
+
+            RuntimeException exception = assertThrows(RuntimeException.class,
+                    () -> pedidoService.createStripeCheckout(pedido));
+
+            assertTrue(exception.getMessage().contains("Error creando sesión de Stripe"));
+        }
     }
 }
