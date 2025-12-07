@@ -29,6 +29,8 @@ import { Producto } from '@core/services/producto.service';
               [alt]="producto.nombre"
               (error)="onImageError($event)">
             <div class="card-overlay">
+              
+              <!-- Botón Añadir (solo clientes con stock) -->
               <button *ngIf="!isAdmin && producto.stock > 0" 
                       (click)="agregarAlCarrito(producto)" 
                       class="quick-add-btn">
@@ -48,10 +50,18 @@ import { Producto } from '@core/services/producto.service';
             <p class="card-desc">{{ producto.descripcion }}</p>
             
             <div class="card-footer">
-              <span class="card-price">{{ producto.precio | currency:'EUR':'symbol':'1.2-2' }}</span>
-              <span *ngIf="isAdmin || isTrabajador" class="stock-info" [class.low]="producto.stock === 0">
-                {{ producto.stock > 0 ? producto.stock + ' uds' : 'Sin stock' }}
-              </span>
+              <div class="footer-left">
+                <span class="card-price">{{ producto.precio | currency:'EUR':'symbol':'1.2-2' }}</span>
+                <span *ngIf="isAdmin || isTrabajador" class="stock-info" [class.low]="producto.stock === 0">
+                  {{ producto.stock > 0 ? producto.stock + ' uds' : 'Sin stock' }}
+                </span>
+              </div>
+              <button class="view-details-btn" (click)="verProducto(producto)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+              </button>
             </div>
           </div>
         </div>
@@ -83,14 +93,19 @@ import { Producto } from '@core/services/producto.service';
     :host { --primary: #6366f1; --accent: #06b6d4; --bg-card: #1e293b; --text: #f8fafc; --text-muted: #94a3b8; --border: rgba(255,255,255,0.1); --danger: #ef4444; --success: #10b981; }
 
     .productos-container { max-width: 1300px; margin: 0 auto; padding: 0 1.5rem 2rem; min-height: 0; }
-.card-overlay {
-  pointer-events: none;
-}
 
-.quick-add-btn {
-  pointer-events: auto;
-  z-index: 10;
-}
+    .card-overlay {
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .view-btn,
+    .quick-add-btn {
+      pointer-events: auto;
+      z-index: 10;
+    }
 
     .no-resultados { text-align: center; padding: 4rem 2rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; }
     .no-resultados h3 { color: var(--text); font-size: 1.3rem; margin: 1rem 0 0.5rem; }
@@ -108,13 +123,57 @@ import { Producto } from '@core/services/producto.service';
     .card-img-wrapper img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease, opacity 0.3s; }
     .producto-card:hover .card-img-wrapper img { transform: scale(1.08); opacity: 0.7; }
 
-    /* Overlay con botón */
-    .card-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; }
+    /* Overlay con botones */
+    .card-overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5rem; opacity: 0; transition: opacity 0.3s; }
     .producto-card:hover .card-overlay { opacity: 1; }
 
-    .quick-add-btn { display: flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1.2rem; background: var(--primary); border: none; border-radius: 10px; color: white; font-size: 0.85rem; font-weight: 600; cursor: pointer; transform: translateY(10px); transition: all 0.3s; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.5); }
+    /* Botón Ver Detalles (siempre visible en hover) */
+    .view-btn { 
+      display: flex; 
+      align-items: center; 
+      gap: 0.5rem; 
+      padding: 0.6rem 1.2rem; 
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(99, 102, 241, 0.3); 
+      border-radius: 10px; 
+      color: white; 
+      font-size: 0.85rem; 
+      font-weight: 600; 
+      cursor: pointer; 
+      transform: translateY(10px); 
+      transition: all 0.3s; 
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); 
+    }
+    .producto-card:hover .view-btn { transform: translateY(0); }
+    .view-btn:hover { 
+      background: rgba(99, 102, 241, 0.2);
+      border-color: var(--primary);
+      transform: translateY(-2px) !important; 
+    }
+
+    /* Botón Añadir al carrito */
+    .quick-add-btn { 
+      display: flex; 
+      align-items: center; 
+      gap: 0.5rem; 
+      padding: 0.6rem 1.2rem; 
+      background: var(--primary); 
+      border: none; 
+      border-radius: 10px; 
+      color: white; 
+      font-size: 0.85rem; 
+      font-weight: 600; 
+      cursor: pointer; 
+      transform: translateY(10px); 
+      transition: all 0.3s; 
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.5); 
+    }
     .producto-card:hover .quick-add-btn { transform: translateY(0); }
-    .quick-add-btn:hover { background: #4f46e5; transform: translateY(-2px) !important; }
+    .quick-add-btn:hover { 
+      background: #4f46e5; 
+      transform: translateY(-2px) !important; 
+    }
 
     /* Tags */
     .tipo-tag { position: absolute; top: 10px; left: 10px; padding: 0.3rem 0.7rem; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); border-radius: 6px; font-size: 0.7rem; font-weight: 600; color: var(--text); text-transform: uppercase; letter-spacing: 0.5px; }
@@ -126,9 +185,31 @@ import { Producto } from '@core/services/producto.service';
     .card-desc { font-size: 0.8rem; color: var(--text-muted); margin: 0 0 0.75rem; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; flex: 1; }
 
     .card-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 0.75rem; border-top: 1px solid var(--border); margin-top: auto; }
+    .footer-left { display: flex; flex-direction: column; gap: 0.3rem; flex: 1; }
     .card-price { font-size: 1.15rem; font-weight: 700; background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .stock-info { font-size: 0.75rem; color: var(--success); font-weight: 600; padding: 0.2rem 0.5rem; background: rgba(16, 185, 129, 0.15); border-radius: 4px; }
+    .stock-info { font-size: 0.75rem; color: var(--success); font-weight: 600; padding: 0.2rem 0.5rem; background: rgba(16, 185, 129, 0.15); border-radius: 4px; width: fit-content; }
     .stock-info.low { color: var(--danger); background: rgba(239, 68, 68, 0.15); }
+    
+    .view-details-btn { 
+      width: 36px; 
+      height: 36px; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    .view-details-btn svg { color: var(--text-muted); transition: all 0.2s; }
+    .view-details-btn:hover { 
+      background: rgba(99, 102, 241, 0.1); 
+      border-color: var(--primary);
+      transform: translateY(-2px);
+    }
+    .view-details-btn:hover svg { color: var(--primary); }
 
     /* Paginación moderna */
     .pagination { display: flex; justify-content: center; align-items: center; gap: 0.5rem; margin-top: 2rem; }
@@ -145,6 +226,7 @@ import { Producto } from '@core/services/producto.service';
       .card-body { padding: 0.75rem; }
       .card-title { font-size: 0.85rem; }
       .card-price { font-size: 1rem; }
+      .view-btn, .quick-add-btn { font-size: 0.75rem; padding: 0.5rem 0.8rem; }
     }
   `]
 })
@@ -165,22 +247,25 @@ export class ProductosListComponent implements OnInit, OnChanges {
   pageSize: number = 15;
 
   constructor(
-  private http: HttpClient, 
-  private authService: AuthService, 
-  private snackBar: MatSnackBar,
-  private dialog: MatDialog   
-) {
-  this.isAdmin = this.authService.isAdmin();
-  this.isCliente = (this.authService.isCliente && this.authService.isCliente()) || false;
-  this.isTrabajador = (this.authService.isTrabajador && this.authService.isTrabajador()) || false;
-}
+    private http: HttpClient, 
+    private authService: AuthService, 
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog   
+  ) {
+    this.isAdmin = this.authService.isAdmin();
+    this.isCliente = (this.authService.isCliente && this.authService.isCliente()) || false;
+    this.isTrabajador = (this.authService.isTrabajador && this.authService.isTrabajador()) || false;
+  }
 
-verProducto(producto: Producto) {
-  this.dialog.open(ProductoViewModalComponent, {
-    width: '400px',
-    data: producto
-  });
-}
+  verProducto(producto: Producto) {
+    this.dialog.open(ProductoViewModalComponent, {
+      maxWidth: '98vw',
+      maxHeight: '95vh',
+      panelClass: 'custom-modal-panel',
+      data: producto,
+      autoFocus: false
+    });
+  }
 
   ngOnInit() { this.loadProductos(); }
 
@@ -196,8 +281,6 @@ verProducto(producto: Producto) {
       error: () => this.showNotification('❌ Error al cargar los productos')
     });
   }
-
-  
 
   filtrarProductos() {
     let filtrados = [...this.productos];
@@ -267,48 +350,48 @@ verProducto(producto: Producto) {
     }
     return pages;
   }
-agregarAlCarrito(producto: any) {
-  const prodId = String(producto.id);
-  const rawCarrito: any[] = JSON.parse(localStorage.getItem('carrito') || '[]');
 
-  const carrito = rawCarrito.map(it => ({
-    id: String(it.id),
-    nombre: it.nombre,
-    tipo: it.tipo,
-    precio: Number(it.precio),
-    cantidad: Number(it.cantidad) || 0,
-    stock: Number(it.stock) || 0
-  }));
+  agregarAlCarrito(producto: any) {
+    const prodId = String(producto.id);
+    const rawCarrito: any[] = JSON.parse(localStorage.getItem('carrito') || '[]');
 
-  const item = carrito.find(i => i.id === prodId);
+    const carrito = rawCarrito.map(it => ({
+      id: String(it.id),
+      nombre: it.nombre,
+      tipo: it.tipo,
+      precio: Number(it.precio),
+      cantidad: Number(it.cantidad) || 0,
+      stock: Number(it.stock) || 0
+    }));
 
-  if (item) {
-    const nuevaCantidad = item.cantidad + 1;
-    if (nuevaCantidad > item.stock) {
-      alert('No hay más stock disponible');
-      return;
+    const item = carrito.find(i => i.id === prodId);
+
+    if (item) {
+      const nuevaCantidad = item.cantidad + 1;
+      if (nuevaCantidad > item.stock) {
+        this.showNotification('⚠️ No hay más stock disponible');
+        return;
+      }
+      item.cantidad = nuevaCantidad;
+    } else {
+      carrito.push({
+        id: prodId,
+        nombre: producto.nombre,
+        tipo: producto.tipo,
+        precio: Number(producto.precio),
+        cantidad: 1,
+        stock: Number(producto.stock)
+      });
     }
-    item.cantidad = nuevaCantidad;
-  } else {
-    carrito.push({
-      id: prodId,
-      nombre: producto.nombre,
-      tipo: producto.tipo,
-      precio: Number(producto.precio),
-      cantidad: 1,
-      stock: Number(producto.stock)
-    });
+
+    localStorage.setItem('carrito', JSON.stringify(carrito));
+    window.dispatchEvent(new CustomEvent('carritoActualizado', { detail: { carrito } }));
+    this.showNotification('✅ Producto añadido al carrito');
   }
 
-  localStorage.setItem('carrito', JSON.stringify(carrito));
-
-  // Se asegura de que CarritoComponent reciba un array con números correctos
-  window.dispatchEvent(new CustomEvent('carritoActualizado', { detail: { carrito } }));
-}
-
-onImageError(event: any) {
-  event.target.src = 'assets/img/default.jpg';
-}
+  onImageError(event: any) {
+    event.target.src = 'assets/img/default.jpg';
+  }
 
   showNotification(msg: string) {
     this.snackBar.open(msg, 'Cerrar', { duration: 3000, horizontalPosition: 'right', verticalPosition: 'top' });
