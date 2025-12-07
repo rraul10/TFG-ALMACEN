@@ -130,13 +130,13 @@ public class UserControllerTest {
     }
 
     @Test
-    public void testUpdateUser() throws Exception {
+    public void testUpdateUser_Multipart() throws Exception {
         Set<UserRole> roles = new HashSet<>(Arrays.asList(UserRole.ADMIN, UserRole.CLIENTE));
 
         UserRequest userRequest = UserRequest.builder()
-                .nombre("Juan Pérez")
-                .correo("juan.perez@example.com")
-                .password("password123")
+                .nombre("Juan Pérez Actualizado")
+                .correo("juan.perez.updated@example.com")
+                .password("newpassword123")
                 .roles(roles)
                 .build();
 
@@ -145,20 +145,30 @@ public class UserControllerTest {
                 .nombre("Juan Pérez Actualizado")
                 .correo("juan.perez.updated@example.com")
                 .roles(roles)
+                .rol("ADMIN")
                 .build();
 
         when(userService.updateUser(eq(1L), any(UserRequest.class))).thenReturn(userResponse);
 
-        mockMvc.perform(put("/api/users/1")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userRequest)))
+        String userJson = objectMapper.writeValueAsString(userRequest);
+
+        mockMvc.perform(multipart("/api/users/1")
+                        .file(new MockMultipartFile("user", "", "application/json", userJson.getBytes()))
+                        .with(request -> {
+                            request.setMethod("PUT");
+                            return request;
+                        })
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id").value(1L))
-                .andExpect(jsonPath("$.nombre").value("Juan Pérez Actualizado"));
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.nombre").value("Juan Pérez Actualizado"))
+                .andExpect(jsonPath("$.correo").value("juan.perez.updated@example.com"))
+                .andExpect(jsonPath("$.rol").value("ADMIN"));
 
         verify(userService, times(1)).updateUser(eq(1L), any(UserRequest.class));
     }
+
 
     @Test
     public void testDeleteUser() throws Exception {

@@ -54,6 +54,7 @@ public class UserServiceImpl implements UserService {
             dto.setRoles(user.getRoles());
 
             String rolPrincipal = user.getRoles().stream()
+                    .sorted() // ordena por nombre enum
                     .findFirst()
                     .map(Enum::name)
                     .orElse("CLIENTE");

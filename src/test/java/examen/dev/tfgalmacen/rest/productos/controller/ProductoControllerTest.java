@@ -1,6 +1,7 @@
 package examen.dev.tfgalmacen.rest.productos.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import examen.dev.tfgalmacen.cloudinary.service.CloudinaryService;
 import examen.dev.tfgalmacen.rest.productos.dto.ProductoRequest;
 import examen.dev.tfgalmacen.rest.productos.dto.ProductoResponse;
 import examen.dev.tfgalmacen.rest.productos.service.ProductoService;
@@ -26,12 +27,13 @@ class ProductoControllerTest {
     private ProductoController productoController;
     private MockMvc mockMvc;
     private ObjectMapper objectMapper = new ObjectMapper();
+    private CloudinaryService cloudinaryService;
 
     @BeforeEach
     void setUp() {
         productoService = Mockito.mock(ProductoService.class);
         storageService = Mockito.mock(StorageService.class);
-        productoController = new ProductoController(productoService, storageService);
+        productoController = new ProductoController(productoService, storageService, cloudinaryService);
         mockMvc = MockMvcBuilders.standaloneSetup(productoController).build();
     }
 
@@ -99,8 +101,10 @@ class ProductoControllerTest {
         mockMvc.perform(multipart("/api/productos/create")
                         .file(productoPart)
                         .with(req -> { req.setMethod("POST"); return req; }))
-                .andExpect(status().isCreated()) // El controller devuelve 201 aunque haya aviso
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Producto creado, pero hubo un aviso: Error creando producto")));
+                .andExpect(status().isInternalServerError())
+                .andExpect(content().string(
+                        org.hamcrest.Matchers.containsString("Error al crear el producto: Error creando producto")
+                ));
     }
 
     @Test

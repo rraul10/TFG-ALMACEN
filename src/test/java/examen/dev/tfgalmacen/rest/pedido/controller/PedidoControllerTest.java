@@ -12,6 +12,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -82,6 +83,7 @@ class PedidoControllerTest {
     }
 
     @Test
+    @WithMockUser(username = "juan.perez@example.com")
     void create() throws Exception {
         PedidoRequest request = mockRequest();
         PedidoResponse response = mockResponse();
@@ -100,7 +102,6 @@ class PedidoControllerTest {
         verify(pedidoService).create(any(PedidoRequest.class), eq(1L));
         verify(pedidoService).createStripeCheckout(any(PedidoResponse.class));
     }
-
 
 
     @Test

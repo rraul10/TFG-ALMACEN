@@ -65,7 +65,7 @@ class ClienteRepositoryTest {
                 .build();
         entityManager.persistAndFlush(cliente);
 
-        Optional<Cliente> found = clienteRepository.findByUserCorreo("user2@example.com");
+        Optional<Cliente> found = clienteRepository.findByUser_Correo("user2@example.com");
         assertTrue(found.isPresent());
         assertEquals("87654321B", found.get().getDni());
     }
