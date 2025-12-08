@@ -35,33 +35,36 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
+                        // Rutas públicas de autenticación y uploads
                         .requestMatchers(
-                                "/",
-                                "/index.html",
-                                "/swagger-ui.html",
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**",
-                                "/swagger-resources/**",
-                                "/webjars/**"
+                                "/auth/login",
+                                "/auth/register/cliente",
+                                "/auth/register",
+                                "/auth/forgot-password",
+                                "/auth/reset-password",
+                                "/uploads/**",
+                                "/jacoco/**"
                         ).permitAll()
-                        .requestMatchers("/auth/login", "/auth/register/cliente", "/auth/register", "/auth/forgot-password", "/auth/reset-password").permitAll()
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
                         .requestMatchers("/api/productos/create").hasAnyRole("ADMIN","TRABAJADOR")
                         .requestMatchers(HttpMethod.PUT, "/api/productos/**").hasAnyRole("ADMIN","TRABAJADOR")
                         .requestMatchers(HttpMethod.DELETE, "/api/productos/**").hasAnyRole("ADMIN","TRABAJADOR")
                         .requestMatchers(HttpMethod.GET, "/api/productos/**").permitAll()
+
                         .requestMatchers("/api/payments/**").permitAll()
+
                         .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
                         .requestMatchers(HttpMethod.PUT, "/api/users/**").authenticated()
+
                         .requestMatchers("/api/clientes/create").hasAnyAuthority("ROLE_ADMIN", "ROLE_TRABAJADOR")
                         .requestMatchers("/api/clientes/**").authenticated()
                         .requestMatchers("/api/trabajadores/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_TRABAJADOR")
+
                         .requestMatchers(HttpMethod.POST, "/api/pedidos/**").hasAuthority("ROLE_CLIENTE")
                         .requestMatchers(HttpMethod.GET, "/api/pedidos/cliente/**").hasAnyAuthority("ROLE_CLIENTE","ROLE_ADMIN","ROLE_TRABAJADOR")
-                        .requestMatchers(HttpMethod.GET, "/api/pedidos/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_TRABAJADOR")
-                        .requestMatchers(HttpMethod.PUT, "/api/pedidos/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_TRABAJADOR")
-                        .requestMatchers("/uploads/**").permitAll()
-                        .requestMatchers("/jacoco", "/jacoco/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/pedidos/**").hasAnyAuthority("ROLE_ADMIN","ROLE_TRABAJADOR")
+                        .requestMatchers(HttpMethod.PUT, "/api/pedidos/**").hasAnyAuthority("ROLE_ADMIN","ROLE_TRABAJADOR")
+
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
