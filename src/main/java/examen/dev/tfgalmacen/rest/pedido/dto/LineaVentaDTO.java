@@ -1,5 +1,6 @@
 package examen.dev.tfgalmacen.rest.pedido.dto;
 
+import examen.dev.tfgalmacen.rest.pedido.models.LineaVenta;
 import lombok.*;
 
 @Data
@@ -7,6 +8,22 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class LineaVentaDTO {
+
     private Long productoId;
-    private int cantidad;
+    private String productoNombre;
+    private Integer cantidad;
+    private Double precio;
+
+    public static LineaVentaDTO fromLineaVenta(LineaVenta lineaVenta) {
+        return LineaVentaDTO.builder()
+                .productoId(lineaVenta.getProducto().getId())
+                .productoNombre(lineaVenta.getProducto().getNombre())
+                .cantidad(lineaVenta.getCantidad())
+                .precio(lineaVenta.getPrecioUnitario())
+                .build();
+    }
+
 }
+
+
+

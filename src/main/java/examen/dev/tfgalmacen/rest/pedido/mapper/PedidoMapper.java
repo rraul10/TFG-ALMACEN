@@ -65,7 +65,11 @@ public class PedidoMapper {
         return lineasVenta.stream().map(linea -> {
             LineaVentaDTO dto = new LineaVentaDTO();
             dto.setProductoId(linea.getProducto().getId());
+            dto.setProductoNombre(linea.getProducto().getNombre());
             dto.setCantidad(linea.getCantidad());
+
+            dto.setPrecio((double) Math.round(linea.getPrecioUnitario()));
+
             return dto;
         }).collect(Collectors.toList());
     }
@@ -81,9 +85,12 @@ public class PedidoMapper {
     public static LineaVentaDTO toDto(LineaVenta lineaVenta) {
         LineaVentaDTO dto = new LineaVentaDTO();
         dto.setProductoId(lineaVenta.getProducto().getId());
+        dto.setProductoNombre(lineaVenta.getProducto().getNombre());
         dto.setCantidad(lineaVenta.getCantidad());
+        dto.setPrecio(lineaVenta.getPrecioUnitario());
         return dto;
     }
+
 
     public static LineaVenta toEntity(LineaVentaDTO dto) {
         LineaVenta lineaVenta = new LineaVenta();

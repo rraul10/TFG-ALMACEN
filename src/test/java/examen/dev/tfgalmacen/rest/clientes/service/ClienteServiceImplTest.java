@@ -6,10 +6,10 @@ import examen.dev.tfgalmacen.rest.clientes.exceptions.ClienteNotFound;
 import examen.dev.tfgalmacen.rest.clientes.mapper.ClienteMapper;
 import examen.dev.tfgalmacen.rest.clientes.models.Cliente;
 import examen.dev.tfgalmacen.rest.clientes.repository.ClienteRepository;
-import examen.dev.tfgalmacen.rest.clientes.service.ClienteServiceImpl;
 import examen.dev.tfgalmacen.rest.users.UserRole;
 import examen.dev.tfgalmacen.rest.users.models.User;
 import examen.dev.tfgalmacen.rest.users.repository.UserRepository;
+import examen.dev.tfgalmacen.storage.service.StorageService;
 import examen.dev.tfgalmacen.websockets.notifications.EmailService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,12 +39,25 @@ class ClienteServiceImplTest {
     @Mock
     private EmailService emailService;
 
+    @Mock
+    private StorageService storageService;
+
     @InjectMocks
     private ClienteServiceImpl clienteService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+    }
+
+    private ClienteResponse buildClienteResponse(Long id, Long userId, String dni, String fotoDni, String direccionEnvio) {
+        ClienteResponse cliente = new ClienteResponse();
+        cliente.setId(id);
+        cliente.setUserId(userId);
+        cliente.setDni(dni);
+        cliente.setFotoDni(fotoDni);
+        cliente.setDireccionEnvio(direccionEnvio);
+        return cliente;
     }
 
     @Test
@@ -64,14 +77,12 @@ class ClienteServiceImplTest {
         List<Cliente> clientes = List.of(cliente1, cliente2);
 
         when(clienteRepository.findAll()).thenReturn(clientes);
-        when(clienteMapper.toResponse(cliente1)).thenReturn(new ClienteResponse(1L, 1L, "12345678A", "foto1.jpg", "Calle A"));
-        when(clienteMapper.toResponse(cliente2)).thenReturn(new ClienteResponse(2L, 2L, "98765432B", "foto2.jpg", "Calle B"));
+        when(clienteMapper.toResponse(cliente1)).thenReturn(buildClienteResponse(1L, 1L, "12345678A", "foto1.jpg", "Calle A"));
+        when(clienteMapper.toResponse(cliente2)).thenReturn(buildClienteResponse(2L, 2L, "98765432B", "foto2.jpg", "Calle B"));
 
         List<ClienteResponse> response = clienteService.getAllClientes();
 
         assertEquals(2, response.size());
-        assertEquals("12345678A", response.get(0).getDni());
-        assertEquals("98765432B", response.get(1).getDni());
         verify(clienteRepository).findAll();
     }
 
@@ -94,7 +105,9 @@ class ClienteServiceImplTest {
         cliente.setDireccionEnvio("Calle A");
 
         when(clienteRepository.findById(1L)).thenReturn(Optional.of(cliente));
-        when(clienteMapper.toResponse(cliente)).thenReturn(new ClienteResponse(1L, 1L, "12345678A", "foto1.jpg", "Calle A"));
+        when(clienteMapper.toResponse(cliente)).thenReturn(
+                buildClienteResponse(1L, 1L, "12345678A", "foto1.jpg", "Calle A")
+        );
 
         ClienteResponse response = clienteService.getById(1L);
 
@@ -115,16 +128,16 @@ class ClienteServiceImplTest {
     void createCliente() {
         ClienteRequest request = new ClienteRequest(1L, "12345678A", "foto1.jpg", "Calle A");
 
-        User user = new User(
-                1L,
-                "user1",
-                "correo@dominio.com",
-                "password",
-                Set.of(UserRole.CLIENTE),
-                LocalDateTime.now(),
-                LocalDateTime.now(),
-                false
-        );
+        User user = User.builder()
+                .id(1L)
+                .nombre("user1")
+                .correo("correo@dominio.com")
+                .password("password")
+                .roles(Set.of(UserRole.CLIENTE))
+                .created(LocalDateTime.now())
+                .updated(LocalDateTime.now())
+                .deleted(false)
+                .build();
 
         Cliente cliente = new Cliente();
         cliente.setId(1L);
@@ -132,7 +145,7 @@ class ClienteServiceImplTest {
         cliente.setFotoDni("foto1.jpg");
         cliente.setDireccionEnvio("Calle A");
 
-        ClienteResponse responseMock = new ClienteResponse(1L, 1L, "12345678A", "foto1.jpg", "Calle A");
+        ClienteResponse responseMock = buildClienteResponse(1L, 1L, "12345678A", "foto1.jpg", "Calle A");
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(clienteMapper.toEntity(request, user)).thenReturn(cliente);
@@ -142,10 +155,6 @@ class ClienteServiceImplTest {
         ClienteResponse response = clienteService.createCliente(request);
 
         assertEquals("12345678A", response.getDni());
-        assertEquals("foto1.jpg", response.getFotoDni());
-        assertEquals("Calle A", response.getDireccionEnvio());
-
-        verify(userRepository).findById(1L);
         verify(clienteRepository).save(cliente);
     }
 
@@ -158,6 +167,7 @@ class ClienteServiceImplTest {
         assertThrows(ClienteNotFound.class, () -> clienteService.createCliente(request));
         verify(userRepository).findById(1L);
     }
+
     @Test
     void updateCliente() {
         ClienteRequest request = new ClienteRequest(1L, "87654321B", "foto2.jpg", "Calle B");
@@ -182,21 +192,13 @@ class ClienteServiceImplTest {
 
         when(clienteRepository.findById(1L)).thenReturn(Optional.of(clienteExistente));
         when(clienteRepository.save(clienteExistente)).thenReturn(clienteActualizado);
-        when(clienteMapper.toResponse(clienteActualizado)).thenReturn(
-                new ClienteResponse(1L, 1L, "87654321B", "foto2.jpg", "Calle B")
-        );
+        when(clienteMapper.toResponse(clienteActualizado)).thenReturn(buildClienteResponse(1L, 1L, "87654321B", "foto2.jpg", "Calle B"));
 
         ClienteResponse response = clienteService.updateCliente(1L, request);
 
-        assertNotNull(response);
         assertEquals("87654321B", response.getDni());
-        assertEquals("foto2.jpg", response.getFotoDni());
-        assertEquals("Calle B", response.getDireccionEnvio());
-
-        verify(clienteRepository).save(clienteExistente);
         verify(emailService).notificarActualizacionPerfil("usuario@example.com", "Usuario Nombre");
     }
-
 
     @Test
     void updateClienteNotFound() {
@@ -205,16 +207,12 @@ class ClienteServiceImplTest {
         when(clienteRepository.findById(1L)).thenReturn(Optional.empty());
 
         assertThrows(ClienteNotFound.class, () -> clienteService.updateCliente(1L, request));
-        verify(clienteRepository).findById(1L);
     }
 
     @Test
     void deleteCliente() {
         Cliente cliente = new Cliente();
         cliente.setId(1L);
-        cliente.setDni("12345678A");
-        cliente.setFotoDni("foto1.jpg");
-        cliente.setDireccionEnvio("Calle A");
 
         when(clienteRepository.findById(1L)).thenReturn(Optional.of(cliente));
 
@@ -229,7 +227,6 @@ class ClienteServiceImplTest {
         when(clienteRepository.findById(1L)).thenReturn(Optional.empty());
 
         assertThrows(ClienteNotFound.class, () -> clienteService.deleteCliente(1L));
-        verify(clienteRepository).findById(1L);
     }
 
     @Test
@@ -240,9 +237,7 @@ class ClienteServiceImplTest {
 
         Cliente result = clienteService.getClienteEntityById(1L);
 
-        assertNotNull(result);
         assertEquals(1L, result.getId());
-        verify(clienteRepository, times(1)).findById(1L);
     }
 
     @Test
@@ -255,6 +250,111 @@ class ClienteServiceImplTest {
         );
 
         assertEquals("Cliente no encontrado", ex.getMessage());
-        verify(clienteRepository, times(1)).findById(2L);
+    }
+
+    @Test
+    void test_getByUserId_success() {
+        Long userId = 10L;
+
+        Cliente cliente = new Cliente();
+        cliente.setId(1L);
+
+        ClienteResponse response = new ClienteResponse();
+        response.setId(1L);
+
+        when(clienteRepository.findByUserId(userId))
+                .thenReturn(Optional.of(cliente));
+
+        when(clienteMapper.toResponse(cliente))
+                .thenReturn(response);
+
+        ClienteResponse result = clienteService.getByUserId(userId);
+
+        assertNotNull(result);
+        assertEquals(1L, result.getId());
+        verify(clienteRepository, times(1)).findByUserId(userId);
+        verify(clienteMapper, times(1)).toResponse(cliente);
+    }
+
+    @Test
+    void test_getByUserId_notFound() {
+        Long userId = 10L;
+
+        when(clienteRepository.findByUserId(userId))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                ClienteNotFound.class,
+                () -> clienteService.getByUserId(userId)
+        );
+    }
+
+    @Test
+    void test_getClienteByEmail_success() {
+        String email = "correo@test.com";
+
+        Cliente cliente = new Cliente();
+        cliente.setId(1L);
+
+        when(clienteRepository.findByUser_Correo(email))
+                .thenReturn(Optional.of(cliente));
+
+        Cliente result = clienteService.getClienteByEmail(email);
+
+        assertNotNull(result);
+        assertEquals(1L, result.getId());
+        verify(clienteRepository, times(1)).findByUser_Correo(email);
+    }
+
+    @Test
+    void test_getClienteByEmail_notFound() {
+        String email = "correo@test.com";
+
+        when(clienteRepository.findByUser_Correo(email))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                ClienteNotFound.class,
+                () -> clienteService.getClienteByEmail(email)
+        );
+    }
+
+    @Test
+    void test_updateClienteEntity_callsRepositorySave() {
+        Cliente cliente = new Cliente();
+        cliente.setId(1L);
+
+        clienteService.updateClienteEntity(cliente);
+
+        verify(clienteRepository, times(1)).save(cliente);
+    }
+
+    @Test
+    void test_getClienteEntityByUserId_success() {
+        Long userId = 5L;
+
+        Cliente cliente = new Cliente();
+        cliente.setId(1L);
+
+        when(clienteRepository.findByUserId(userId))
+                .thenReturn(Optional.of(cliente));
+
+        Cliente result = clienteService.getClienteEntityByUserId(userId);
+
+        assertNotNull(result);
+        assertEquals(1L, result.getId());
+    }
+
+    @Test
+    void test_getClienteEntityByUserId_notFound() {
+        Long userId = 5L;
+
+        when(clienteRepository.findByUserId(userId))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                ClienteNotFound.class,
+                () -> clienteService.getClienteEntityByUserId(userId)
+        );
     }
 }

@@ -25,6 +25,12 @@ bin/
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
+# .gitignore
+.env
+.env.backup
+
+
+
 
 ### NetBeans ###
 /nbproject/private/

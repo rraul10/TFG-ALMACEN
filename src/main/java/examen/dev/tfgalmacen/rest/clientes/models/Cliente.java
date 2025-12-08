@@ -32,6 +32,7 @@ public class Cliente {
 
     private String fotoDni;
 
+
     private String direccionEnvio;
 
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true)

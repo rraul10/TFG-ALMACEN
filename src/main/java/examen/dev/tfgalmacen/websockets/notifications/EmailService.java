@@ -28,10 +28,13 @@ public class EmailService {
     }
 
     public void notificarCambioEstadoPedido(Pedido pedido, String mensaje) {
-        SimpleMailMessage mensajeCorreo = new SimpleMailMessage();
+        if (pedido.getCliente() == null || pedido.getCliente().getUser() == null || pedido.getCliente().getUser().getCorreo() == null) {
+            throw new RuntimeException("No se puede enviar correo: el pedido no tiene un cliente o correo válido");
+        }
 
         String destinatario = pedido.getCliente().getUser().getCorreo();
 
+        SimpleMailMessage mensajeCorreo = new SimpleMailMessage();
         mensajeCorreo.setTo(destinatario);
         mensajeCorreo.setSubject("Cambio de Estado de Pedido: " + pedido.getId());
         mensajeCorreo.setText(mensaje);
@@ -47,7 +50,7 @@ public class EmailService {
 
         mailSender.send(mensaje);
     }
-
+    
     public void enviarTicketPorEmail(String destinatario, ByteArrayOutputStream pdfStream) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
@@ -72,6 +75,20 @@ public class EmailService {
         mensaje.setSubject("Actualización de perfil");
         mensaje.setText("Hola " + nombre + ",\n\nTu perfil ha sido actualizado correctamente.\n\n¡Gracias por mantener tu información al día!");
         mailSender.send(mensaje);
+    }
+
+    public void enviarEmailResetPassword(String destinatario, String token) {
+        String url = "http://localhost:4200/reset-password?token=" + token;
+        try {
+            SimpleMailMessage mensaje = new SimpleMailMessage();
+            mensaje.setTo(destinatario);
+            mensaje.setSubject("Restablecer contraseña");
+            mensaje.setText("Haz clic aquí para restablecer tu contraseña: " + url);
+            mailSender.send(mensaje);
+            System.out.println("Correo enviado a " + destinatario);
+        } catch (Exception e) {
+            System.err.println("No se pudo enviar correo a " + destinatario + ": " + e.getMessage());
+        }
     }
 
 }

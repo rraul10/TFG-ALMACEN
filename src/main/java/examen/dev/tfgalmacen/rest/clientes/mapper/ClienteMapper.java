@@ -23,11 +23,15 @@ public class ClienteMapper {
         return ClienteResponse.builder()
                 .id(cliente.getId())
                 .userId(cliente.getUser().getId())
+                .nombre(cliente.getUser().getNombre())
+                .email(cliente.getUser().getCorreo())
+                .telefono(cliente.getUser().getTelefono())
                 .dni(cliente.getDni())
                 .fotoDni(cliente.getFotoDni())
                 .direccionEnvio(cliente.getDireccionEnvio())
                 .build();
     }
 }
+
 
 

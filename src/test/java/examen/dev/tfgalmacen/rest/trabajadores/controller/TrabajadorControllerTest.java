@@ -25,9 +25,8 @@ import java.util.List;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -172,5 +171,53 @@ public class TrabajadorControllerTest {
 
         mockMvc.perform(delete("/api/trabajadores/{id}", 99L))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser(roles = {"ADMIN"})
+    void actualizarEstadoPedido_ok() throws Exception {
+        Long pedidoId = 1L;
+        EstadoPedido nuevoEstado = EstadoPedido.ENVIADO;
+
+        PedidoResponse response = PedidoResponse.builder()
+                .id(pedidoId)
+                .clienteId(10L)
+                .estado(nuevoEstado)
+                .build();
+
+        when(pedidoService.actualizarEstado(eq(pedidoId), eq(nuevoEstado.name())))
+                .thenReturn(response);
+
+        mockMvc.perform(put("/api/trabajadores/pedidos/{id}/estado", pedidoId)
+                        .param("nuevoEstado", nuevoEstado.name())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(pedidoId))
+                .andExpect(jsonPath("$.estado").value(nuevoEstado.name()));
+
+        verify(pedidoService).actualizarEstado(eq(pedidoId), eq(nuevoEstado.name()));
+    }
+
+    @Test
+    @WithMockUser(roles = {"ADMIN"})
+    void getTrabajadorByUserId_ok() throws Exception {
+        Long userId = 5L;
+
+        TrabajadorResponse response = TrabajadorResponse.builder()
+                .id(100L)
+                .userId(userId)
+                .nombre("Juan")
+                .build();
+
+        when(trabajadorService.getByUserId(eq(userId))).thenReturn(response);
+
+        mockMvc.perform(get("/api/trabajadores/user/{userId}", userId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(100L))
+                .andExpect(jsonPath("$.userId").value(userId))
+                .andExpect(jsonPath("$.nombre").value("Juan"));
+
+        verify(trabajadorService).getByUserId(eq(userId));
     }
 }

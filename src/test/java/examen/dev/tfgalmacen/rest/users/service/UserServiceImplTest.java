@@ -1,12 +1,16 @@
 package examen.dev.tfgalmacen.rest.users.service;
 
 import examen.dev.tfgalmacen.auth.exceptions.UserNotFound;
+import examen.dev.tfgalmacen.rest.clientes.models.Cliente;
+import examen.dev.tfgalmacen.rest.clientes.repository.ClienteRepository;
+import examen.dev.tfgalmacen.rest.trabajadores.models.Trabajador;
+import examen.dev.tfgalmacen.rest.trabajadores.repository.TrabajadorRepository;
+import examen.dev.tfgalmacen.rest.users.UserRole;
 import examen.dev.tfgalmacen.rest.users.dto.UserRequest;
 import examen.dev.tfgalmacen.rest.users.dto.UserResponse;
 import examen.dev.tfgalmacen.rest.users.mapper.UserMapper;
 import examen.dev.tfgalmacen.rest.users.models.User;
 import examen.dev.tfgalmacen.rest.users.repository.UserRepository;
-import examen.dev.tfgalmacen.rest.users.UserRole;
 import examen.dev.tfgalmacen.websockets.notifications.EmailService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,64 +29,102 @@ public class UserServiceImplTest {
     @Mock
     private UserMapper userMapper;
 
+    @Mock
+    private EmailService emailService;
+
+    @Mock
+    private TrabajadorRepository trabajadorRepository;
+
     private UserServiceImpl userService;
 
     @Mock
-    private EmailService emailService;
+    private ClienteRepository clienteRepository;
 
 
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
-        userService = new UserServiceImpl(userRepository, userMapper, emailService);
+        userService = new UserServiceImpl(
+                userRepository,
+                userMapper,
+                emailService,
+                null,
+                clienteRepository,
+                trabajadorRepository
+        );
     }
 
     @Test
     public void testGetAllUsers() {
-        Set<UserRole> roles = new HashSet<>(Arrays.asList(UserRole.ADMIN, UserRole.CLIENTE));
+        Set<UserRole> roles = Set.of(UserRole.ADMIN, UserRole.CLIENTE);
+
         User user1 = User.builder().id(1L).nombre("Juan Pérez").correo("juan.perez@example.com").roles(roles).build();
         User user2 = User.builder().id(2L).nombre("Ana Gómez").correo("ana.gomez@example.com").roles(roles).build();
-        List<User> users = Arrays.asList(user1, user2);
+
+        List<User> users = List.of(user1, user2);
 
         when(userRepository.findAll()).thenReturn(users);
 
-        UserResponse userResponse1 = new UserResponse(1L, "Juan Pérez", "juan.perez@example.com", roles);
-        UserResponse userResponse2 = new UserResponse(2L, "Ana Gómez", "ana.gomez@example.com", roles);
-        when(userMapper.toDto(user1)).thenReturn(userResponse1);
-        when(userMapper.toDto(user2)).thenReturn(userResponse2);
+        when(clienteRepository.findByUserId(anyLong())).thenReturn(Optional.empty());
+        when(trabajadorRepository.findByUserId(anyLong())).thenReturn(Optional.empty());
 
-        List<UserResponse> userResponses = userService.getAllUsers();
+        List<UserResponse> result = userService.getAllUsers();
 
-        assertNotNull(userResponses);
-        assertEquals(2, userResponses.size());
-        assertEquals(userResponse1, userResponses.get(0));
-        assertEquals(userResponse2, userResponses.get(1));
+        assertNotNull(result);
+        assertEquals(2, result.size());
 
-        verify(userRepository, times(1)).findAll();
-        verify(userMapper, times(1)).toDto(user1);
-        verify(userMapper, times(1)).toDto(user2);
+        UserResponse r1 = result.get(0);
+        assertEquals(1L, r1.getId());
+        assertEquals("Juan Pérez", r1.getNombre());
+        assertEquals("juan.perez@example.com", r1.getCorreo());
+        assertEquals(Set.of(UserRole.ADMIN, UserRole.CLIENTE), r1.getRoles());
+        assertEquals("ADMIN", r1.getRol());
     }
 
     @Test
     public void testGetUserById_UserFound() {
-        Set<UserRole> roles = new HashSet<>(Arrays.asList(UserRole.ADMIN, UserRole.CLIENTE));
-        User user = User.builder().id(1L).nombre("Juan Pérez").correo("juan.perez@example.com").roles(roles).build();
-        UserResponse userResponse = new UserResponse(1L, "Juan Pérez", "juan.perez@example.com", roles);
+        Set<UserRole> roles = new LinkedHashSet<>();
+        roles.add(UserRole.ADMIN);
+        roles.add(UserRole.CLIENTE);
+
+        User user = User.builder()
+                .id(1L)
+                .nombre("Juan Pérez")
+                .correo("juan.perez@example.com")
+                .roles(roles)
+                .build();
+
+        UserResponse expectedResponse = new UserResponse();
+        expectedResponse.setId(1L);
+        expectedResponse.setNombre("Juan Pérez");
+        expectedResponse.setCorreo("juan.perez@example.com");
+        expectedResponse.setRoles(roles);
+        expectedResponse.setRol("ADMIN");
+        expectedResponse.setDni("");
+        expectedResponse.setFotoDni("");
+        expectedResponse.setDireccionEnvio("");
+        expectedResponse.setNumeroSeguridadSocial("");
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(userMapper.toDto(user)).thenReturn(userResponse);
 
         UserResponse result = userService.getUserById(1L);
 
         assertNotNull(result);
-        assertEquals(userResponse, result);
+        assertEquals(expectedResponse.getId(), result.getId());
+        assertEquals(expectedResponse.getNombre(), result.getNombre());
+        assertEquals(expectedResponse.getCorreo(), result.getCorreo());
+        assertEquals(expectedResponse.getRoles(), result.getRoles());
+        assertEquals(expectedResponse.getRol(), result.getRol());
+        assertEquals(expectedResponse.getDni(), result.getDni());
+        assertEquals(expectedResponse.getFotoDni(), result.getFotoDni());
+        assertEquals(expectedResponse.getDireccionEnvio(), result.getDireccionEnvio());
+        assertEquals(expectedResponse.getNumeroSeguridadSocial(), result.getNumeroSeguridadSocial());
 
         verify(userRepository, times(1)).findById(1L);
-        verify(userMapper, times(1)).toDto(user);
     }
 
     @Test
-    public void testGetUserByIdUserNotFound() {
+    public void testGetUserById_UserNotFound() {
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
         assertThrows(UserNotFound.class, () -> userService.getUserById(1L));
@@ -92,30 +134,49 @@ public class UserServiceImplTest {
     }
 
     @Test
-    public void testCreateUser() {
-        Set<UserRole> roles = new HashSet<>(Arrays.asList(UserRole.ADMIN, UserRole.CLIENTE));
-        UserRequest userRequest = new UserRequest("Juan Pérez", "juan.perez@example.com", "password123", roles);
-        User user = User.builder().id(1L).nombre("Juan Pérez").correo("juan.perez@example.com").roles(roles).build();
-        UserResponse userResponse = new UserResponse(1L, "Juan Pérez", "juan.perez@example.com", roles);
+    void testCreateUser_Trabajador() {
+        Set<UserRole> roles = Set.of(UserRole.TRABAJADOR);
+
+        UserRequest userRequest = UserRequest.builder()
+                .nombre("Pedro Trabajador")
+                .correo("pedro@example.com")
+                .password("pass123")
+                .roles(roles)
+                .numeroSeguridadSocial("123456789")
+                .build();
+
+        User user = User.builder()
+                .id(2L)
+                .nombre("Pedro Trabajador")
+                .correo("pedro@example.com")
+                .roles(roles)
+                .build();
 
         when(userMapper.toEntity(userRequest)).thenReturn(user);
         when(userRepository.save(user)).thenReturn(user);
-        when(userMapper.toDto(user)).thenReturn(userResponse);
+        when(trabajadorRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(userRepository.findById(2L)).thenReturn(Optional.of(user));
 
-        UserResponse result = userService.createUser(userRequest);
+        UserResponse response = userService.createUser(userRequest);
 
-        assertNotNull(result);
-        assertEquals(userResponse, result);
-
-        verify(userMapper, times(1)).toEntity(userRequest);
-        verify(userRepository, times(1)).save(user);
-        verify(userMapper, times(1)).toDto(user);
+        assertNotNull(response);
+        assertEquals("Pedro Trabajador", response.getNombre());
+        verify(trabajadorRepository, times(1)).save(any());
     }
 
     @Test
     public void testUpdateUser() {
-        Set<UserRole> roles = new HashSet<>(Arrays.asList(UserRole.ADMIN, UserRole.CLIENTE));
-        UserRequest userRequest = new UserRequest("Juan Pérez Actualizado", "juan.perez.updated@example.com", "newpassword123", roles);
+        Set<UserRole> roles = new LinkedHashSet<>();
+        roles.add(UserRole.ADMIN);
+        roles.add(UserRole.CLIENTE);
+
+
+        UserRequest userRequest = UserRequest.builder()
+                .nombre("Juan Pérez Actualizado")
+                .correo("juan.perez.updated@example.com")
+                .password("newpassword123")
+                .roles(roles)
+                .build();
 
         User user = User.builder()
                 .id(1L)
@@ -124,33 +185,93 @@ public class UserServiceImplTest {
                 .roles(roles)
                 .build();
 
-        UserResponse userResponse = new UserResponse(1L, "Juan Pérez Actualizado", "juan.perez.updated@example.com", roles);
-
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-
-        when(userMapper.toDto(user)).thenReturn(userResponse);
-
-        doNothing().when(userMapper).updateUserFromRequest(user, userRequest);
-
         when(userRepository.save(user)).thenReturn(user);
+
+        when(clienteRepository.findByUserId(1L)).thenReturn(Optional.empty());
+        when(trabajadorRepository.findByUserId(1L)).thenReturn(Optional.empty());
 
         UserResponse result = userService.updateUser(1L, userRequest);
 
         assertNotNull(result);
+        assertEquals("Juan Pérez Actualizado", result.getNombre());
+        assertEquals("juan.perez.updated@example.com", result.getCorreo());
+        assertEquals("ADMIN", result.getRol());
+        assertEquals("", result.getDni());
+        assertEquals("", result.getFotoDni());
+        assertEquals("", result.getDireccionEnvio());
+        assertEquals("", result.getNumeroSeguridadSocial());
+    }
 
-        assertEquals(userResponse, result);
+    @Test
+    void testUpdateUser_cliente() {
+        Set<UserRole> roles = Set.of(UserRole.CLIENTE);
 
-        verify(userRepository, times(1)).findById(1L);
-        verify(userMapper, times(1)).updateUserFromRequest(user, userRequest);
-        verify(userRepository, times(1)).save(user);
-        verify(userMapper, times(1)).toDto(user);
+        UserRequest request = UserRequest.builder()
+                .nombre("Cliente Actualizado")
+                .correo("cliente@example.com")
+                .roles(roles)
+                .dni("12345678Z")
+                .fotoDni("dni.jpg")
+                .direccionEnvio("Calle Falsa 123")
+                .build();
+
+        User user = User.builder().id(1L).nombre("Cliente").correo("cliente@example.com").roles(roles).build();
+
+        Cliente cliente = Cliente.builder().user(user).build();
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userRepository.save(any())).thenReturn(user);
+        when(clienteRepository.findByUserId(1L)).thenReturn(Optional.of(cliente));
+        when(clienteRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        UserResponse response = userService.updateUser(1L, request);
+
+        assertNotNull(response);
+        assertEquals("Cliente Actualizado", response.getNombre());
+        verify(clienteRepository, times(1)).save(any());
+        verify(trabajadorRepository, never()).save(any());
+    }
+
+    @Test
+    void testUpdateUser_trabajador() {
+        Set<UserRole> roles = Set.of(UserRole.TRABAJADOR);
+
+        UserRequest request = UserRequest.builder()
+                .nombre("Trabajador Actualizado")
+                .correo("trabajador@example.com")
+                .roles(roles)
+                .numeroSeguridadSocial("987654321")
+                .build();
+
+        User user = User.builder().id(2L).nombre("Trabajador").correo("trabajador@example.com").roles(roles).build();
+
+        Trabajador trabajador = Trabajador.builder().user(user).build();
+
+        when(userRepository.findById(2L)).thenReturn(Optional.of(user));
+        when(userRepository.save(any())).thenReturn(user);
+        when(trabajadorRepository.findByUserId(2L)).thenReturn(Optional.of(trabajador));
+        when(trabajadorRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        UserResponse response = userService.updateUser(2L, request);
+
+        assertNotNull(response);
+        assertEquals("Trabajador Actualizado", response.getNombre());
+        verify(trabajadorRepository, times(1)).save(any());
+        verify(clienteRepository, never()).save(any());
     }
 
 
     @Test
     public void testDeleteUser() {
-        Set<UserRole> roles = new HashSet<>(Arrays.asList(UserRole.ADMIN, UserRole.CLIENTE));
-        User user = User.builder().id(1L).nombre("Juan Pérez").correo("juan.perez@example.com").roles(roles).build();
+        Set<UserRole> roles = Set.of(UserRole.ADMIN, UserRole.CLIENTE);
+
+        User user = User.builder()
+                .id(1L)
+                .nombre("Juan Pérez")
+                .correo("juan.perez@example.com")
+                .roles(roles)
+                .build();
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 

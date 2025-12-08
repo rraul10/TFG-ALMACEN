@@ -2,6 +2,7 @@ package examen.dev.tfgalmacen.rest.productos.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import examen.dev.tfgalmacen.cloudinary.service.CloudinaryService;
 import examen.dev.tfgalmacen.rest.productos.dto.ProductoRequest;
 import examen.dev.tfgalmacen.rest.productos.dto.ProductoResponse;
 import examen.dev.tfgalmacen.rest.productos.service.ProductoService;
@@ -23,6 +24,7 @@ public class ProductoController {
 
     private final ProductoService productoService;
     private final StorageService storageService;
+    private final CloudinaryService cloudinaryService;
 
     @GetMapping
     public ResponseEntity<List<ProductoResponse>> getAll() {
@@ -36,46 +38,58 @@ public class ProductoController {
 
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAnyRole('ADMIN', 'TRABAJADOR')")
-    public ResponseEntity<ProductoResponse> create(
+    public ResponseEntity<?> create(
             @RequestPart("producto") String productoJson,
-            @RequestPart(value = "imagen", required = false) MultipartFile imagen) throws JsonProcessingException {
+            @RequestPart(value = "imagen", required = false) MultipartFile imagen) {
 
-        ObjectMapper mapper = new ObjectMapper();
-        ProductoRequest request = mapper.readValue(productoJson, ProductoRequest.class);
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            ProductoRequest request = mapper.readValue(productoJson, ProductoRequest.class);
 
-        String nombreImagen = (imagen != null && !imagen.isEmpty())
-                ? storageService.store(imagen)
-                : "default.jpg";
+            if (imagen != null && !imagen.isEmpty()) {
+                String urlImagen = cloudinaryService.uploadFile(imagen);
+                request.setImagen(urlImagen);
+            } else {
+                request.setImagen("default.jpg");
+            }
 
-        request.setImagen(nombreImagen);
+            ProductoResponse response = productoService.create(request);
 
-        ProductoResponse response = productoService.create(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al crear el producto: " + e.getMessage());
+        }
     }
-
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'TRABAJADOR')")
-    public ResponseEntity<ProductoResponse> update(
+    public ResponseEntity<?> update(
             @PathVariable Long id,
             @RequestPart("producto") String productoJson,
-            @RequestPart(value = "imagen", required = false) MultipartFile imagen) throws JsonProcessingException {
+            @RequestPart(value = "imagen", required = false) MultipartFile imagen) {
 
-        ObjectMapper mapper = new ObjectMapper();
-        ProductoRequest productoRequest = mapper.readValue(productoJson, ProductoRequest.class);
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            ProductoRequest productoRequest = mapper.readValue(productoJson, ProductoRequest.class);
 
-        String nombreImagen = (imagen != null && !imagen.isEmpty())
-                ? storageService.store(imagen)
-                : "default.jpg";
+            if (imagen != null && !imagen.isEmpty()) {
+                String urlImagen = cloudinaryService.uploadFile(imagen);
+                productoRequest.setImagen(urlImagen);
+            }
 
-        productoRequest.setImagen(nombreImagen);
+            ProductoResponse productoActualizado = productoService.update(id, productoRequest);
 
-        ProductoResponse productoActualizado = productoService.update(id, productoRequest);
+            return ResponseEntity.ok(productoActualizado);
 
-        return ResponseEntity.ok(productoActualizado);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al actualizar el producto: " + e.getMessage());
+        }
     }
-
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'TRABAJADOR')")

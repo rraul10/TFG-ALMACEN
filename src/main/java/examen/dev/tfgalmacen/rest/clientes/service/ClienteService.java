@@ -18,6 +18,14 @@ public interface ClienteService {
     void deleteCliente(Long id);
 
     Cliente getClienteEntityById(Long id);
+
+    ClienteResponse getByUserId(Long userId);
+
+    Cliente getClienteByEmail(String email);
+
+    void updateClienteEntity(Cliente cliente);
+
+    Cliente getClienteEntityByUserId(Long userId);
 }
 
 

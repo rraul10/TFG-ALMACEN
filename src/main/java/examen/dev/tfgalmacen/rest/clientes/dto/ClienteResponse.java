@@ -10,7 +10,11 @@ import lombok.*;
 public class ClienteResponse {
     private Long id;
     private Long userId;
+    private String nombre;
+    private String email;
+    private String telefono;
     private String dni;
     private String fotoDni;
     private String direccionEnvio;
 }
+

@@ -19,7 +19,7 @@ public class PedidoMapperTest {
     @Test
     void testToEntity() {
         PedidoRequest pedidoRequest = new PedidoRequest();
-        pedidoRequest.setLineasVenta(List.of(new LineaVentaDTO(1L, 2)));
+        pedidoRequest.setLineasVenta(List.of(new LineaVentaDTO(1L, null, 2, null)));
 
         Cliente cliente = new Cliente();
         cliente.setId(1L);
@@ -68,7 +68,7 @@ public class PedidoMapperTest {
         pedido.setId(1L);
 
         PedidoRequest pedidoRequest = new PedidoRequest();
-        pedidoRequest.setLineasVenta(List.of(new LineaVentaDTO(1L, 5)));
+        pedidoRequest.setLineasVenta(List.of(new LineaVentaDTO(1L, null, 5, null)));
 
         PedidoMapper.updatePedidoFromRequest(pedido, pedidoRequest);
 
@@ -79,7 +79,8 @@ public class PedidoMapperTest {
 
     @Test
     void testLineaVentaDtoToEntity() {
-        LineaVentaDTO dto = new LineaVentaDTO(10L, 3);
+        LineaVentaDTO dto = new LineaVentaDTO(10L, null, 3, null)
+        ;
 
         LineaVenta entity = PedidoMapper.toEntity(dto);
 

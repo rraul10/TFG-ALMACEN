@@ -15,5 +15,8 @@ public interface TrabajadorService {
     TrabajadorResponse updateTrabajador(Long id, TrabajadorRequest request);
 
     void deleteTrabajador(Long id);
+
+    TrabajadorResponse getByUserId(Long userId);
+
 }
 

@@ -160,4 +160,45 @@ class TrabajadorServiceImplTest {
 
         assertThrows(TrabajadorNotFoundException.class, () -> trabajadorService.deleteTrabajador(1L));
     }
+
+    @Test
+    void getByUserId_ok() {
+        Long userId = 10L;
+
+        User user = new User();
+        user.setId(10L);
+        user.setNombre("Juan");
+        user.setCorreo("juan@example.com");
+
+        Trabajador trabajador = new Trabajador();
+        trabajador.setId(100L);
+        trabajador.setUser(user);
+        trabajador.setNumeroSeguridadSocial("123456789");
+
+
+        when(trabajadorRepository.findByUserId(userId)).thenReturn(Optional.of(trabajador));
+
+        TrabajadorResponse response = trabajadorService.getByUserId(userId);
+
+        assertNotNull(response);
+        assertEquals(100L, response.getId());
+        assertEquals(userId, response.getUserId());
+        assertEquals("Juan", response.getNombre());
+
+        verify(trabajadorRepository).findByUserId(userId);
+    }
+
+    @Test
+    void getByUserId_notFound() {
+        Long userId = 999L;
+
+        when(trabajadorRepository.findByUserId(userId)).thenReturn(Optional.empty());
+
+        TrabajadorNotFoundException exception = assertThrows(TrabajadorNotFoundException.class,
+                () -> trabajadorService.getByUserId(userId));
+
+        assertEquals("Trabajador no encontrado", exception.getMessage());
+
+        verify(trabajadorRepository).findByUserId(userId);
+    }
 }

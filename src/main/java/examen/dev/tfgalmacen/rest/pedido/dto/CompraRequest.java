@@ -11,5 +11,6 @@ public class CompraRequest {
     private String productoNombre;
     private int cantidad;
     private Long clienteId;
+    private Long userId;
 }
 

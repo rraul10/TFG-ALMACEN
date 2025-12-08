@@ -1,6 +1,6 @@
 package examen.dev.tfgalmacen.rest.users.controller;
 
-import examen.dev.tfgalmacen.auth.exceptions.UserNotFound;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import examen.dev.tfgalmacen.rest.users.dto.UserRequest;
 import examen.dev.tfgalmacen.rest.users.dto.UserResponse;
 import examen.dev.tfgalmacen.rest.users.service.UserService;
@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -30,17 +31,32 @@ public class UserControllerTest {
     @InjectMocks
     private UserController userController;
 
+    private ObjectMapper objectMapper;
+
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
         mockMvc = MockMvcBuilders.standaloneSetup(userController).build();
+        objectMapper = new ObjectMapper();
     }
 
     @Test
     public void testGetAllUsers() throws Exception {
         Set<UserRole> roles = new HashSet<>(Arrays.asList(UserRole.ADMIN, UserRole.CLIENTE));
-        UserResponse userResponse1 = new UserResponse(1L, "Juan Pérez", "juan.perez@example.com", roles);
-        UserResponse userResponse2 = new UserResponse(2L, "Ana Gómez", "ana.gomez@example.com", roles);
+
+        UserResponse userResponse1 = UserResponse.builder()
+                .id(1L)
+                .nombre("Juan Pérez")
+                .correo("juan.perez@example.com")
+                .roles(roles)
+                .build();
+
+        UserResponse userResponse2 = UserResponse.builder()
+                .id(2L)
+                .nombre("Ana Gómez")
+                .correo("ana.gomez@example.com")
+                .roles(roles)
+                .build();
 
         when(userService.getAllUsers()).thenReturn(Arrays.asList(userResponse1, userResponse2));
 
@@ -55,10 +71,17 @@ public class UserControllerTest {
         verify(userService, times(1)).getAllUsers();
     }
 
+
     @Test
     public void testGetUserById() throws Exception {
         Set<UserRole> roles = new HashSet<>(Arrays.asList(UserRole.ADMIN, UserRole.CLIENTE));
-        UserResponse userResponse = new UserResponse(1L, "Juan Pérez", "juan.perez@example.com", roles);
+
+        UserResponse userResponse = UserResponse.builder()
+                .id(1L)
+                .nombre("Juan Pérez")
+                .correo("juan.perez@example.com")
+                .roles(roles)
+                .build();
 
         when(userService.getUserById(1L)).thenReturn(userResponse);
 
@@ -72,18 +95,34 @@ public class UserControllerTest {
     }
 
     @Test
-    public void testCreateUser() throws Exception {
+    public void testCreateUserWithMultipart() throws Exception {
         Set<UserRole> roles = new HashSet<>(Arrays.asList(UserRole.ADMIN, UserRole.CLIENTE));
-        UserRequest userRequest = new UserRequest("Juan Pérez", "juan.perez@example.com", "password123", roles);
-        UserResponse userResponse = new UserResponse(1L, "Juan Pérez", "juan.perez@example.com", roles);
+
+        UserRequest userRequest = UserRequest.builder()
+                .nombre("Juan Pérez")
+                .correo("juan.perez@example.com")
+                .password("password123")
+                .roles(roles)
+                .build();
+
+        UserResponse userResponse = UserResponse.builder()
+                .id(1L)
+                .nombre("Juan Pérez")
+                .correo("juan.perez@example.com")
+                .roles(roles)
+                .build();
 
         when(userService.createUser(any(UserRequest.class))).thenReturn(userResponse);
 
-        mockMvc.perform(post("/api/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"nombre\":\"Juan Pérez\", \"correo\":\"juan.perez@example.com\", \"password\":\"password123\", \"roles\":[\"ADMIN\",\"CLIENTE\"]}"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        String userJson = objectMapper.writeValueAsString(userRequest);
+        MockMultipartFile userPart = new MockMultipartFile("user", "", "application/json", userJson.getBytes());
+        MockMultipartFile fotoPart = new MockMultipartFile("foto", new byte[0]); // archivo vacío opcional
+
+        mockMvc.perform(multipart("/api/users")
+                        .file(userPart)
+                        .file(fotoPart))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.nombre").value("Juan Pérez"));
 
@@ -91,23 +130,45 @@ public class UserControllerTest {
     }
 
     @Test
-    public void testUpdateUser() throws Exception {
+    public void testUpdateUser_Multipart() throws Exception {
         Set<UserRole> roles = new HashSet<>(Arrays.asList(UserRole.ADMIN, UserRole.CLIENTE));
-        UserRequest userRequest = new UserRequest("Juan Pérez Actualizado", "juan.perez.updated@example.com", "newpassword123", roles);
-        UserResponse userResponse = new UserResponse(1L, "Juan Pérez Actualizado", "juan.perez.updated@example.com", roles);
+
+        UserRequest userRequest = UserRequest.builder()
+                .nombre("Juan Pérez Actualizado")
+                .correo("juan.perez.updated@example.com")
+                .password("newpassword123")
+                .roles(roles)
+                .build();
+
+        UserResponse userResponse = UserResponse.builder()
+                .id(1L)
+                .nombre("Juan Pérez Actualizado")
+                .correo("juan.perez.updated@example.com")
+                .roles(roles)
+                .rol("ADMIN")
+                .build();
 
         when(userService.updateUser(eq(1L), any(UserRequest.class))).thenReturn(userResponse);
 
-        mockMvc.perform(put("/api/users/1")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"nombre\":\"Juan Pérez Actualizado\", \"correo\":\"juan.perez.updated@example.com\", \"password\":\"newpassword123\", \"roles\":[\"ADMIN\",\"CLIENTE\"]}"))
+        String userJson = objectMapper.writeValueAsString(userRequest);
+
+        mockMvc.perform(multipart("/api/users/1")
+                        .file(new MockMultipartFile("user", "", "application/json", userJson.getBytes()))
+                        .with(request -> {
+                            request.setMethod("PUT");
+                            return request;
+                        })
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id").value(1L))
-                .andExpect(jsonPath("$.nombre").value("Juan Pérez Actualizado"));
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.nombre").value("Juan Pérez Actualizado"))
+                .andExpect(jsonPath("$.correo").value("juan.perez.updated@example.com"))
+                .andExpect(jsonPath("$.rol").value("ADMIN"));
 
         verify(userService, times(1)).updateUser(eq(1L), any(UserRequest.class));
     }
+
 
     @Test
     public void testDeleteUser() throws Exception {

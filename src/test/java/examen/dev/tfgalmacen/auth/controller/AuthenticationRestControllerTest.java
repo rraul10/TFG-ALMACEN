@@ -2,9 +2,10 @@ package examen.dev.tfgalmacen.auth.controller;
 
 import examen.dev.tfgalmacen.auth.auth.AuthService;
 import examen.dev.tfgalmacen.auth.dto.JwtAuthResponse;
+import examen.dev.tfgalmacen.auth.dto.RegisterClienteRequest;
 import examen.dev.tfgalmacen.auth.dto.RegisterUserRequest;
 import examen.dev.tfgalmacen.auth.dto.UserLoginRequest;
-import examen.dev.tfgalmacen.rest.users.UserRole;
+import examen.dev.tfgalmacen.auth.dto.UserProfileResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -36,17 +37,19 @@ class AuthenticationRestControllerTest {
 
     @Test
     void testLogin() throws Exception {
-        UserLoginRequest loginRequest = new UserLoginRequest();
-        loginRequest.setCorreo("juan@example.com");
-        loginRequest.setPassword("password123");
-
-        JwtAuthResponse jwtAuthResponse = new JwtAuthResponse("fake-jwt-token");
+        JwtAuthResponse jwtAuthResponse =
+                new JwtAuthResponse("fake-jwt-token", new UserProfileResponse());
 
         when(authService.login(any(UserLoginRequest.class))).thenReturn(jwtAuthResponse);
 
         mockMvc.perform(post("/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"correo\":\"juan@example.com\",\"password\":\"password123\"}"))
+                        .content("""
+                                {
+                                  "correo":"juan@example.com",
+                                  "password":"password123"
+                                }
+                                """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.token").value("fake-jwt-token"));
 
@@ -55,22 +58,53 @@ class AuthenticationRestControllerTest {
 
     @Test
     void testRegister() throws Exception {
-        RegisterUserRequest registerRequest = new RegisterUserRequest();
-        registerRequest.setNombre("Juan");
-        registerRequest.setCorreo("juan@example.com");
-        registerRequest.setPassword("password123");
-        registerRequest.setRole(UserRole.CLIENTE);
 
-        JwtAuthResponse jwtAuthResponse = new JwtAuthResponse("fake-jwt-token");
+        JwtAuthResponse jwtAuthResponse =
+                new JwtAuthResponse("fake-jwt-token", new UserProfileResponse());
 
         when(authService.register(any(RegisterUserRequest.class))).thenReturn(jwtAuthResponse);
 
         mockMvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"nombre\":\"Juan\",\"correo\":\"juan@example.com\",\"password\":\"password123\",\"role\":\"CLIENTE\"}"))
+                        .content("""
+                                {
+                                  "nombre":"Juan",
+                                  "correo":"juan@example.com",
+                                  "password":"password123",
+                                  "role":"CLIENTE"
+                                }
+                                """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.token").value("fake-jwt-token"));
 
         verify(authService, times(1)).register(any(RegisterUserRequest.class));
+    }
+
+    @Test
+    void testRegisterCliente() throws Exception {
+
+        JwtAuthResponse jwtAuthResponse =
+                new JwtAuthResponse("fake-jwt-token", new UserProfileResponse());
+
+        when(authService.registerCliente(any(RegisterClienteRequest.class))).thenReturn(jwtAuthResponse);
+
+        mockMvc.perform(post("/auth/register/cliente")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "nombre":"Juan",
+                                  "apellidos":"Pérez",
+                                  "correo":"cliente@example.com",
+                                  "password":"abc123",
+                                  "dni":"12345678A",
+                                  "direccionEnvio":"Calle Falsa 123",
+                                  "telefono":"600000000",
+                                  "ciudad":"Madrid"
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").value("fake-jwt-token"));
+
+        verify(authService, times(1)).registerCliente(any(RegisterClienteRequest.class));
     }
 }

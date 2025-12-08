@@ -1,7 +1,11 @@
 package examen.dev.tfgalmacen.rest.pedido.service;
 
+import com.stripe.Stripe;
+import com.stripe.param.checkout.SessionCreateParams;
+import examen.dev.tfgalmacen.rest.clientes.exceptions.ClienteNotFound;
 import examen.dev.tfgalmacen.rest.clientes.models.Cliente;
 import examen.dev.tfgalmacen.rest.clientes.service.ClienteService;
+import examen.dev.tfgalmacen.rest.pedido.controller.PedidoController;
 import examen.dev.tfgalmacen.rest.pedido.dto.CompraRequest;
 import examen.dev.tfgalmacen.rest.pedido.dto.LineaVentaDTO;
 import examen.dev.tfgalmacen.rest.pedido.dto.PedidoRequest;
@@ -15,11 +19,20 @@ import examen.dev.tfgalmacen.rest.pedido.repository.PedidoRepository;
 import examen.dev.tfgalmacen.rest.productos.exceptions.ProductoNotFoundException;
 import examen.dev.tfgalmacen.rest.productos.models.Producto;
 import examen.dev.tfgalmacen.rest.productos.repository.ProductoRepository;
+import examen.dev.tfgalmacen.rest.users.repository.UserRepository;
 import examen.dev.tfgalmacen.websockets.notifications.EmailService;
 import examen.dev.tfgalmacen.websockets.notifications.TicketService;
+import com.stripe.model.checkout.Session;
+import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import java.io.ByteArrayOutputStream;
 import java.time.LocalDateTime;
@@ -36,6 +49,52 @@ public class PedidoServiceImpl implements PedidoService {
     private final ProductoRepository productoRepository;
     private final EmailService emailService;
     private final TicketService  ticketService;
+    private final UserRepository userRepository;
+
+    private static final Logger logger = LoggerFactory.getLogger(PedidoController.class);
+
+    @Value("${stripe.secret.key}")
+    private String stripeApiKey;
+
+    @PostConstruct
+    public void init() {
+        Stripe.apiKey = stripeApiKey;
+    }
+
+    public String createStripeCheckout(PedidoResponse pedido) {
+        try {
+            List<SessionCreateParams.LineItem> lineItems = pedido.getLineasVenta().stream()
+                    .map(lv -> SessionCreateParams.LineItem.builder()
+                            .setQuantity((long) lv.getCantidad())
+                            .setPriceData(
+                                    SessionCreateParams.LineItem.PriceData.builder()
+                                            .setCurrency("eur")
+                                            .setUnitAmount((long) (lv.getPrecio() * 100))
+                                            .setProductData(
+                                                    SessionCreateParams.LineItem.PriceData.ProductData.builder()
+                                                            .setName(lv.getProductoNombre())
+                                                            .build()
+                                            )
+                                            .build()
+                            )
+                            .build()
+                    )
+                    .collect(Collectors.toList());
+            SessionCreateParams params = SessionCreateParams.builder()
+                    .addAllLineItem(lineItems)
+                    .setMode(SessionCreateParams.Mode.PAYMENT)
+                    .setSuccessUrl("http://localhost:4200/success?pedidoId=" + pedido.getId())
+                    .setCancelUrl("http://localhost:4200/dashboard")
+                    .build();
+
+            // Crear la sesión de Stripe
+            Session session = Session.create(params);
+            return session.getUrl();
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error creando sesión de Stripe", e);
+        }
+    }
 
     @Override
     public List<PedidoResponse> getAll() {
@@ -53,12 +112,18 @@ public class PedidoServiceImpl implements PedidoService {
 
     @Override
     @Transactional
-    public PedidoResponse create(PedidoRequest request) {
+    public PedidoResponse create(PedidoRequest request, Long authenticatedUserId) {
+
+        Cliente cliente = clienteService.getClienteEntityByUserId(authenticatedUserId);
+
+        logger.info("📝 Creando pedido - Usuario autenticado userId: {}, Cliente asociado: {} ({})",
+                authenticatedUserId,
+                cliente.getId(),
+                cliente.getUser() != null ? cliente.getUser().getCorreo() : "SIN USER");
+
         if (request.getLineasVenta() == null || request.getLineasVenta().isEmpty()) {
             throw new PedidoNotFoundException("El pedido debe contener al menos una línea de venta.");
         }
-
-        Cliente cliente = clienteService.getClienteEntityById(request.getClienteId());
 
         List<LineaVenta> lineasVenta = new ArrayList<>();
 
@@ -100,6 +165,8 @@ public class PedidoServiceImpl implements PedidoService {
 
         return PedidoMapper.toDto(saved);
     }
+
+
 
     @Override
     public PedidoResponse update(Long id, PedidoRequest request) {
@@ -147,7 +214,8 @@ public class PedidoServiceImpl implements PedidoService {
                 .build();
 
         Pedido pedido = new Pedido();
-        pedido.setCliente(clienteService.getClienteEntityById(request.getClienteId()));
+        Cliente cliente = clienteService.getClienteEntityByUserId(request.getUserId());
+        pedido.setCliente(cliente);
         pedido.setEstado(EstadoPedido.PENDIENTE);
         pedido.setFecha(LocalDateTime.now());
         pedido.setLineasVenta(new ArrayList<>());
@@ -165,37 +233,40 @@ public class PedidoServiceImpl implements PedidoService {
         return PedidoMapper.toDto(pedido);
     }
 
-
-
     @Override
-    public List<PedidoResponse> getPedidosByClienteId(Long clienteId) {
-        List<Pedido> pedidos = pedidoRepository.findByClienteIdAndDeletedFalse(clienteId);
-        return pedidos.stream()
+    public List<PedidoResponse> getPedidosByClienteId(Long userId) {
+        Cliente cliente = clienteService.getClienteByEmail(userRepository.findById(userId)
+                .orElseThrow(() -> new ClienteNotFound("Usuario no encontrado")).getCorreo());
+
+        return pedidoRepository.findByClienteIdAndDeletedFalse(cliente.getId())
+                .stream()
                 .map(PedidoMapper::toDto)
                 .collect(Collectors.toList());
     }
 
+
+    @Transactional
     @Override
-    public PedidoResponse actualizarEstadoPedido(Long id, EstadoPedido nuevoEstado) {
+    public PedidoResponse actualizarEstado(Long id, String estado) {
         Pedido pedido = pedidoRepository.findById(id)
-                .orElseThrow(() -> new PedidoNotFoundException("Pedido no encontrado con id: " + id));
+                .orElseThrow(() -> new RuntimeException("Pedido no encontrado"));
 
-        if (pedido.getEstado() == EstadoPedido.ENTREGADO) {
-            throw new PedidoNotFoundException("No se puede cambiar el estado de un pedido entregado.");
-        }
-
-        EstadoPedido estadoAnterior = pedido.getEstado();
-
+        EstadoPedido nuevoEstado = EstadoPedido.valueOf(estado);
         pedido.setEstado(nuevoEstado);
-        Pedido savedPedido = pedidoRepository.save(pedido);
+        pedido.setUpdated(LocalDateTime.now());
 
-        if (!estadoAnterior.equals(nuevoEstado)) {
-            String mensaje = "El estado de su pedido ha cambiado a: " + nuevoEstado;
-            emailService.notificarCambioEstadoPedido(pedido, mensaje);
-        }
+        pedidoRepository.save(pedido);
 
-        return PedidoMapper.toDto(savedPedido);
+        String mensaje = "El estado de su pedido #" + pedido.getId() + " ha sido actualizado a: " + nuevoEstado;
+        emailService.notificarCambioEstadoPedido(pedido, mensaje);
+
+        return PedidoMapper.toDto(pedido);
     }
 
-
+    @Override
+    public Long getUserIdByEmail(String email) {
+        return userRepository.findByCorreo(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con email: " + email))
+                .getId();
+    }
 }

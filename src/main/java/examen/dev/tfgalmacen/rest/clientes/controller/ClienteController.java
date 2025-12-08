@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import examen.dev.tfgalmacen.rest.clientes.dto.ClienteRequest;
 import examen.dev.tfgalmacen.rest.clientes.dto.ClienteResponse;
+import examen.dev.tfgalmacen.rest.clientes.models.Cliente;
 import examen.dev.tfgalmacen.rest.clientes.service.ClienteService;
 import examen.dev.tfgalmacen.rest.pedido.dto.CompraRequest;
 import examen.dev.tfgalmacen.rest.pedido.dto.PedidoResponse;
@@ -17,6 +18,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 import java.util.List;
 
@@ -27,6 +31,9 @@ public class ClienteController {
     private final ClienteService clienteService;
     private final PedidoService pedidoService;
     private final StorageService storageService;
+
+    private static final Logger logger = LoggerFactory.getLogger(ClienteController.class);
+
 
     @Autowired
     public ClienteController(ClienteService clienteService, PedidoService pedidoService, StorageService storageService) {
@@ -109,10 +116,47 @@ public class ClienteController {
     }
 
     @GetMapping("/{id}/mispedidos")
-    @PreAuthorize("hasRole('CLIENTE') or hasAnyRole('ADMIN', 'TRABAJADOR')")
     public ResponseEntity<List<PedidoResponse>> getPedidosByCliente(@PathVariable Long id) {
+        logger.info("Consultando los pedidos para el cliente con ID: {}", id);
         List<PedidoResponse> pedidos = pedidoService.getPedidosByClienteId(id);
+        logger.info("Pedidos encontrados para el cliente con ID {}: {}", id, pedidos.size());
         return ResponseEntity.ok(pedidos);
     }
 
+    @PutMapping("/user/{userId}")
+    @PreAuthorize("hasRole('CLIENTE') or hasAnyRole('ADMIN','TRABAJADOR')")
+    public ResponseEntity<ClienteResponse> updateClienteByUserId(
+            @PathVariable Long userId,
+            @RequestPart("cliente") String clienteJson,
+            @RequestPart(value = "fotoDni", required = false) MultipartFile fotoDni
+    ) throws JsonProcessingException {
+
+        ObjectMapper mapper = new ObjectMapper();
+        ClienteRequest clienteRequest = mapper.readValue(clienteJson, ClienteRequest.class);
+
+        if (fotoDni != null && !fotoDni.isEmpty()) {
+            String nombreArchivo = storageService.store(fotoDni);
+            clienteRequest.setFotoDni(nombreArchivo);
+        }
+
+        Cliente cliente = clienteService.getClienteEntityByUserId(userId);
+        cliente.setDni(clienteRequest.getDni());
+        cliente.setDireccionEnvio(clienteRequest.getDireccionEnvio());
+        cliente.setFotoDni(clienteRequest.getFotoDni());
+
+        // Guardar los cambios
+        clienteService.updateClienteEntity(cliente);
+
+        // Devolver la respuesta
+        ClienteResponse clienteActualizado = clienteService.getByUserId(userId);
+        return ResponseEntity.ok(clienteActualizado);
+    }
+
+
+    @GetMapping("/user/{userId}")
+    @PreAuthorize("hasAnyRole('ADMIN','TRABAJADOR') or @clienteService.getClienteEntityByUserId(#userId).user.correo == principal.username")
+    public ResponseEntity<ClienteResponse> getClienteByUserId(@PathVariable Long userId) {
+        ClienteResponse cliente = clienteService.getByUserId(userId);
+        return ResponseEntity.ok(cliente);
+    }
 }
