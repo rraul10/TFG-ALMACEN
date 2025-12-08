@@ -1,6 +1,7 @@
 package examen.dev.tfgalmacen.auth.config;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -39,18 +40,13 @@ public class SecurityConfig {
                                 "/",
                                 "/index.html",
                                 "/favicon.ico",
-                                "/**/*.css",
-                                "/**/*.js",
-                                "/**/*.woff2",
-                                "/**/*.woff",
-                                "/**/*.ttf",
-                                "/**/*.map",
                                 "/swagger-ui.html",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/swagger-resources/**",
                                 "/webjars/**"
                         ).permitAll()
+                        .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         .requestMatchers("/auth/login", "/auth/register/cliente", "/auth/register", "/auth/forgot-password", "/auth/reset-password").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/productos/create").hasAnyRole("ADMIN","TRABAJADOR")
