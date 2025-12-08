@@ -1,6 +1,6 @@
 -- USERS
     INSERT INTO users (id, nombre, apellidos, correo, password, telefono, ciudad, foto, created, updated, deleted) VALUES
-        (1, 'Admin Principal', 'Admin', 'admin@example.com', '$2a$12$6WNmrE.xxU3QXD.tnKMoS.UizJrZEmn2v54X7hzM/KIzNTdN.piIm', '600000001', 'Madrid', 'https://res.cloudinary.com/dkaxfqkvo/image/upload/v1764953247/persona3_xkd0vp.jpg', NOW(), NOW(), false),
+        (1, 'Admin Principal', 'Admin', 'admin@example.com', '$2a$12$RzuBMEtOONvqORTMnuS.su2amfN7dkrlsTaI.xZc3H8j/QTxYKxV6', '600000001', 'Madrid', 'https://res.cloudinary.com/dkaxfqkvo/image/upload/v1764953247/persona3_xkd0vp.jpg', NOW(), NOW(), false),
         (2, 'Trabajador Uno', 'Perez', 'trabajador1@example.com', '$2a$12$/d1KeggIn8zzJlkxSiievuWZtxTnPRsx9KhV/34F3ceV1SwZO.WeG', '600000002', 'Barcelona', 'https://res.cloudinary.com/dkaxfqkvo/image/upload/v1764953244/persona13_zyt96q.jpg', NOW(), NOW(), false),
         (3, 'Trabajador Dos', 'Gomez', 'trabajador2@example.com', '$2a$12$0lcB19.P54vSZ.GeZR/Y6Ob/DH3YAk2eRvyhMxt0hi4UVMUA348BK', '600000003', 'Valencia', 'https://res.cloudinary.com/dkaxfqkvo/image/upload/v1764953246/persona6_nqejuh.jpg', NOW(), NOW(), false),
         (4, 'Trabajador Tres', 'Lopez', 'trabajador3@example.com', '$2a$12$r6M0D9rxAx..zSsvHJ9d1OFXDNfy0/VeeQIeGhi1OJT.4/dRkXCr6', '600000004', 'Sevilla', 'https://res.cloudinary.com/dkaxfqkvo/image/upload/v1764953245/persona8_q1m9am.jpg', NOW(), NOW(), false),
