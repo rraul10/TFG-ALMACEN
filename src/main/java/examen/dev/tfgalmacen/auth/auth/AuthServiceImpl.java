@@ -37,7 +37,6 @@ public class AuthServiceImpl implements AuthService {
     public JwtAuthResponse register(RegisterUserRequest request) {
         logger.debug("Iniciando el registro de usuario con correo: {}", request.getCorreo());
 
-        // Crear el objeto de usuario
         User user = new User();
         user.setNombre(request.getNombre());
         user.setApellidos(request.getApellidos());
@@ -64,7 +63,6 @@ public class AuthServiceImpl implements AuthService {
         user.setUpdated(LocalDateTime.now());
         user.setDeleted(false);
 
-        // Guardar el usuario en la base de datos
         try {
             userRepository.save(user);
             logger.info("Usuario registrado con éxito con ID: {}", user.getId());
@@ -96,7 +94,6 @@ public class AuthServiceImpl implements AuthService {
         return new JwtAuthResponse(token, profile);
     }
 
-
     @Override
     public JwtAuthResponse login(UserLoginRequest request) {
         User user = userRepository.findByCorreo(request.getCorreo())
@@ -108,7 +105,6 @@ public class AuthServiceImpl implements AuthService {
 
         String token = jwtService.generateToken(user);
 
-        // Crear el perfil base
         UserProfileResponse profile = new UserProfileResponse();
         profile.setId(user.getId());
         profile.setNombre(user.getNombre());

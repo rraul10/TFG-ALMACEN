@@ -12,7 +12,7 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api/payments")
-@CrossOrigin(origins = "https://tfg-almacen-1.onrender.com")
+@CrossOrigin(origins = "https://tfg-almacen-front.onrender.com")
 public class PaymentController {
 
     @Value("${stripe.secret.key}")
