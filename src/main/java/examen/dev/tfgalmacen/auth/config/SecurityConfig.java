@@ -35,8 +35,9 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        // Recursos públicos y estáticos
+                        // Recursos públicos y estáticos de Angular
                         .requestMatchers("/", "/index.html", "/favicon.ico").permitAll()
+                        .requestMatchers("/**/*.js", "/**/*.css", "/**/*.map", "/**/*.woff", "/**/*.woff2", "/**/*.ttf").permitAll()
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
 
                         // Swagger
