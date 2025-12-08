@@ -35,9 +35,20 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        // Permitir todo lo que sea index.html y recursos estáticos
                         .requestMatchers("/", "/index.html").permitAll()
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
+
+                        // Archivos estáticos generados por Angular
+                        .requestMatchers("/**/*.js",
+                                "/**/*.css",
+                                "/**/*.map",
+                                "/**/*.ico",
+                                "/**/*.png",
+                                "/**/*.jpg",
+                                "/**/*.svg",
+                                "/**/*.woff2",
+                                "/**/*.woff",
+                                "/**/*.ttf").permitAll()
 
                         // Auth público
                         .requestMatchers("/auth/login", "/auth/register/**", "/auth/forgot-password", "/auth/reset-password").permitAll()
