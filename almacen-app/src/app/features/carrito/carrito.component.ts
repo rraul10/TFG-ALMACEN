@@ -223,11 +223,6 @@ comprar() {
     });
 }
 
-
-
-
-
-
   cerrar() {
     this.router.navigate(['/productos']);
   }

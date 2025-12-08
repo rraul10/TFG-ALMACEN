@@ -37,6 +37,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Rutas públicas de autenticación y uploads
                         .requestMatchers(
+                                "/",
+                                "/index.html",
                                 "/auth/login",
                                 "/auth/register/cliente",
                                 "/auth/register",
@@ -45,7 +47,6 @@ public class SecurityConfig {
                                 "/uploads/**",
                                 "/jacoco/**"
                         ).permitAll()
-
                         .requestMatchers("/api/productos/create").hasAnyRole("ADMIN","TRABAJADOR")
                         .requestMatchers(HttpMethod.PUT, "/api/productos/**").hasAnyRole("ADMIN","TRABAJADOR")
                         .requestMatchers(HttpMethod.DELETE, "/api/productos/**").hasAnyRole("ADMIN","TRABAJADOR")
