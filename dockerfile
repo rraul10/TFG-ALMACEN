@@ -1,41 +1,27 @@
-# --- Imagen base con Java 21 y Node.js ---
+# --- Imagen base con Java 21 ---
 FROM eclipse-temurin:21-jdk-alpine
-
-# Instalar Node.js y npm
-RUN apk add --no-cache nodejs npm bash
 
 # --- Directorio de trabajo ---
 WORKDIR /app
 
-# --- Copiar proyecto Spring Boot ---
+# --- Copiar Gradle y proyecto ---
 COPY gradlew .
 COPY gradle ./gradle
 COPY build.gradle .
 COPY settings.gradle .
 COPY src ./src
 
-# --- Copiar frontend Angular ---
-COPY almacen-app ./almacen-app
-
 # --- Dar permisos al wrapper de Gradle ---
 RUN chmod +x gradlew
 
-# --- Build del JAR de Spring Boot ---
+# --- Build del JAR ejecutable de Spring Boot ---
 RUN ./gradlew bootJar --no-daemon
 
-# --- Instalar dependencias de Angular y build ---
-WORKDIR /app/almacen-app
-RUN npm install
-RUN npm run build --prod
+# --- Listar contenido de build/libs para debug ---
+RUN echo "Contenido de build/libs:" && ls -l build/libs
 
-# Volver al directorio raíz
-WORKDIR /app
+# --- Exponer puerto ---
+EXPOSE 8080
 
-# --- Copiar server.js para Express ---
-COPY server.js .
-
-# --- Exponer puertos ---
-EXPOSE 8080 3000
-
-# --- Script para levantar ambos ---
-CMD ["sh", "-c", "java -jar build/libs/*.jar & node server.js"]
+# --- Comando para arrancar la app ---
+CMD ["sh", "-c", "echo 'Iniciando aplicación...'; java -jar build/libs/*.jar"]
