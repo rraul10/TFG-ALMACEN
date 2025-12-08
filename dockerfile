@@ -17,8 +17,11 @@ RUN chmod +x gradlew
 # Build del proyecto
 RUN ./gradlew build --no-daemon
 
+# Listar contenido de build/libs para debug (opcional)
+RUN ls -l build/libs
+
 # Exponer puerto
 EXPOSE 8080
 
-# Comando para arrancar la app
-CMD ["java", "-jar", "build/libs/tfg-almacen-0.0.1-SNAPSHOT.jar"]
+# Comando para arrancar la app usando wildcard para el jar
+CMD ["sh", "-c", "java -jar build/libs/*.jar"]
