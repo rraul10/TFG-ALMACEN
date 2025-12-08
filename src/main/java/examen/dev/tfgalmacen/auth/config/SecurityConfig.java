@@ -35,41 +35,37 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        // Recursos públicos y estáticos de Angular
-                        .requestMatchers("/", "/index.html", "/favicon.ico").permitAll()
-                        .requestMatchers("/**/*.js", "/**/*.css", "/**/*.map", "/**/*.woff", "/**/*.woff2", "/**/*.ttf").permitAll()
+                        // Permitir todo lo que sea index.html y recursos estáticos
+                        .requestMatchers("/", "/index.html").permitAll()
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
-
-                        // Swagger
-                        .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**").permitAll()
 
                         // Auth público
                         .requestMatchers("/auth/login", "/auth/register/**", "/auth/forgot-password", "/auth/reset-password").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                        // Productos
+                        // API productos
                         .requestMatchers("/api/productos/create").hasAnyRole("ADMIN","TRABAJADOR")
                         .requestMatchers(HttpMethod.PUT, "/api/productos/**").hasAnyRole("ADMIN","TRABAJADOR")
                         .requestMatchers(HttpMethod.DELETE, "/api/productos/**").hasAnyRole("ADMIN","TRABAJADOR")
                         .requestMatchers(HttpMethod.GET, "/api/productos/**").permitAll()
 
-                        // Pagos y uploads
+                        // API pagos, uploads, jacoco
                         .requestMatchers("/api/payments/**", "/uploads/**", "/jacoco", "/jacoco/**").permitAll()
 
-                        // Usuarios y clientes
+                        // API usuarios y clientes
                         .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
                         .requestMatchers(HttpMethod.PUT, "/api/users/**").authenticated()
                         .requestMatchers("/api/clientes/create").hasAnyAuthority("ROLE_ADMIN", "ROLE_TRABAJADOR")
                         .requestMatchers("/api/clientes/**").authenticated()
                         .requestMatchers("/api/trabajadores/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_TRABAJADOR")
 
-                        // Pedidos
+                        // API pedidos
                         .requestMatchers(HttpMethod.POST, "/api/pedidos/**").hasAuthority("ROLE_CLIENTE")
                         .requestMatchers(HttpMethod.GET, "/api/pedidos/cliente/**").hasAnyAuthority("ROLE_CLIENTE","ROLE_ADMIN","ROLE_TRABAJADOR")
                         .requestMatchers(HttpMethod.GET, "/api/pedidos/**").hasAnyAuthority("ROLE_ADMIN","ROLE_TRABAJADOR")
                         .requestMatchers(HttpMethod.PUT, "/api/pedidos/**").hasAnyAuthority("ROLE_ADMIN","ROLE_TRABAJADOR")
 
-                        // Cualquier otro request
+                        // Cualquier otro request, dejarlo autenticado
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -77,6 +73,7 @@ public class SecurityConfig {
 
         return http.build();
     }
+
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
