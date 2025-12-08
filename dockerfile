@@ -11,8 +11,8 @@ COPY src ./src
 RUN chmod +x gradlew
 RUN ./gradlew bootJar --no-daemon
 
-RUN ls -l build/libs
+RUN ls -l build/libs   # para debug
 
 EXPOSE 8080
 
-CMD ["sh", "-c", "java -jar build/libs/*-boot.jar"]
+CMD ["sh", "-c", "java -jar build/libs/*SNAPSHOT.jar"]
