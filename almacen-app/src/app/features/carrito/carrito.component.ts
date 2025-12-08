@@ -211,7 +211,7 @@ comprar() {
 
   console.log('📌 Headers que se enviarán:', headers);
 
-  this.http.post('http://localhost:8080/api/pedidos', pedidoData, { headers })
+  this.http.post('https://tfg-almacen-1.onrender.com/api/pedidos', pedidoData, { headers })
     .subscribe({
       next: (res: any) => {
         console.log('✅ Respuesta del backend:', res);

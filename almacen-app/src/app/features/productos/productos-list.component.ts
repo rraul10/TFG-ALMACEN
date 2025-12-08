@@ -276,7 +276,7 @@ export class ProductosListComponent implements OnInit, OnChanges {
   }
 
   loadProductos() {
-    this.http.get<any[]>('http://localhost:8080/api/productos').subscribe({
+    this.http.get<any[]>('https://tfg-almacen-1.onrender.com/api/productos').subscribe({
       next: (data) => { this.productos = data || []; this.filtrarProductos(); },
       error: () => this.showNotification('❌ Error al cargar los productos')
     });

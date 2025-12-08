@@ -262,7 +262,7 @@ export class ResetPasswordComponent {
     this.error = '';
 
     const newPassword = this.resetForm.value.newPassword;
-    this.http.post('http://localhost:8080/auth/reset-password', { token: this.token, newPassword }, { responseType: 'text' }).subscribe({
+    this.http.post('https://tfg-almacen-1.onrender.com/auth/reset-password', { token: this.token, newPassword }, { responseType: 'text' }).subscribe({
       next: (res) => { this.loading = false; this.message = '✅ Contraseña actualizada correctamente.'; this.error = ''; },
       error: (err) => { this.loading = false; this.error = 'Error al actualizar la contraseña.'; this.message = ''; console.error(err); }
     });

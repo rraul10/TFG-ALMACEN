@@ -1344,7 +1344,7 @@ carritoTotal() {
     const pedidoBody = { clienteId, lineasVenta: this.carrito.map(item => ({ productoId: item.id, cantidad: item.cantidad || 1 })) };
     const headers = new HttpHeaders({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` });
     const snackRef = this.snackBar.open('⏳ Procesando...', undefined, { horizontalPosition: 'center', verticalPosition: 'top' });
-    this.http.post('http://localhost:8080/api/pedidos', pedidoBody, { headers }).subscribe({
+    this.http.post('https://tfg-almacen-1.onrender.com/api/pedidos', pedidoBody, { headers }).subscribe({
       next: (res: any) => { snackRef.dismiss(); this.carrito = []; localStorage.removeItem('carrito'); this.carritoOpen = false; this.showNotification('✅ Pedido realizado'); this.router.navigate(['/dashboard']); if (res.url) window.location.href = res.url; },
       error: () => { snackRef.dismiss(); this.showNotification('❌ Error al realizar el pedido'); }
     });

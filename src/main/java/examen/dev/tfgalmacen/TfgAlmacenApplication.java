@@ -11,8 +11,8 @@ public class TfgAlmacenApplication extends SpringBootServletInitializer {
 
     public static void main(String[] args) throws IOException {
         SpringApplication.run(TfgAlmacenApplication.class, args);
-        System.out.println("Accede a Swagger en: http://localhost:8080/swagger-ui/index.html#/");
-        System.out.println("Accede a Jacoco en: http://localhost:8080/jacoco/index.html\n");
+        System.out.println("Accede a Swagger en: https://tfg-almacen-1.onrender.com/swagger-ui/index.html#/");
+        System.out.println("Accede a Jacoco en: https://tfg-almacen-1.onrender.com/jacoco/index.html\n");
     }
 }
 

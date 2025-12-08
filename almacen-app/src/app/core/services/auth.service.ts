@@ -39,7 +39,7 @@ export class AuthService {
   }
 
   registerCliente(data: any) {
-    return this.http.post('http://localhost:8080/auth/register/cliente', data);
+    return this.http.post('https://tfg-almacen-1.onrender.com/auth/register/cliente', data);
   }
 
   getClienteData(userId: number): Observable<any> {

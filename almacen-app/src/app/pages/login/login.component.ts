@@ -833,7 +833,6 @@
   password = '';
   message = '';
 
-  // Partículas animadas
   particles = Array.from({ length: 50 }, (_, i) => ({
     x: Math.random() * 100,
     delay: `${Math.random() * 20}s`,

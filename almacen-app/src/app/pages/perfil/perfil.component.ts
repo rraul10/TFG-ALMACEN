@@ -585,8 +585,8 @@ export class PerfilComponent implements OnInit {
 
   get fotoPerfil(): string {
     return this.user.foto && this.user.foto !== 'default.jpg'
-      ? 'http://localhost:8080/uploads/' + this.user.foto
-      : 'http://localhost:8080/uploads/default.jpg';
+      ? 'https://tfg-almacen-1.onrender.com/uploads/' + this.user.foto
+      : 'https://tfg-almacen-1.onrender.com/uploads/default.jpg';
   }
 
   get fotoPerfilUrl() {
@@ -594,7 +594,7 @@ export class PerfilComponent implements OnInit {
     return 'assets/default-avatar.png';
   }
 
-  return 'http://localhost:8000/storage/perfiles/' + this.user.foto;
+  return 'https://tfg-almacen-1.onrender.com/storage/perfiles/' + this.user.foto;
 }
 
 onImageError(event: any) {

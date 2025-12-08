@@ -9,7 +9,7 @@ describe('Admin: Acceder a gestión de pedidos y cambiar estado', () => {
   it('Login como admin, abrir gestión de pedidos y cambiar estado', () => {
     cy.viewport(1600, 1200);
 
-    cy.visit('http://localhost:4200/login');
+    cy.visit('https://tfg-almacen-1.onrender.com/login');
 
     cy.document().then(doc => {
       const style = doc.createElement('style');

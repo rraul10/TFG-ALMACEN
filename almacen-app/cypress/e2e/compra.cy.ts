@@ -5,7 +5,7 @@ describe('Flujo completo: Login y compra desde el carrito', () => {
   const password = 'raul1234';
 
   it('Login, añadir producto al carrito y realizar pedido desde el modal', () => {
-    cy.visit('http://localhost:4200/login');
+    cy.visit('https://tfg-almacen-1.onrender.com/login');
 
     cy.get('input[name="correo"]').type(correo);
     cy.get('input[name="password"]').type(password);

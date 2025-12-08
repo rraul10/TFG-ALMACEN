@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 })
 export class UploadService {
 
-  private cloudUrl = 'http://localhost:8080/api/uploads/image';
+  private cloudUrl = 'https://tfg-almacen-1.onrender.com/api/uploads/image';
 
   constructor(private http: HttpClient) {}
 

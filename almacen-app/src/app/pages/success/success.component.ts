@@ -512,7 +512,7 @@ export class SuccessComponent implements OnInit {
       return;
     }
 
-    this.http.post(`http://localhost:8080/api/pedidos/${pedidoId}/confirmar-pago`, {}, { responseType: 'text' })
+    this.http.post(`https://tfg-almacen-1.onrender.com/api/pedidos/${pedidoId}/confirmar-pago`, {}, { responseType: 'text' })
       .subscribe({
         next: (res) => {
           console.log('Respuesta del backend:', res);

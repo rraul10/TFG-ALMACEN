@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 @RestController
 @RequestMapping("/api/pedidos")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "https://tfg-almacen-1.onrender.com")
 public class PedidoController {
 
     private static final Logger logger = LoggerFactory.getLogger(PedidoController.class);

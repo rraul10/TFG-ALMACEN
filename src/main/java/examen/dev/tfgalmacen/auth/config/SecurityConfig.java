@@ -38,7 +38,6 @@ public class SecurityConfig {
                         .requestMatchers("/", "/index.html").permitAll()
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
 
-                        // Archivos estáticos generados por Angular
                         .requestMatchers("/**/*.js",
                                 "/**/*.css",
                                 "/**/*.map",
@@ -50,7 +49,6 @@ public class SecurityConfig {
                                 "/**/*.woff",
                                 "/**/*.ttf").permitAll()
 
-                        // Auth público
                         .requestMatchers("/auth/login", "/auth/register/**", "/auth/forgot-password", "/auth/reset-password").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 

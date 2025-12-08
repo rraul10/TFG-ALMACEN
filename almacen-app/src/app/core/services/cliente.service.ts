@@ -14,7 +14,7 @@ export interface Cliente {
   providedIn: 'root'
 })
 export class ClienteService {
-  private apiUrl = 'http://localhost:8080/api/clientes';
+  private apiUrl = 'https://tfg-almacen-1.onrender.com/api/clientes';
 
   constructor(private http: HttpClient) {}
 

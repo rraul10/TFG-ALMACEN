@@ -27,7 +27,7 @@ export interface User {
   providedIn: 'root'
 })
 export class UserService {
-  private apiUrl = 'http://localhost:8080/api/users';
+  private apiUrl = 'https://tfg-almacen-1.onrender.com/api/users';
 
   constructor(private http: HttpClient) {}
 

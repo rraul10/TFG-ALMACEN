@@ -188,7 +188,7 @@ export class ForgotPasswordComponent {
     this.error = '';
 
     const email = this.forgotForm.value.email;
-    this.http.post<{ message: string }>('http://localhost:8080/auth/forgot-password', { email }).subscribe({
+    this.http.post<{ message: string }>('https://tfg-almacen-1.onrender.com/auth/forgot-password', { email }).subscribe({
       next: (res) => {
         this.loading = false;
         this.message = res.message;
