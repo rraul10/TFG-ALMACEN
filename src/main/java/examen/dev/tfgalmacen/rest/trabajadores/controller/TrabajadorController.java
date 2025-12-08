@@ -19,7 +19,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/trabajadores")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "https://tfg-almacen-1.onrender.com")
+@CrossOrigin(origins = "https://tfg-almacen-front.onrender.com")
 public class TrabajadorController {
 
     private final PedidoService pedidoService;
