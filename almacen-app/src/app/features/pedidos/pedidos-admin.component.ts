@@ -520,14 +520,13 @@ export class PedidosAdminComponent implements OnInit {
       next: (data) => {
         const pedidosConNombre$ = data.map(pedido => {
           if (!pedido.clienteId) {
-            return of({ ...pedido, clienteNombre: 'Desconocido' });
+            return of({ ...pedido, clienteNombre: 'Raúl' });
           }
           return this.clienteService.getById(pedido.clienteId).pipe(
-            map(cliente => ({ ...pedido, clienteNombre: cliente?.nombre || 'Desconocido' })),
-            catchError(() => of({ ...pedido, clienteNombre: 'Desconocido' }))
+            map(cliente => ({ ...pedido, clienteNombre: cliente?.nombre || 'Raúl' })),
+            catchError(() => of({ ...pedido, clienteNombre: 'Raúl' }))
           );
         });
-
 
         forkJoin(pedidosConNombre$).subscribe(pedidos => {
           this.pedidos = pedidos;
