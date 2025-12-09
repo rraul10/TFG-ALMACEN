@@ -1,4 +1,6 @@
 -- USERS
+DELETE FROM users;
+ALTER SEQUENCE users_id_seq RESTART WITH 1;
 INSERT INTO users (nombre, apellidos, correo, password, telefono, ciudad, foto, created, updated, deleted) VALUES
                                                                                                                ('Admin Principal', 'Admin', 'admin@example.com', '$2a$12$RzuBMEtOONvqORTMnuS.su2amfN7dkrlsTaI.xZc3H8j/QTxYKxV6', '600000001', 'Madrid', 'https://res.cloudinary.com/dkaxfqkvo/image/upload/v1764953247/persona3_xkd0vp.jpg', NOW(), NOW(), false),
                                                                                                                ('Trabajador Uno', 'Perez', 'trabajador1@example.com', '$2a$12$/d1KeggIn8zzJlkxSiievuWZtxTnPRsx9KhV/34F3ceV1SwZO.WeG', '600000002', 'Barcelona', 'https://res.cloudinary.com/dkaxfqkvo/image/upload/v1764953244/persona13_zyt96q.jpg', NOW(), NOW(), false),
