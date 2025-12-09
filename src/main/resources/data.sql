@@ -1,9 +1,13 @@
+-- Borrar dependencias primero
+DELETE FROM password_reset_token;
 DELETE FROM linea_venta;
 DELETE FROM pedido;
 DELETE FROM cliente;
 DELETE FROM trabajador;
 DELETE FROM user_roles;
 DELETE FROM users;
+
+
 
 ALTER SEQUENCE users_id_seq RESTART WITH 1;
 ALTER SEQUENCE cliente_id_seq RESTART WITH 1;
