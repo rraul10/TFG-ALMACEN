@@ -83,8 +83,8 @@ public class PedidoServiceImpl implements PedidoService {
             SessionCreateParams params = SessionCreateParams.builder()
                     .addAllLineItem(lineItems)
                     .setMode(SessionCreateParams.Mode.PAYMENT)
-                    .setSuccessUrl("http://localhost:4200/success?pedidoId=" + pedido.getId())
-                    .setCancelUrl("http://localhost:4200/dashboard")
+                    .setSuccessUrl("https://tfg-almacen-front.onrender.com/success?pedidoId=" + pedido.getId())
+                    .setCancelUrl("https://tfg-almacen-front.onrender.com/dashboard")
                     .build();
 
             // Crear la sesión de Stripe
