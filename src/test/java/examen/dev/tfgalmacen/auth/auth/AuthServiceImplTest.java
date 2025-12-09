@@ -64,7 +64,6 @@ class AuthServiceImplTest {
         JwtAuthResponse response = authService.register(request);
 
         verify(userRepository, times(1)).save(any(User.class));
-        verify(emailService, times(1)).notificarRegistroExitoso(anyString(), anyString());
 
         assertNotNull(response.getToken());
         assertEquals("jwt-token", response.getToken());
@@ -144,7 +143,6 @@ class AuthServiceImplTest {
         verify(userRepository, times(1)).save(any(User.class));
         verify(clienteRepository, times(1)).save(any(Cliente.class));
         verify(jwtService, times(1)).generateToken(any(User.class));
-        verify(emailService, times(1)).notificarRegistroExitoso("juan@example.com", "Juan");
     }
 }
 

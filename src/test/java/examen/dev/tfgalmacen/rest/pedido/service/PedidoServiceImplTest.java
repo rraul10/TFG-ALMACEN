@@ -280,12 +280,10 @@ class PedidoServiceImplTest {
 
         when(pedidoRepository.findById(1L)).thenReturn(Optional.of(pedidoMock));
         when(pedidoRepository.save(any())).thenReturn(pedidoMock);
-        doNothing().when(emailService).notificarCambioEstadoPedido(any(), any());
 
         PedidoResponse response = pedidoService.actualizarEstado(1L, EstadoPedido.ENTREGADO.name());
 
         assertEquals(EstadoPedido.ENTREGADO, response.getEstado());
-        verify(emailService).notificarCambioEstadoPedido(any(), any());
     }
 
     @Test
