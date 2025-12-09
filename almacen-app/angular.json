@@ -27,7 +27,7 @@
                 "input": "public"
               },
               {
-                "glob": "redirects",
+                "glob": "_redirects",
                 "input": "public",
                 "output": "/"
               }
@@ -85,7 +85,7 @@
                 "input": "public"
               },
               {
-                "glob": "redirects",
+                "glob": "_redirects",
                 "input": "public",
                 "output": "/"
               }

@@ -34,7 +34,6 @@ bootstrapApplication(AppComponent, {
       MatSnackBarModule
     ),
 
-    // 👉 Aquí se registra el interceptor
     provideHttpClient(
       withInterceptors([
         authInterceptor
