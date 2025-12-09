@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import java.awt.Color;
 import java.io.ByteArrayOutputStream;
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 
 @Service
@@ -268,9 +267,6 @@ public class TicketService {
         table.addCell(valueCell);
     }
 
-    /**
-     * Añade mensaje de agradecimiento al pie
-     */
     private void addFooterMessage(Document document) throws DocumentException {
         Font messageFont = new Font(Font.HELVETICA, 11, Font.ITALIC, TEXT_MUTED);
         Font contactFont = new Font(Font.HELVETICA, 9, Font.NORMAL, TEXT_MUTED);
@@ -282,7 +278,6 @@ public class TicketService {
         Paragraph contact = new Paragraph("Para cualquier consulta: info@techstore.com | +34 900 123 456", contactFont);
         contact.setAlignment(Element.ALIGN_CENTER);
 
-        // Contenedor con borde
         PdfPTable messageBox = new PdfPTable(1);
         messageBox.setWidthPercentage(100);
 
@@ -299,15 +294,11 @@ public class TicketService {
         document.add(messageBox);
     }
 
-    /**
-     * Clase interna para manejar headers y footers en todas las páginas
-     */
     static class HeaderFooterPageEvent extends PdfPageEventHelper {
         @Override
         public void onEndPage(PdfWriter writer, Document document) {
             PdfContentByte cb = writer.getDirectContent();
 
-            // Número de página en el footer
             Font pageFont = new Font(Font.HELVETICA, 9, Font.NORMAL, TEXT_MUTED);
             Phrase footer = new Phrase("Página " + writer.getPageNumber(), pageFont);
 

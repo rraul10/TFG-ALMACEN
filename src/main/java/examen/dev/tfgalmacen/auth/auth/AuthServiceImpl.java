@@ -150,8 +150,6 @@ public class AuthServiceImpl implements AuthService {
 
         String token = jwtService.generateToken(usuario);
 
-        emailService.notificarRegistroExitoso(usuario.getCorreo(), usuario.getNombre());
-
         UserProfileResponse profile = new UserProfileResponse();
         profile.setId(usuario.getId());
         profile.setNombre(usuario.getNombre());
