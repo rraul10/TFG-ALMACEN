@@ -28,7 +28,7 @@ export class ClienteService {
       catchError(err => {
         console.warn('No se pudo obtener el cliente del backend, usando localStorage', err);
         const clienteLocal = this.obtenerLocal().find(c => c.id === id);
-        return of(clienteLocal ?? { id, nombre: 'Desconocido' });
+        return of(clienteLocal ?? { id, nombre: 'Raúl' });
       })
     );
   }

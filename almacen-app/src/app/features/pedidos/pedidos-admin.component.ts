@@ -528,6 +528,7 @@ export class PedidosAdminComponent implements OnInit {
           );
         });
 
+
         forkJoin(pedidosConNombre$).subscribe(pedidos => {
           this.pedidos = pedidos;
           this.aplicarFiltros();
