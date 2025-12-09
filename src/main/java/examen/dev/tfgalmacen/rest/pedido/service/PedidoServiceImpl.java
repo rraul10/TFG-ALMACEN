@@ -14,6 +14,7 @@ import examen.dev.tfgalmacen.rest.pedido.exceptions.PedidoNotFoundException;
 import examen.dev.tfgalmacen.rest.pedido.mapper.PedidoMapper;
 import examen.dev.tfgalmacen.rest.pedido.models.EstadoPedido;
 import examen.dev.tfgalmacen.rest.pedido.models.LineaVenta;
+import java.time.ZoneId;
 import examen.dev.tfgalmacen.rest.pedido.models.Pedido;
 import examen.dev.tfgalmacen.rest.pedido.repository.PedidoRepository;
 import examen.dev.tfgalmacen.rest.productos.exceptions.ProductoNotFoundException;
@@ -217,7 +218,7 @@ public class PedidoServiceImpl implements PedidoService {
         Cliente cliente = clienteService.getClienteEntityByUserId(request.getUserId());
         pedido.setCliente(cliente);
         pedido.setEstado(EstadoPedido.PENDIENTE);
-        pedido.setFecha(LocalDateTime.now());
+        pedido.setFecha(LocalDateTime.now(ZoneId.of("Europe/Madrid")));
         pedido.setLineasVenta(new ArrayList<>());
 
         linea.setPedido(pedido);
