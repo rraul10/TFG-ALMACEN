@@ -21,6 +21,7 @@ public class PaymentController {
     @PostMapping("/checkout")
     public ResponseEntity<Map<String, Object>> createCheckoutSession(@RequestBody Map<String, Object> data) {
         try {
+            System.out.println("🔥 STRIPE KEY QUE ESTÁ LLEGANDO DESDE RENDER: " + stripeSecretKey);
             Stripe.apiKey = stripeSecretKey;
 
             int pedidoId = ((Number) data.get("pedidoId")).intValue();
