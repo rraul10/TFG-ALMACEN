@@ -124,8 +124,8 @@ import { AuthService } from '@core/services/auth.service';
 
     .product-modal {
       background: var(--bg-modal);
-      width: 1600px;
-      max-width: 98vw;
+      width: 75px;
+      max-width: 1200vw;
       height: auto;
       border-radius: 24px;
       position: relative;
