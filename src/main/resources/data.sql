@@ -6,6 +6,7 @@ DELETE FROM cliente;
 DELETE FROM trabajador;
 DELETE FROM user_roles;
 DELETE FROM users;
+DELETE FROM productos;
 
 
 

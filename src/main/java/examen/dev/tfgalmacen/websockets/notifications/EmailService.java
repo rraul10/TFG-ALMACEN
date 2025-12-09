@@ -78,7 +78,7 @@ public class EmailService {
     }
 
     public void enviarEmailResetPassword(String destinatario, String token) {
-        String url = "http://localhost:4200/reset-password?token=" + token;
+        String url = "https://tfg-almacen-front.onrender.com/reset-password?token=" + token;
         try {
             SimpleMailMessage mensaje = new SimpleMailMessage();
             mensaje.setTo(destinatario);
