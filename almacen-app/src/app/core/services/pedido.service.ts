@@ -85,7 +85,7 @@ export class PedidoService {
     const pedidoLocal: Pedido = {
       id: Date.now(),
       clienteId: pedido.clienteId,
-      fecha: new Date().toISOString(),
+      fecha: new Date().toString(),   
       estado: 'PENDIENTE',
       lineasVenta: lineasConNombre
     };
