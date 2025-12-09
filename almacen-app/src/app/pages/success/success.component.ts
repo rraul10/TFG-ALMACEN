@@ -482,17 +482,10 @@ import { CommonModule } from '@angular/common';
   `]
 })
 export class SuccessComponent implements OnInit {
-  loading = true;
-  success = false;
-  error = false;
   countdown = 3;
   particles: Array<{x: number, delay: number}> = [];
 
-  constructor(
-    private route: ActivatedRoute,
-    private http: HttpClient,
-    private router: Router
-  ) {
+  constructor(private router: Router) {
     for (let i = 0; i < 30; i++) {
       this.particles.push({
         x: Math.random() * 100,
@@ -502,29 +495,7 @@ export class SuccessComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const pedidoId = this.route.snapshot.queryParamMap.get('pedidoId');
-
-    if (!pedidoId) {
-      console.error("No se recibió pedidoId");
-      this.loading = false;
-      this.error = true;
-      return;
-    }
-
-    this.http.post(`https://tfg-almacen-1.onrender.com/api/pedidos/${pedidoId}/confirmar-pago`, {}, { responseType: 'text' })
-      .subscribe({
-        next: (res) => {
-          console.log('Respuesta del backend:', res);
-          this.loading = false;
-          this.success = true;
-          this.startCountdown();
-        },
-        error: (err) => {
-          console.error('Error al enviar ticket:', err);
-          this.loading = false;
-          this.error = true;
-        }
-      });
+    this.startCountdown();
   }
 
   startCountdown(): void {
@@ -539,9 +510,5 @@ export class SuccessComponent implements OnInit {
 
   goToDashboard(): void {
     this.router.navigate(['/dashboard']);
-  }
-
-  retry(): void {
-    window.location.reload();
   }
 }
