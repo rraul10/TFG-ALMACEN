@@ -21,7 +21,7 @@ const routes: Routes = [
   { path: 'perfil', component: PerfilComponent },
   { path: 'mispedidos', component: MisPedidosComponent },
   { path: 'reset-password', component: ResetPasswordComponent },
-  { path: 'success', component: SuccessComponent },
+  { path: 'success', redirectTo: 'dashboard', component: SuccessComponent },
 
 
   { 
