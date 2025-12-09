@@ -47,7 +47,6 @@ public class AuthServiceImpl implements AuthService {
 
         logger.info("Usuario creado: {}", user);
 
-        // Determinar el rol del usuario
         UserRole role = UserRole.CLIENTE;
         if (request.getRole() != null) {
             try {
@@ -71,14 +70,9 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("Error al registrar el usuario");
         }
 
-        // Enviar notificación por email
-        emailService.notificarRegistroExitoso(user.getCorreo(), user.getNombre());
-
-        // Generar el token JWT
         String token = jwtService.generateToken((UserDetails) user);
         logger.debug("Token JWT generado para el usuario con correo: {}", user.getCorreo());
 
-        // Crear el perfil de usuario para la respuesta
         UserProfileResponse profile = new UserProfileResponse();
         profile.setId(user.getId());
         profile.setNombre(user.getNombre());
