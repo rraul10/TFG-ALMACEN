@@ -109,7 +109,6 @@ public class ClienteServiceImpl implements ClienteService {
 
     @Override
     public Cliente getClienteEntityByUserId(Long userId) {
-        // Buscar cliente asociado al userId
         return clienteRepository.findByUserId(userId)
                 .orElseThrow(() -> new ClienteNotFound("Cliente no encontrado para el userId: " + userId));
     }

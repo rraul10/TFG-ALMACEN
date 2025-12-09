@@ -35,7 +35,6 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
-                        // Rutas públicas de autenticación y uploads
                         .requestMatchers(
                                 "/",
                                 "/index.html",

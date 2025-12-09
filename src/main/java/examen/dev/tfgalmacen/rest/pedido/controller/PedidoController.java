@@ -20,7 +20,6 @@ import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,7 +66,7 @@ public class PedidoController {
         }
 
         try {
-            String userEmail = auth.getName(); // aquí puede ser "anonymousUser"
+            String userEmail = auth.getName();
             Long authenticatedUserId = pedidoService.getUserIdByEmail(userEmail);
 
             logger.info("Usuario autenticado email: {}, userId: {}", userEmail, authenticatedUserId);
