@@ -493,7 +493,6 @@ export class SuccessComponent implements OnInit {
     private http: HttpClient,
     private router: Router
   ) {
-    // Generar partículas de fondo
     for (let i = 0; i < 30; i++) {
       this.particles.push({
         x: Math.random() * 100,
