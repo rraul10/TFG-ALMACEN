@@ -1,6 +1,16 @@
--- USERS
+DELETE FROM linea_venta;
+DELETE FROM pedido;
+DELETE FROM cliente;
+DELETE FROM trabajador;
+DELETE FROM user_roles;
 DELETE FROM users;
+
 ALTER SEQUENCE users_id_seq RESTART WITH 1;
+ALTER SEQUENCE cliente_id_seq RESTART WITH 1;
+ALTER SEQUENCE trabajador_id_seq RESTART WITH 1;
+ALTER SEQUENCE pedido_id_seq RESTART WITH 1;
+ALTER SEQUENCE linea_venta_id_seq RESTART WITH 1;
+
 INSERT INTO users (nombre, apellidos, correo, password, telefono, ciudad, foto, created, updated, deleted) VALUES
                                                                                                                ('Admin Principal', 'Admin', 'admin@example.com', '$2a$12$RzuBMEtOONvqORTMnuS.su2amfN7dkrlsTaI.xZc3H8j/QTxYKxV6', '600000001', 'Madrid', 'https://res.cloudinary.com/dkaxfqkvo/image/upload/v1764953247/persona3_xkd0vp.jpg', NOW(), NOW(), false),
                                                                                                                ('Trabajador Uno', 'Perez', 'trabajador1@example.com', '$2a$12$/d1KeggIn8zzJlkxSiievuWZtxTnPRsx9KhV/34F3ceV1SwZO.WeG', '600000002', 'Barcelona', 'https://res.cloudinary.com/dkaxfqkvo/image/upload/v1764953244/persona13_zyt96q.jpg', NOW(), NOW(), false),
@@ -17,42 +27,42 @@ INSERT INTO users (nombre, apellidos, correo, password, telefono, ciudad, foto, 
                                                                                                                ('Victor', 'Conde', 'victor@example.com', '$2a$12$PFvGQIyLW.a2lKL2q8BLvOT1TAO6uGmYwRPxWaRVhIvFRT9ZOzF6W', '600000013', 'Valencia', 'https://res.cloudinary.com/dkaxfqkvo/image/upload/v1764953712/sasdasdasd_ybfown.jpg', NOW(), NOW(), false),
                                                                                                                ('Javier', 'Garzas', 'javiergarzas@example.com', '$2a$12$PFvGQIyLW.a2lKL2q8BLvOT1TAO6uGmYwRPxWaRVhIvFRT9ZOzF6W', '600000014', 'Sevilla', 'https://res.cloudinary.com/dkaxfqkvo/image/upload/v1764953782/asdasdq_bjhs57.jpg', NOW(), NOW(), false);
 
--- ROLES
 INSERT INTO user_roles (user_id, roles) VALUES
-    (1, 'ADMIN'),
-    (2, 'TRABAJADOR'),
-    (3, 'TRABAJADOR'),
-    (4, 'TRABAJADOR'),
-    (5, 'CLIENTE'),
-    (6, 'CLIENTE'),
-    (7, 'CLIENTE'),
-    (8, 'CLIENTE'),
-    (9, 'CLIENTE'),
-    (10, 'CLIENTE'),
-    (11, 'CLIENTE'),
-    (12, 'CLIENTE'),
-    (13, 'CLIENTE'),
-    (14, 'CLIENTE');
+                                            (1, 'ADMIN'),
+                                            (2, 'TRABAJADOR'),
+                                            (3, 'TRABAJADOR'),
+                                            (4, 'TRABAJADOR'),
+                                            (5, 'CLIENTE'),
+                                            (6, 'CLIENTE'),
+                                            (7, 'CLIENTE'),
+                                            (8, 'CLIENTE'),
+                                            (9, 'CLIENTE'),
+                                            (10, 'CLIENTE'),
+                                            (11, 'CLIENTE'),
+                                            (12, 'CLIENTE'),
+                                            (13, 'CLIENTE'),
+                                            (14, 'CLIENTE');
 
--- CLIENTES (1–10)
 INSERT INTO cliente (id, user_id, direccion_envio, dni, foto_dni, created, updated, deleted) VALUES
-    (1, 5, 'Calle Falsa 123', '11111111A', 'default.jpg', NOW(), NOW(), false),
-    (2, 6, 'Calle Falsa 124', '22222222B', 'foto2.jpg', NOW(), NOW(), false),
-    (3, 7, 'Calle Falsa 125', '33333333C', 'foto3.jpg', NOW(), NOW(), false),
-    (4, 8, 'Calle Falsa 126', '44444444D', 'foto4.jpg', NOW(), NOW(), false),
-    (5, 9, 'Calle Falsa 127', '55555555E', 'foto5.jpg', NOW(), NOW(), false),
-    (6, 10, 'Calle Falsa 128', '66666666F', 'foto6.jpg', NOW(), NOW(), false),
-    (7, 11, 'Calle Falsa 129', '77777777G', 'foto7.jpg', NOW(), NOW(), false),
-    (8, 12, 'Calle Falsa 130', '88888888H', 'foto8.jpg', NOW(), NOW(), false),
-    (9, 13, 'Calle Falsa 131', '99999999I', 'foto9.jpg', NOW(), NOW(), false),
-    (10, 14, 'Calle Falsa 132', '00000000J', 'foto10.jpg', NOW(), NOW(), false);
+                                                                                                 (1, 5, 'Calle Falsa 123', '11111111A', 'default.jpg', NOW(), NOW(), false),
+                                                                                                 (2, 6, 'Calle Falsa 124', '22222222B', 'foto2.jpg', NOW(), NOW(), false),
+                                                                                                 (3, 7, 'Calle Falsa 125', '33333333C', 'foto3.jpg', NOW(), NOW(), false),
+                                                                                                 (4, 8, 'Calle Falsa 126', '44444444D', 'foto4.jpg', NOW(), NOW(), false),
+                                                                                                 (5, 9, 'Calle Falsa 127', '55555555E', 'foto5.jpg', NOW(), NOW(), false),
+                                                                                                 (6, 10, 'Calle Falsa 128', '66666666F', 'foto6.jpg', NOW(), NOW(), false),
+                                                                                                 (7, 11, 'Calle Falsa 129', '77777777G', 'foto7.jpg', NOW(), NOW(), false),
+                                                                                                 (8, 12, 'Calle Falsa 130', '88888888H', 'foto8.jpg', NOW(), NOW(), false),
+                                                                                                 (9, 13, 'Calle Falsa 131', '99999999I', 'foto9.jpg', NOW(), NOW(), false),
+                                                                                                 (10, 14, 'Calle Falsa 132', '00000000J', 'foto10.jpg', NOW(), NOW(), false);
 
+-- ==============================
 -- TRABAJADORES
+-- ==============================
 INSERT INTO trabajador (id, user_id, numero_seguridad_social, created, updated, deleted) VALUES
-    (1, 2, 'SS001', NOW(), NOW(), false),
-    (2, 3, 'SS002', NOW(), NOW(), false),
-    (3, 4, 'SS003', NOW(), NOW(), false),
-    (4, 1, 'SS004', NOW(), NOW(), false);
+                                                                                             (1, 2, 'SS001', NOW(), NOW(), false),
+                                                                                             (2, 3, 'SS002', NOW(), NOW(), false),
+                                                                                             (3, 4, 'SS003', NOW(), NOW(), false),
+                                                                                             (4, 1, 'SS004', NOW(), NOW(), false);
 
 INSERT INTO productos (nombre, tipo, imagen, descripcion, precio, stock, created, updated, is_deleted) VALUES
    ('Auriculares Gaming Xtreme 7.1', 'Auriculares', 'https://res.cloudinary.com/dkaxfqkvo/image/upload/v1764931124/auriculares_vzqsj1.jpg', 'Auriculares para gaming con sonido 7.1 envolvente y micrófono retráctil', 129.99, 50, NOW(), NOW(), false),
