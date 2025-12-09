@@ -257,9 +257,6 @@ public class PedidoServiceImpl implements PedidoService {
 
         pedidoRepository.save(pedido);
 
-        String mensaje = "El estado de su pedido #" + pedido.getId() + " ha sido actualizado a: " + nuevoEstado;
-        emailService.notificarCambioEstadoPedido(pedido, mensaje);
-
         return PedidoMapper.toDto(pedido);
     }
 
