@@ -83,7 +83,7 @@ public class PedidoServiceImpl implements PedidoService {
             SessionCreateParams params = SessionCreateParams.builder()
                     .addAllLineItem(lineItems)
                     .setMode(SessionCreateParams.Mode.PAYMENT)
-                    .setSuccessUrl("https://tfg-almacen-front.onrender.com/success?pedidoId=" + pedido.getId())
+                    .setSuccessUrl("https://tfg-almacen-front.onrender.com/success" + pedido.getId())
                     .setCancelUrl("https://tfg-almacen-front.onrender.com/dashboard")
                     .build();
 
