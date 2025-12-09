@@ -1,4 +1,8 @@
--- Borrar dependencias primero
+-- ==============================
+-- BORRAR DATOS EN ORDEN CORRECTO
+-- ==============================
+
+-- Tablas dependientes
 DELETE FROM password_reset_token;
 DELETE FROM linea_venta;
 DELETE FROM pedido;
@@ -8,13 +12,13 @@ DELETE FROM user_roles;
 DELETE FROM users;
 DELETE FROM productos;
 
+SELECT setval('users_id_seq', COALESCE((SELECT MAX(id) FROM users), 0) + 1, false);
+SELECT setval('cliente_id_seq', COALESCE((SELECT MAX(id) FROM cliente), 0) + 1, false);
+SELECT setval('trabajador_id_seq', COALESCE((SELECT MAX(id) FROM trabajador), 0) + 1, false);
+SELECT setval('pedido_id_seq', COALESCE((SELECT MAX(id) FROM pedido), 0) + 1, false);
+SELECT setval('linea_venta_id_seq', COALESCE((SELECT MAX(id) FROM linea_venta), 0) + 1, false);
+SELECT setval('productos_id_seq', COALESCE((SELECT MAX(id) FROM productos), 0) + 1, false);
 
-
-ALTER SEQUENCE users_id_seq RESTART WITH 1;
-ALTER SEQUENCE cliente_id_seq RESTART WITH 1;
-ALTER SEQUENCE trabajador_id_seq RESTART WITH 1;
-ALTER SEQUENCE pedido_id_seq RESTART WITH 1;
-ALTER SEQUENCE linea_venta_id_seq RESTART WITH 1;
 
 INSERT INTO users (nombre, apellidos, correo, password, telefono, ciudad, foto, created, updated, deleted) VALUES
                                                                                                                ('Admin Principal', 'Admin', 'admin@example.com', '$2a$12$RzuBMEtOONvqORTMnuS.su2amfN7dkrlsTaI.xZc3H8j/QTxYKxV6', '600000001', 'Madrid', 'https://res.cloudinary.com/dkaxfqkvo/image/upload/v1764953247/persona3_xkd0vp.jpg', NOW(), NOW(), false),
