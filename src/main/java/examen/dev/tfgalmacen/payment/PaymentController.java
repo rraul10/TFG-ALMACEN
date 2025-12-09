@@ -54,8 +54,8 @@ public class PaymentController {
 
             SessionCreateParams params = SessionCreateParams.builder()
                     .setMode(SessionCreateParams.Mode.PAYMENT)
-                    .setSuccessUrl("https://tfg-almacen-front.onrender.com/success?pedidoId=" + pedidoId)
-                    .setCancelUrl("https://tfg-almacen-front.onrender.com/cancel")
+                    .setSuccessUrl("https://tfg-almacen-front.onrender.com/success")
+                    .setCancelUrl("https://tfg-almacen-front.onrender.com/dashboard")
                     .addAllLineItem(lineItems)
                     .build();
 
