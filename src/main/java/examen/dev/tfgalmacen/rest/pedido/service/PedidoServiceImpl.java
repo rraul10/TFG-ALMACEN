@@ -37,6 +37,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 import java.io.ByteArrayOutputStream;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -157,7 +158,9 @@ public class PedidoServiceImpl implements PedidoService {
         Pedido pedido = new Pedido();
         pedido.setCliente(cliente);
         pedido.setEstado(EstadoPedido.PENDIENTE);
-        pedido.setFecha(LocalDateTime.now());
+        ZonedDateTime fechaMadrid = ZonedDateTime.now(ZoneId.of("Europe/Madrid"));
+        pedido.setFecha(fechaMadrid.toLocalDateTime());
+
         pedido.setLineasVenta(lineasVenta);
 
         lineasVenta.forEach(lv -> lv.setPedido(pedido));
@@ -218,7 +221,10 @@ public class PedidoServiceImpl implements PedidoService {
         Cliente cliente = clienteService.getClienteEntityByUserId(request.getUserId());
         pedido.setCliente(cliente);
         pedido.setEstado(EstadoPedido.PENDIENTE);
-        pedido.setFecha(LocalDateTime.now(ZoneId.of("Europe/Madrid")));
+
+// ...
+        ZonedDateTime fechaMadrid = ZonedDateTime.now(ZoneId.of("Europe/Madrid"));
+        pedido.setFecha(fechaMadrid.toLocalDateTime());
         pedido.setLineasVenta(new ArrayList<>());
 
         linea.setPedido(pedido);
